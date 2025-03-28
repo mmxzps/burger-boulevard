@@ -1,9 +1,8 @@
-﻿namespace Backend.Models.Entities
+﻿namespace Backend.Models.Entities;
+
+public class Category
 {
-	public class Category
-	{
-		public int Id { get; set; }
-		public required string Name { get; set; }
-		public List<Product> Products { get; set; } = new();
-	}
+  public int Id { get; set; }
+  public required string Name { get; set; }
+  public required List<Product> Products { get; set; }
 }

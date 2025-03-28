@@ -1,9 +1,8 @@
-﻿namespace Backend.Models.Entities
+﻿namespace Backend.Models.Entities;
+
+public class FeaturedProduct
 {
-	public class FeaturedProduct
-	{
-		public int Id { get; set; }
-		public required string Title { get; set; }
-		public required Product Product { get; set; }
-	}
+  public int Id { get; set; }
+  public required string Title { get; set; }
+  public required Product Product { get; set; }
 }

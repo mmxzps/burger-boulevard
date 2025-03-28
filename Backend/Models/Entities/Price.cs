@@ -1,8 +1,7 @@
-﻿namespace Backend.Models.Entities
+﻿namespace Backend.Models.Entities;
+
+public class Price
 {
-	public class Price
-	{
-		public int Id { get; set; }
-		public decimal BasePrice { get; set; }
-	}
+  public int Id { get; set; }
+  public decimal BasePrice { get; set; }
 }
