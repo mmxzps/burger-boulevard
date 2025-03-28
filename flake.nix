@@ -11,6 +11,7 @@
         buildInputs = with pkgs; [
           dotnet-sdk_9
           dotnet-ef
+          omnisharp-roslyn
           nodejs
         ];
       };
