@@ -6,6 +6,4 @@ public class Ingredient
   public required string Name { get; set; }
   public required Price Price { get; set; }
   public bool Vegan { get; set; }
-  public required List<BaseProductIngredient> BaseProductIngredients { get; set; }
-  public required List<PossibleProductIngredient> PossibleProductIngredients { get; set; }
 }
