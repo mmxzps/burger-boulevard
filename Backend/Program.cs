@@ -13,19 +13,21 @@ public class Program
               ?? throw new InvalidOperationException("Missing connection string 'Database'.")));
 
         builder.Services.AddControllers();
-        builder.Services.AddOpenApi();
+
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen(opt => opt.CustomSchemaIds(type => type.ToString()));
 
         var app = builder.Build();
 
         if (app.Environment.IsDevelopment())
         {
-            app.MapOpenApi();
+          app.UseSwagger();
+          app.UseSwaggerUI();
         }
 
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
-
 
         app.MapControllers();
 
