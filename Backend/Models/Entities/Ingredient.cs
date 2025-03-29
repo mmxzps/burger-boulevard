@@ -6,4 +6,5 @@ public class Ingredient
   public required string Name { get; set; }
   public required Price Price { get; set; }
   public bool Vegan { get; set; }
+  public int DisplayOrderIndex { get; set; }
 }
