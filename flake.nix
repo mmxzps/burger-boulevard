@@ -13,6 +13,7 @@
           dotnet-ef
           omnisharp-roslyn
           nodejs
+          sqlcmd
         ];
       };
     }
