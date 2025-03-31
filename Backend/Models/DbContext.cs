@@ -18,17 +18,4 @@ public class BackendContext : DbContext
   public required DbSet<ModifiedOrderProductIngredient> ModifiedOrderProductIngredients { get; set; }
 
   public BackendContext(DbContextOptions<BackendContext> options) : base(options) {}
-  protected override void OnModelCreating(ModelBuilder modelBuilder)
-  {
-	  base.OnModelCreating(modelBuilder);
-
-	  
-	  modelBuilder.Entity<Discount>()
-		  .Property(d => d.Multiplier)
-		  .HasColumnType("decimal(8, 4)");
-
-	  modelBuilder.Entity<Price>()
-		  .Property(p => p.BasePrice)
-		  .HasColumnType("decimal(8, 4)");
-  }
 }
