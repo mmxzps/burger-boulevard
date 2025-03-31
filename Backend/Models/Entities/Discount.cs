@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace Backend.Models.Entities;
 
 public class Discount
