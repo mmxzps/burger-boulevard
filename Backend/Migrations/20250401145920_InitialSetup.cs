@@ -5,7 +5,7 @@
 namespace Backend.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitialSetup : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -24,6 +24,19 @@ namespace Backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Discounts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Multiplier = table.Column<decimal>(type: "decimal(8,4)", precision: 8, scale: 4, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Discounts", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Orders",
                 columns: table => new
                 {
@@ -38,36 +51,16 @@ namespace Backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Sales",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Multiplier = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Sales", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Prices",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    BasePrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    SaleId = table.Column<int>(type: "int", nullable: false)
+                    BasePrice = table.Column<decimal>(type: "decimal(8,4)", precision: 8, scale: 4, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Prices", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Prices_Sales_SaleId",
-                        column: x => x.SaleId,
-                        principalTable: "Sales",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -100,7 +93,8 @@ namespace Backend.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
-                    PriceId = table.Column<int>(type: "int", nullable: false)
+                    PriceId = table.Column<int>(type: "int", nullable: false),
+                    DiscountId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -111,6 +105,12 @@ namespace Backend.Migrations
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Menus_Discounts_DiscountId",
+                        column: x => x.DiscountId,
+                        principalTable: "Discounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Menus_Prices_PriceId",
                         column: x => x.PriceId,
@@ -127,8 +127,9 @@ namespace Backend.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PriceId = table.Column<int>(type: "int", nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
+                    PriceId = table.Column<int>(type: "int", nullable: false),
+                    DiscountId = table.Column<int>(type: "int", nullable: true),
                     MenuId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -140,6 +141,12 @@ namespace Backend.Migrations
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Products_Discounts_DiscountId",
+                        column: x => x.DiscountId,
+                        principalTable: "Discounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Products_Menus_MenuId",
                         column: x => x.MenuId,
@@ -205,19 +212,27 @@ namespace Backend.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    IngredientId = table.Column<int>(type: "int", nullable: false),
                     BaseAmount = table.Column<long>(type: "bigint", nullable: false),
                     MinAmount = table.Column<long>(type: "bigint", nullable: false),
-                    MaxAmount = table.Column<long>(type: "bigint", nullable: false),
-                    ProductId = table.Column<int>(type: "int", nullable: true)
+                    MaxAmount = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ProductIngredients", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_ProductIngredients_Ingredients_IngredientId",
+                        column: x => x.IngredientId,
+                        principalTable: "Ingredients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_ProductIngredients_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -226,24 +241,24 @@ namespace Backend.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    IngredientId = table.Column<int>(type: "int", nullable: false),
-                    Modification = table.Column<int>(type: "int", nullable: false),
-                    OrderProductId = table.Column<int>(type: "int", nullable: true)
+                    OrderProductId = table.Column<int>(type: "int", nullable: false),
+                    Modification = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ModifiedOrderProductIngredients", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ModifiedOrderProductIngredients_Ingredients_IngredientId",
-                        column: x => x.IngredientId,
+                        name: "FK_ModifiedOrderProductIngredients_Ingredients_OrderProductId",
+                        column: x => x.OrderProductId,
                         principalTable: "Ingredients",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ModifiedOrderProductIngredients_OrderProducts_OrderProductId",
                         column: x => x.OrderProductId,
                         principalTable: "OrderProducts",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -262,14 +277,14 @@ namespace Backend.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Menus_DiscountId",
+                table: "Menus",
+                column: "DiscountId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Menus_PriceId",
                 table: "Menus",
                 column: "PriceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ModifiedOrderProductIngredients_IngredientId",
-                table: "ModifiedOrderProductIngredients",
-                column: "IngredientId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ModifiedOrderProductIngredients_OrderProductId",
@@ -287,9 +302,9 @@ namespace Backend.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Prices_SaleId",
-                table: "Prices",
-                column: "SaleId");
+                name: "IX_ProductIngredients_IngredientId",
+                table: "ProductIngredients",
+                column: "IngredientId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductIngredients_ProductId",
@@ -300,6 +315,11 @@ namespace Backend.Migrations
                 name: "IX_Products_CategoryId",
                 table: "Products",
                 column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Products_DiscountId",
+                table: "Products",
+                column: "DiscountId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Products_MenuId",
@@ -325,10 +345,10 @@ namespace Backend.Migrations
                 name: "ProductIngredients");
 
             migrationBuilder.DropTable(
-                name: "Ingredients");
+                name: "OrderProducts");
 
             migrationBuilder.DropTable(
-                name: "OrderProducts");
+                name: "Ingredients");
 
             migrationBuilder.DropTable(
                 name: "Orders");
@@ -343,10 +363,10 @@ namespace Backend.Migrations
                 name: "Categories");
 
             migrationBuilder.DropTable(
-                name: "Prices");
+                name: "Discounts");
 
             migrationBuilder.DropTable(
-                name: "Sales");
+                name: "Prices");
         }
     }
 }
