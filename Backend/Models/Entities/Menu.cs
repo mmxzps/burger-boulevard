@@ -4,7 +4,7 @@ public class Menu
 {
   public int Id { get; set; }
   public required string Name { get; set; }
-  public required ICollection<Product> Products { get; set; }
+  public required ICollection<Product> Products { get; set; } = [];
   public required Category Category { get; set; }
   public required Price Price { get; set; }
   public required Discount Discount { get; set; }
