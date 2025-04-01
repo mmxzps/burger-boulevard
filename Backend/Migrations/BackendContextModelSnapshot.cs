@@ -116,7 +116,7 @@ namespace Backend.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<int>("DiscountId")
+                    b.Property<int?>("DiscountId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -145,9 +145,6 @@ namespace Backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("IngredientId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Modification")
                         .HasColumnType("int");
 
@@ -155,8 +152,6 @@ namespace Backend.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("IngredientId");
 
                     b.HasIndex("OrderProductId");
 
@@ -237,7 +232,7 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("DiscountId")
+                    b.Property<int?>("DiscountId")
                         .HasColumnType("int");
 
                     b.Property<int?>("MenuId")
@@ -328,8 +323,7 @@ namespace Backend.Migrations
                     b.HasOne("Backend.Models.Entities.Discount", "Discount")
                         .WithMany("Menus")
                         .HasForeignKey("DiscountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Backend.Models.Entities.Price", "Price")
                         .WithMany()
@@ -348,14 +342,14 @@ namespace Backend.Migrations
                 {
                     b.HasOne("Backend.Models.Entities.Ingredient", "Ingredient")
                         .WithMany("ModifiedOrderProductIngredients")
-                        .HasForeignKey("IngredientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("OrderProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Backend.Models.Entities.OrderProduct", "OrderProduct")
                         .WithMany("ModifiedOrderProductIngredients")
                         .HasForeignKey("OrderProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Ingredient");
@@ -393,8 +387,7 @@ namespace Backend.Migrations
                     b.HasOne("Backend.Models.Entities.Discount", "Discount")
                         .WithMany("Products")
                         .HasForeignKey("DiscountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Backend.Models.Entities.Menu", null)
                         .WithMany("Products")
@@ -418,13 +411,13 @@ namespace Backend.Migrations
                     b.HasOne("Backend.Models.Entities.Ingredient", "Ingredient")
                         .WithMany("ProductIngredients")
                         .HasForeignKey("IngredientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Backend.Models.Entities.Product", "Product")
                         .WithMany("ProductIngredients")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Ingredient");
