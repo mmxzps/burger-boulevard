@@ -16,12 +16,25 @@ public class BackendContext : DbContext
 	public required DbSet<Order> Orders { get; set; }
 	public required DbSet<OrderProduct> OrderProducts { get; set; }
 	public required DbSet<ModifiedOrderProductIngredient> ModifiedOrderProductIngredients { get; set; }
+	public required DbSet<MenuProduct> MenuProducts { get; set; }
 
 	public BackendContext(DbContextOptions<BackendContext> options) : base(options) { }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		base.OnModelCreating(modelBuilder);
+
+		modelBuilder.Entity<MenuProduct>()
+			.HasOne(mp => mp.Menu)
+			.WithMany(m => m.MenuProducts)
+			.HasForeignKey("MenuId")
+			.OnDelete(DeleteBehavior.Restrict);
+
+		modelBuilder.Entity<MenuProduct>()
+			.HasOne(mp => mp.Product)
+			.WithMany(p => p.MenuProducts)
+			.HasForeignKey("ProductId")
+			.OnDelete(DeleteBehavior.Restrict);
 
 		modelBuilder.Entity<Product>()
 			.HasOne(p => p.Discount)
