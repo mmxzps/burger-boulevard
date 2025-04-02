@@ -49,4 +49,11 @@ export default {
   .card-text h2 {
     border-bottom: 1px solid grey;
   }
+
+.card-container{
+}
+.card:hover{
+  transform: scale(1.01);
+  transition: transform 0.9 eas-out;
+}
 </style>
