@@ -2,9 +2,12 @@ param(
     [string]$ConnectionString
 )
 
-# If no connection string is provided, ask the user for one
 if (-not $ConnectionString) {
-    $ConnectionString = Read-Host "Please enter the database connection string (e.g Server=USERNAME\SQLEXPRESS;Database=BurgerDB;User Id=myusername;Password=mypassword;)"
+    Write-Host "Taking connection string from user-secrets."
+    $ConnectionString = (
+        dotnet user-secrets list --json --project $PSScriptRoot/../Backend
+        | ConvertFrom-Json
+        | Select -ExpandProperty 'ConnectionStrings:Database')
 }
 
 # SQL commands to insert the data
