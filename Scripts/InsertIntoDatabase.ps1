@@ -10,6 +10,7 @@ if (-not $ConnectionString) {
         | Select -ExpandProperty 'ConnectionStrings:Database')
 }
 
+Write-Host "Using connection string: $ConnectionString"
 
 $sqlQueries = @"
 BEGIN TRANSACTION;
@@ -139,26 +140,19 @@ COMMIT;
 "@
 
 
-# Establish database connection
 $connection = New-Object System.Data.SqlClient.SqlConnection
 $connection.ConnectionString = $ConnectionString
 
-# Open the connection and execute the SQL queries
 try {
-    # Debugging: Check if the connection string is valid
-    if ($connection.ConnectionString -eq "") {
-        throw "Connection string is empty."
-    }
-
     $connection.Open()
-    Write-Host "Connection to the database successful!" -ForegroundColor Green
+    Write-Host "Connected to database" -ForegroundColor Green
 
     $command = $connection.CreateCommand()
     $command.CommandText = $sqlQueries
     $command.ExecuteNonQuery()
-    Write-Host "Database populated successfully!" -ForegroundColor Green
+    Write-Host "Database populated" -ForegroundColor Green
 } catch {
-    Write-Host "Error opening connection: $_" -ForegroundColor Red
+    Write-Host "Error: $_" -ForegroundColor Red
     Write-Host "Stack Trace: $($_.Exception.StackTrace)" -ForegroundColor Yellow
 } finally {
     $connection.Close()
