@@ -6,7 +6,7 @@ namespace Backend;
 public class BackendContext : DbContext
 {
 	public required DbSet<Component> Components { get; set; }
-	public required DbSet<ComponentChildPolicy> ComponentChildren { get; set; }
+	public required DbSet<ComponentChildPolicy> ComponentChildPolicies { get; set; }
 	public required DbSet<Category> Categories { get; set; }
 	public required DbSet<Price> Prices { get; set; }
 	public required DbSet<Discount> Discounts { get; set; }
