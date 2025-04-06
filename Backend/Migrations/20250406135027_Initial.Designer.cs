@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Migrations
 {
     [DbContext(typeof(BackendContext))]
-    [Migration("20250403222943_SplitIntoComponents")]
-    partial class SplitIntoComponents
+    [Migration("20250406135027_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -49,17 +49,16 @@ namespace Backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ComponentLevel")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("DiscountId")
                         .HasColumnType("int");
 
-                    b.Property<int>("DisplayOrderIndex")
+                    b.Property<int?>("DisplayOrderIndex")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Level")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -81,7 +80,7 @@ namespace Backend.Migrations
                     b.ToTable("Components");
                 });
 
-            modelBuilder.Entity("Backend.Models.Entities.ComponentChild", b =>
+            modelBuilder.Entity("Backend.Models.Entities.ComponentChildPolicy", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -89,16 +88,7 @@ namespace Backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BaseAmount")
-                        .HasColumnType("int");
-
                     b.Property<int>("ChildId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MaxAmount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MinAmount")
                         .HasColumnType("int");
 
                     b.Property<int>("ParentId")
@@ -248,7 +238,7 @@ namespace Backend.Migrations
                     b.Navigation("Price");
                 });
 
-            modelBuilder.Entity("Backend.Models.Entities.ComponentChild", b =>
+            modelBuilder.Entity("Backend.Models.Entities.ComponentChildPolicy", b =>
                 {
                     b.HasOne("Backend.Models.Entities.Component", "Child")
                         .WithMany()
@@ -257,9 +247,9 @@ namespace Backend.Migrations
                         .IsRequired();
 
                     b.HasOne("Backend.Models.Entities.Component", "Parent")
-                        .WithMany()
+                        .WithMany("ChildPolicies")
                         .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Child");
@@ -320,6 +310,8 @@ namespace Backend.Migrations
 
             modelBuilder.Entity("Backend.Models.Entities.Component", b =>
                 {
+                    b.Navigation("ChildPolicies");
+
                     b.Navigation("OrderComponents");
                 });
 
