@@ -9,7 +9,7 @@ public enum ComponentLevel
   Menu = 2
 }
 
-public class Component
+public class Component : IntoDto<Dto.Component>
 {
   public int Id { get; set; }
   public ComponentLevel Level { get; set; }
@@ -25,8 +25,21 @@ public class Component
   public required Price Price { get; set; }
 	public required Discount? Discount { get; set; }
 
-  // If null, check child components.
-  public bool? Vegan { get; set; }
-  // Only useful for level 0 components.
-  public int? DisplayOrderIndex { get; set; }
+  private bool? _vegan;
+
+  public bool Vegan => _vegan ?? ChildPolicies.Any(p => p.Child.Vegan);
+  public int? DisplayOrderIndex { get; set; } // Only useful for level 0 components.
+
+  public Dto.Component ToDto() => new Dto.Component
+  {
+    Id = Id,
+    Level = Level,
+    Name = Name,
+    Description = Description,
+    Categories = Categories.Select(c => c.ToDto()),
+    Price = Price.BasePrice,
+    Discount = Discount?.Multiplier,
+    Vegan = Vegan,
+    DisplayOrderIndex = DisplayOrderIndex
+  };
 }
