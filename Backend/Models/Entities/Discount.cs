@@ -8,6 +8,5 @@ public class Discount
 	[Precision(8, 4)]
 	public decimal Multiplier { get; set; }
 
-	public ICollection<Menu> Menus { get; set; } = [];
-	public ICollection<Product> Products { get; set; } = [];
+	public virtual ICollection<Component> Components { get; set; } = [];
 }
