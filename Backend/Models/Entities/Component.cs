@@ -9,7 +9,7 @@ public enum ComponentLevel
   Menu = 2
 }
 
-public class Component : IntoDto<Dto.Component>
+public class Component : IIntoDto<Dto.Component>
 {
   public int Id { get; set; }
   public ComponentLevel Level { get; set; }

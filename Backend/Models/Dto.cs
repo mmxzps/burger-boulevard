@@ -1,6 +1,6 @@
 namespace Backend.Models;
 
-public interface IntoDto<T>
+public interface IIntoDto<T>
 {
   T ToDto();
 }

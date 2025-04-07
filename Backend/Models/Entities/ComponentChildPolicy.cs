@@ -2,7 +2,7 @@
 
 namespace Backend.Models.Entities;
 
-public class ComponentChildPolicy : IntoDto<Dto.ComponentChildPolicy>
+public class ComponentChildPolicy : IIntoDto<Dto.ComponentChildPolicy>
 {
   public int Id { get; set; }
   public required Component Parent { get; set; }

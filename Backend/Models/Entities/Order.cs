@@ -7,7 +7,7 @@ public enum OrderStatus
   Done
 }
 
-public class Order : IntoDto<Dto.Order>
+public class Order : IIntoDto<Dto.Order>
 {
   public int Id { get; set; }
   public required OrderStatus Status { get; set; }

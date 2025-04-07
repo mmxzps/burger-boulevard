@@ -1,6 +1,6 @@
 ﻿namespace Backend.Models.Entities;
 
-public class FeaturedComponent : IntoDto<Dto.FeaturedComponent>
+public class FeaturedComponent : IIntoDto<Dto.FeaturedComponent>
 {
   public int Id { get; set; }
   public required string Title { get; set; }
