@@ -3,6 +3,7 @@ using Backend;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Migrations
 {
     [DbContext(typeof(BackendContext))]
-    partial class BackendContextModelSnapshot : ModelSnapshot
+    [Migration("20250407101431_ComponentChanges")]
+    partial class ComponentChanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,9 +68,6 @@ namespace Backend.Migrations
                     b.Property<int>("PriceId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("Vegan")
-                        .HasColumnType("bit");
-
                     b.HasKey("Id");
 
                     b.HasIndex("DiscountId");
@@ -86,15 +86,6 @@ namespace Backend.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ChildId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Default")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Max")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Min")
                         .HasColumnType("int");
 
                     b.Property<int>("ParentId")
