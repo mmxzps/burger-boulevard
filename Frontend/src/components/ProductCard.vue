@@ -6,6 +6,7 @@
             <p>{{ burger.description }}</p>
             <p>{{ burger.price.basePrice +'kr' }}</p>
         </div>
+        <button class="card-button" v-on:click="addToCart(burger)">Add to cart</button>
     </div>
   </div>
 </template>
@@ -15,6 +16,11 @@ export default {
   props: {
     burger: Object,
   },
+  methods:{
+    async addToCart(burger){
+      localStorage.setItem('cart', JSON.stringify(burger))
+    }
+  }
 };
 </script>
 
@@ -50,7 +56,8 @@ export default {
     border-bottom: 1px solid grey;
   }
 
-.card-container{
+.card-button{
+  z-index: 4;
 }
 .card:hover{
   transform: scale(1.01);
