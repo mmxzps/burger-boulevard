@@ -9,7 +9,7 @@ public enum ComponentLevel
   Menu = 2
 }
 
-public class Component : IntoDto<Dto.Component>
+public class Component : IIntoDto<Dto.Component>
 {
   public int Id { get; set; }
   public ComponentLevel Level { get; set; }
@@ -27,7 +27,11 @@ public class Component : IntoDto<Dto.Component>
 
   private bool? _vegan;
 
-  public bool Vegan => _vegan ?? ChildPolicies.Any(p => p.Child.Vegan);
+  public bool Vegan
+  {
+    get => _vegan ?? ChildPolicies.Any(p => p.Child.Vegan);
+    set => _vegan = value;
+  }
   public int? DisplayOrderIndex { get; set; } // Only useful for level 0 components.
 
   public Dto.Component ToDto() => new Dto.Component

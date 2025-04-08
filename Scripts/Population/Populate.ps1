@@ -12,21 +12,8 @@ if (-not $ConnectionString) {
 
 Write-Host "Using connection string: $ConnectionString"
 
-$connection = New-Object System.Data.SqlClient.SqlConnection
-$connection.ConnectionString = $ConnectionString
+Install-Module SqlServer
+Import-Module SqlServer
 
-try {
-    $connection.Open()
-    Write-Host "Connected to database."
-
-    $command = $connection.CreateCommand()
-    $command.CommandText = Get-Content $PSScriptRoot/Populate.sql
-    Write-Host "Executing..."
-    $command.ExecuteNonQuery()
-    Write-Host "Done. Database populated."
-} catch {
-    Write-Host "Error: $_" -ForegroundColor Red
-    Write-Host "Stack Trace: $($_.Exception.StackTrace)" -ForegroundColor Yellow
-} finally {
-    $connection.Close()
-}
+Invoke-SqlCmd -ConnectionString $ConnectionString -InputFile $PSScriptRoot/Populate.sql -QueryTimeout 120 &&
+Write-Host "Done. Database populated."

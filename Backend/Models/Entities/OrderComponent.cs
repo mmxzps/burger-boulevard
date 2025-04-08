@@ -1,6 +1,6 @@
 ﻿namespace Backend.Models.Entities;
 
-public class OrderComponent : IntoDto<Dto.OrderComponent>
+public class OrderComponent : IIntoDto<Dto.OrderComponent>
 {
   public int Id { get; set; }
   public required Order Order { get; set; }
