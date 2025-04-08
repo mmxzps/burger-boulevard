@@ -20,8 +20,15 @@ public class Orders : ControllerBase
   [HttpGet]
   public ActionResult<IEnumerable<Order>> All(BackendContext context) =>
     Ok(context.Orders
-      .AsNoTracking()
-      .Select(o => o.ToDto()));
+	    .AsNoTracking()
+	    .Include(o => o.Components)
+	    .ThenInclude(oc => oc.Component)
+	    .ThenInclude(c => c.Categories)
+	    .Include(o => o.Components)
+	    .ThenInclude(oc => oc.Component)
+	    .ThenInclude(c => c.Price)
+	    .ToList() 
+	    .Select(o => o.ToDto()));
 
   [HttpGet("{id}")]
   public async Task<ActionResult<Order>> Get(BackendContext context, int id) =>

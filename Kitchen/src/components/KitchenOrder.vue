@@ -1,93 +1,49 @@
 <template>
-    <div class="order">
-        <h2>Order # {{ order.id }}</h2>
-        <p>Status: {{ order.status }}</p>
-        <p>Take Away: {{ order.takeAway ? 'Yes' : 'No' }}</p>
+  <div v-for="order in orders" :key="order.id" class="order">
+    <h2>Order # {{ order.id }}</h2>
+    <p>Status: {{ order.status === 0 ? "Pending" : order.status === 1 ? "Preparing" : order.status === 2 ? "Done" : "Unknown"}}</p>
+    <p>Take Away: {{ order.takeAway ? 'Yes' : 'No' }}</p>
 
-        <div v-for="orderComponent in order.orderComponents" :key="orderComponent.id" class="order-item">
-            <template v-if="orderComponent.component.level === 'Menu'">
-                <div>
-                    <h3>{{ orderComponent.component.name }}</h3>
-                    <div v-for="childPolicy in orderComponent.component.childPolicies" :key="childPolicy.id">
-                        <div v-if="childPolicy.child.level === 'Product'">
-                            <h4>{{ childPolicy.child.name }}</h4>
-                            <div v-for="ingredient in childPolicy.child.childPolicies" :key="ingredient.id">
-                                <p>{{ ingredient.child.name }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </template>
-            
-            <template v-else-if="orderComponent.component.level === 'Product'">
-                <div>
-                    <h3>{{ orderComponent.component.name }}</h3>
-                    <div v-for="ingredient in orderComponent.component.childPolicies" :key="ingredient.id">
-                        <p>{{ ingredient.child.name }}</p>
-                    </div>
-                </div>
-            </template>
-        </div>
+    <div v-for="orderComponent in order.components" :key="orderComponent.id" class="order-item">
+      
+      <div>
+        <h3>{{ orderComponent.component.name ?? "Product name missing" }}</h3>
+        <p>{{ orderComponent.component.description ?? "Description missing" }}</p>
+        <p>Price: {{ orderComponent.component.price }} SEK</p>
+      </div>
     </div>
+  </div>
 </template>
 
 <script>
+import { ordersStore } from './ordersStore.js';
+
 export default {
   data() {
     return {
-      order: {
-        id: 1,
-        status: "Pending",
-        takeAway: false,
-        orderComponents: [
-          {
-            id: 1,
-            component: {
-              id: 101,
-              level: "Menu",
-              name: "Combo Meal",
-              childPolicies: [
-                {
-                  id: 1,
-                  child: {
-                    id: 201,
-                    level: "Product",
-                    name: "Cheeseburger",
-                    childPolicies: [
-                      { id: 301, child: { id: 401, name: "Lettuce" } },
-                      { id: 302, child: { id: 402, name: "Tomato" } },
-                    ],
-                  },
-                },
-                {
-                  id: 2,
-                  child: {
-                    id: 202,
-                    level: "Product",
-                    name: "Fries",
-                    childPolicies: [],
-                  },
-                },
-              ],
-            },
-          },
-          {
-            id: 2,
-            component: {
-              id: 102,
-              level: "Product",
-              name: "Soda",
-              childPolicies: [
-                { id: 303, child: { id: 403, name: "Ice" } },
-              ],
-            },
-          },
-        ],
-      },
+      orders: ordersStore.orders
     };
   },
+  async mounted() {
+  try {
+    const response = await fetch('https://localhost:7115/api/Orders');
+    if (!response.ok) {
+      throw new Error('Failed to fetch data');
+    }
+    const data = await response.json();
+    console.log('Fetched orders data:', data); // Log the data to inspect
+    this.orders = data;  // Store it in your component's orders
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+  }
+}
+  // async mounted() {
+  //   await ordersStore.fetchOrders();
+  //   this.orders = ordersStore.orders;
+  // }
 };
 </script>
+
 
 <style scoped>
 .order {
