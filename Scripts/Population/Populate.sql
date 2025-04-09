@@ -88,58 +88,51 @@ SET IDENTITY_INSERT Components OFF;
 INSERT INTO FeaturedComponents (Title, ComponentId) VALUES
   ('Exklusivt för ITHS-studenter', 22);
 
--- Default defaults to 0
--- Min defaults to 0
--- Max defaults to Default
-
--- Optional children (Min = 0)
-INSERT INTO ComponentChildPolicies (ParentId, ChildId, [Default], [Max]) VALUES
+-- Policies
+INSERT INTO ComponentChildPolicies (ParentId, ChildId, [Default], [Min], [Max]) VALUES
   -- Ingredienser: Cheeseburgare
-  (20, 1,  2, 2), -- Bröd
-  (20, 6,  1, 3), -- Ost
-  (20, 7,  1, 3), -- Sallad
-  (20, 8,  1, 3), -- Tomat
-  (20, 9,  1, 3), -- Syltlök
-  (20, 10, 1, 1), -- Majonnäs
+  (20, 3,  1, 1, 3), -- Köttburgare
+  (20, 1,  2, 0, 2), -- Bröd
+  (20, 6,  1, 0, 3), -- Ost
+  (20, 7,  1, 0, 3), -- Sallad
+  (20, 8,  1, 0, 3), -- Tomat
+  (20, 9,  1, 0, 3), -- Syltlök
+  (20, 10, 1, 0, 1), -- Majonnäs
 
   -- Ingredienser: Vegoburgare
-  (21, 2,  2, 2), -- Veganskt bröd
-  (21, 11, 1, 3), -- Quinoa
-  (21, 12, 1, 3), -- Avokado
-  (21, 7,  1, 3), -- Sallad
-  (21, 8,  1, 3), -- Tomat
-  (21, 13, 1, 3), -- Rödlök
-  (21, 14, 1, 1), -- Vegansk majonnäs
+  (21, 5,  1, 1, 3), -- Växtbaserad hamburgare
+  (21, 2,  2, 0, 2), -- Veganskt bröd
+  (21, 11, 1, 0, 3), -- Quinoa
+  (21, 12, 1, 0, 3), -- Avokado
+  (21, 7,  1, 0, 3), -- Sallad
+  (21, 8,  1, 0, 3), -- Tomat
+  (21, 13, 1, 0, 3), -- Rödlök
+  (21, 14, 1, 0, 1), -- Vegansk majonnäs
 
   -- Ingredienser: ITHS-special
-  (22, 1,  1, 3), -- Bröd
-  (22, 15, 1, 3), -- Bacon
-  (22, 16, 1, 1), -- BBQ-sås
-  (22, 6,  1, 3), -- Ost
-  (22, 17, 1, 3); -- Coleslaw
-
--- Required children (Min > 0)
-INSERT INTO ComponentChildPolicies (ParentId, ChildId, [Default], [Min], [Max]) VALUES
-  (20, 3,  1, 1, 3), -- Köttburgare
-  (21, 5,  1, 1, 3), -- Växtbaserad hamburgare
-  (22, 3,  1, 1, 3); -- Köttburgare
+  (22, 3,  1, 1, 3), -- Köttburgare
+  (22, 1,  1, 0, 3), -- Bröd
+  (22, 15, 1, 0, 3), -- Bacon
+  (22, 16, 1, 0, 1), -- BBQ-sås
+  (22, 6,  1, 0, 3), -- Ost
+  (22, 17, 1, 0, 3); -- Coleslaw
 
 -- Menus
-INSERT INTO ComponentChildPolicies (ParentId, ChildId, [Default], [Min]) VALUES
+INSERT INTO ComponentChildPolicies (ParentId, ChildId, [Default], [Min], [Max]) VALUES
   -- Cheeseburgarmeny
-  (31, 20, 1, 1), -- Cheeseburgare
-  (31, 26, 1, 1), -- Pommes Frites (Medium)
-  (31, 23, 1, 1), -- Coca Cola
+  (31, 20, 1, 1, 1), -- Cheeseburgare
+  (31, 26, 1, 1, 1), -- Pommes Frites (Medium)
+  (31, 23, 1, 1, 1), -- Coca Cola
 
   -- Vegoburgarmeny
-  (32, 21, 1, 1), -- Vegoburgare
-  (32, 26, 1, 1), -- Pommes Frites (Medium)
-  (32, 23, 1, 1), -- Coca Cola
+  (32, 21, 1, 1, 1), -- Vegoburgare
+  (32, 26, 1, 1, 1), -- Pommes Frites (Medium)
+  (32, 23, 1, 1, 1), -- Coca Cola
 
   -- Vegoburgarmeny
-  (33, 22, 1, 1), -- ITHS-special
-  (33, 26, 1, 1), -- Pommes Frites (Medium)
-  (33, 23, 1, 1); -- Coca Cola
+  (33, 22, 1, 1, 1), -- ITHS-special
+  (33, 26, 1, 1, 1), -- Pommes Frites (Medium)
+  (33, 23, 1, 1, 1); -- Coca Cola
 
 INSERT INTO CategoryComponent (CategoriesId, ComponentsId) VALUES
   (1, 20),
