@@ -16,16 +16,43 @@ public class Orders : ControllerBase
         { "done", Models.Entities.OrderStatus.Done },
         });
 
-  // TODO Fix proper safety guards around these endpoints.
+  // TODO Create proper safety guards around these endpoints.
   [HttpGet]
   public ActionResult<IEnumerable<Order>> All(BackendContext context) =>
     Ok(context.Orders
       .AsNoTracking()
+      .Include(o => o.Components)
+      .ThenInclude(oc => oc.Component)
       .Select(o => o.ToDto()));
 
   [HttpGet("{id}")]
   public async Task<ActionResult<Order>> Get(BackendContext context, int id) =>
-    Ok((await context.Orders
-        .AsNoTracking()
-        .FirstOrDefaultAsync(o => o.Id == id))?.ToDto());
+    (await context.Orders
+     .AsNoTracking()
+     .Include(o => o.Components)
+     .ThenInclude(oc => oc.Component)
+     .FirstOrDefaultAsync(o => o.Id == id))?.ToDto() is Order order ?
+    Ok(order) : NotFound();
+
+  [HttpPost]
+  public async Task<ActionResult<Order>> Create(BackendContext context, Models.Dto.Create.Order createOrder)
+  {
+    var order = context.Orders
+      .Add(new Models.Entities.Order
+        {
+        Status = Models.Entities.OrderStatus.Pending,
+        TakeAway = createOrder.TakeAway,
+        });
+    order.Entity.Components = createOrder.Components.SelectMany(oc =>
+        oc.ToFlatCrossReferencingOrderComponents(context, order.Entity, null)).ToList();
+    await context.SaveChangesAsync();
+
+    var response = (await context.Orders
+     .AsNoTracking()
+     .Include(o => o.Components)
+     .ThenInclude(oc => oc.Component)
+     .FirstOrDefaultAsync(o => o.Id == order.Entity.Id))?.ToDto();
+
+    return CreatedAtAction(nameof(Create), response);
+  }
 }
