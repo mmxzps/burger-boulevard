@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace Backend.Models.Entities;
 
 public enum ComponentLevel

@@ -1,5 +1,3 @@
-using System.Data;
-
 namespace Backend.Models.Dto;
 
 public class ComponentChildPolicy

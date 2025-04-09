@@ -1,6 +1,4 @@
-﻿using System.Data;
-
-namespace Backend.Models.Entities;
+﻿namespace Backend.Models.Entities;
 
 public class ComponentChildPolicy : IIntoDto<Dto.ComponentChildPolicy>
 {
