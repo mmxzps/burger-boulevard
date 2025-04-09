@@ -13,6 +13,7 @@ public class BackendContext : DbContext
 	public required DbSet<FeaturedComponent> FeaturedComponents { get; set; }
 	public required DbSet<Order> Orders { get; set; }
 	public required DbSet<OrderComponent> OrderComponents { get; set; }
+	public required DbSet<Image> Images { get; set; }
 
 	public BackendContext(DbContextOptions<BackendContext> options) : base(options) { }
 

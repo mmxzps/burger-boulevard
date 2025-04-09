@@ -7,6 +7,7 @@ DELETE FROM Categories;
 DELETE FROM Components;
 DELETE FROM ComponentChildPolicies;
 DELETE FROM FeaturedComponents;
+DELETE FROM Images;
 
 SET IDENTITY_INSERT Discounts ON;
 INSERT INTO Discounts (Id, Multiplier) VALUES
