@@ -28,13 +28,6 @@ public class Component : IIntoDto<Dto.Component>
   public required Price Price { get; set; }
 	public required Discount? Discount { get; set; }
 
-  private bool? _vegan;
-
-  public bool Vegan
-  {
-    get => _vegan ?? ChildPolicies.Any(p => p.Child.Vegan);
-    set => _vegan = value;
-  }
   public int? DisplayOrderIndex { get; set; } // Only useful for level 0 components.
 
   public Dto.Component ToDto() => new Dto.Component
@@ -47,7 +40,6 @@ public class Component : IIntoDto<Dto.Component>
     Categories = Categories.Select(c => c.ToDto()),
     Price = Price.BasePrice,
     Discount = Discount?.Multiplier,
-    Vegan = Vegan,
     DisplayOrderIndex = DisplayOrderIndex
   };
 }

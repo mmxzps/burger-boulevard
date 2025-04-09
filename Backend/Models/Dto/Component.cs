@@ -12,6 +12,5 @@ public class Component
   public decimal Price { get; set; }
 	public decimal? Discount { get; set; }
 
-  public bool? Vegan { get; set; }
   public int? DisplayOrderIndex { get; set; }
 }

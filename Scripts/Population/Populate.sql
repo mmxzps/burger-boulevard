@@ -41,26 +41,26 @@ SET IDENTITY_INSERT Categories OFF;
 
 -- Ingredients
 SET IDENTITY_INSERT Components ON;
-INSERT INTO Components (Id, Level, Name, PriceId, Vegan, DisplayOrderIndex) VALUES
-  (1,  0, 'Bröd',                   1, 0, 1),
-  (2,  0, 'Veganskt bröd',          1, 1, 2),
-  (3,  0, 'Köttburgare',            2, 0, 3),
-  (4,  0, 'Kycklingburgare',        2, 0, 4),
-  (5,  0, 'Växtbaserad hamburgare', 2, 1, 5),
-  (6,  0, 'Ost',                    2, 0, 6),
-  (7,  0, 'Sallad',                 1, 1, 7),
-  (8,  0, 'Tomat',                  1, 1, 8),
-  (9,  0, 'Syltlök',                1, 1, 9),
-  (10, 0, 'Majonnäs',               1, 0, 10),
-  (11, 0, 'Quinoa',                 1, 1, 11),
-  (12, 0, 'Avokado',                1, 1, 12),
-  (13, 0, 'Rödlök',                 1, 1, 13),
-  (14, 0, 'Vegansk majonnäs',       1, 1, 14),
-  (15, 0, 'Bacon',                  2, 0, 15),
-  (16, 0, 'BBQ-sås',                1, 0, 16),
-  (17, 0, 'Coleslaw',               1, 0, 17),
-  (18, 0, 'Ketchup',                1, 1, 18),
-  (19, 0, 'Senap',                  1, 1, 19);
+INSERT INTO Components (Id, Level, Name, PriceId, DisplayOrderIndex) VALUES
+  (1,  0, 'Bröd',                   1, 1),
+  (2,  0, 'Veganskt bröd',          1, 2),
+  (3,  0, 'Köttburgare',            2, 3),
+  (4,  0, 'Kycklingburgare',        2, 4),
+  (5,  0, 'Växtbaserad hamburgare', 2, 5),
+  (6,  0, 'Ost',                    2, 6),
+  (7,  0, 'Sallad',                 1, 7),
+  (8,  0, 'Tomat',                  1, 8),
+  (9,  0, 'Syltlök',                1, 9),
+  (10, 0, 'Majonnäs',               1, 10),
+  (11, 0, 'Quinoa',                 1, 11),
+  (12, 0, 'Avokado',                1, 12),
+  (13, 0, 'Rödlök',                 1, 13),
+  (14, 0, 'Vegansk majonnäs',       1, 14),
+  (15, 0, 'Bacon',                  2, 15),
+  (16, 0, 'BBQ-sås',                1, 16),
+  (17, 0, 'Coleslaw',               1, 17),
+  (18, 0, 'Ketchup',                1, 18),
+  (19, 0, 'Senap',                  1, 19);
 
 -- Products
 INSERT INTO Components (Id, Level, Name, Description, PriceId) VALUES
@@ -76,8 +76,8 @@ INSERT INTO Components (Id, Level, Name, Description, PriceId) VALUES
   (29, 1, 'Currysås',               'En kryddig och aromatisk sås som ger en indisk touch till dina måltider.',                                      1),
   (30, 1, 'Cheddardipsås',          'En krämig och ostig sås med cheddar, perfekt för att doppa pommes frites eller grönsaksstavar.',                1);
 
-INSERT INTO Components (Id, Level, Name, Description, PriceId, Vegan) VALUES
-  (60, 1, 'Hot Wing', 'Krispiga och heta kycklingvingar med en rökig BBQ-sås', 4, 0);
+INSERT INTO Components (Id, Level, Name, Description, PriceId) VALUES
+  (60, 1, 'Hot Wing', 'Krispiga och heta kycklingvingar med en rökig BBQ-sås', 4);
 
 INSERT INTO Components (Id, Level, Name, PriceId) VALUES
   (31, 2, 'Cheeseburgarmeny', 5),
