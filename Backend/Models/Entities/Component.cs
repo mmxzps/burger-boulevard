@@ -18,7 +18,7 @@ public class Component : IIntoDto<Dto.Component>
   public int? ImageId { get; set; }
   public required Image? Image { get; set; }
   public string? ImageUrl =>
-    ImageId is int id ? $"/Images/{id}" : null;
+    ImageId is int id ? $"/api/Images/{id}" : null;
 	public virtual ICollection<Category> Categories { get; set; } = [];
 
   public virtual ICollection<ComponentChildPolicy> ChildPolicies { get; set; } = [];
