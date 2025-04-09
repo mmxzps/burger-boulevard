@@ -6,7 +6,7 @@
             <p>{{ burger.description }}</p>
             <p>{{ burger.price.basePrice +'kr' }}</p>
         </div>
-        <button class="card-button" v-on:click="addToCart(burger)">Add to cart</button>
+        <button class="card-button" v-on:click="addToCart(burger)">Lägg till</button>
     </div>
   </div>
 </template>
@@ -16,10 +16,20 @@ export default {
   props: {
     burger: Object,
   },
+  data(){
+    return{
+     
+    }
+  },
   methods:{
     async addToCart(burger){
-      localStorage.setItem('cart', JSON.stringify(burger))
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      cart.push(burger);
+      localStorage.setItem('cart', JSON.stringify(cart))
     }
+  },
+  mounted(){
+    // this.cart = JSON.parse(localStorage.getItem('cart')) || [];
   }
 };
 </script>
