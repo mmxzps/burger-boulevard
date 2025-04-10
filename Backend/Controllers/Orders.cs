@@ -43,16 +43,15 @@ public class Orders : ControllerBase
         Status = Models.Entities.OrderStatus.Pending,
         TakeAway = createOrder.TakeAway,
         });
-    order.Entity.Components = createOrder.Components.SelectMany(oc =>
-        oc.ToFlatCrossReferencingOrderComponents(context, order.Entity, null)).ToList();
+    order.Entity.Components = createOrder.ToOrderComponentEntities(context, order.Entity);
     await context.SaveChangesAsync();
 
-    var response = (await context.Orders
-     .AsNoTracking()
-     .Include(o => o.Components)
-     .ThenInclude(oc => oc.Component)
-     .FirstOrDefaultAsync(o => o.Id == order.Entity.Id))?.ToDto();
-
-    return CreatedAtAction(nameof(Create), response);
+    return CreatedAtAction(
+        nameof(Create),
+        (await context.Orders
+         .AsNoTracking()
+         .Include(o => o.Components)
+         .ThenInclude(oc => oc.Component)
+         .FirstOrDefaultAsync(o => o.Id == order.Entity.Id))?.ToDto());
   }
 }

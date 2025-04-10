@@ -8,8 +8,9 @@ public class OrderComponent
   public Models.Entities.OrderComponent ToOrderComponentEntity(
       BackendContext context,
       Entities.Order order,
-      Entities.OrderComponent? parent) =>
-    new Entities.OrderComponent
+      Entities.OrderComponent? parent)
+  {
+    var entity = new Entities.OrderComponent
     {
       Order = order,
       Component = context.Components.Find(ComponentId)
@@ -18,21 +19,9 @@ public class OrderComponent
       Children = []
     };
 
-  public ICollection<Entities.OrderComponent> ToFlatCrossReferencingOrderComponents(
-      BackendContext context,
-      Entities.Order order,
-      Entities.OrderComponent? parent)
-  {
-     var thisComponent = ToOrderComponentEntity(context, order, parent);
-     var descendantComponents = Children.SelectMany(oc =>
-         oc.ToFlatCrossReferencingOrderComponents(context, order, thisComponent)).ToList();
-     thisComponent.Children = descendantComponents.Where(oc => oc.Parent == thisComponent).ToList();
+    entity.Children = Children.Select(oc =>
+        oc.ToOrderComponentEntity(context, order, entity)).ToList();
 
-     var flatComponents = new List<Entities.OrderComponent>(descendantComponents);
-
-     if (parent is null)
-       flatComponents.Add(thisComponent);
-
-     return flatComponents;
+    return entity;
   }
 }
