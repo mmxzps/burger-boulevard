@@ -6,6 +6,7 @@ export default {
       burgers: [], // lagrar datan från api i en array
     };
   },
+  
   methods: {
     async getApi() {
       try {
@@ -19,9 +20,11 @@ export default {
       }
     },
   },
+
   mounted() {
     this.getApi();
   },
+
   components:{
     ProductCard
   }
