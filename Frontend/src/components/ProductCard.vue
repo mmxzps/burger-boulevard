@@ -38,6 +38,7 @@ export default {
   background-color: #242323;
   height: auto;
   min-height: 100px;
+  width: 20rem;
 }
 .card-text{
   height:100%;

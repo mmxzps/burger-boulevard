@@ -6,11 +6,9 @@ import Cart from './components/Cart.vue';
 export default {
   components: {
     GetAllPoducts,
-    NavBar
+    NavBar,
+    Cart
   }
-}
-export default{
-  components:{GetAllPoducts, Cart}
 }
 </script>
 
@@ -29,10 +27,6 @@ body {
   padding: 0;
   font-family: Arial, sans-serif;
 }
-    <GetAllPoducts/>
-    <Cart/>
-
-</template>
 
 #app {
   min-height: 100vh;

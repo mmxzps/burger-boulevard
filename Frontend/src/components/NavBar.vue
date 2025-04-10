@@ -21,11 +21,13 @@
         <li><router-link @click="closeMenu" to="/varmdryck">Varm Dryck</router-link></li>
         <li><router-link @click="closeMenu" to="/dessert">Dessert</router-link></li>
       </ul>
+      <Cart/>
     </div>
   </nav>
 </template>
 
 <script>
+import Cart from './Cart.vue';
 export default {
   name: "NavBar",
   data() {
@@ -41,6 +43,9 @@ export default {
       // Close the menu. Triggered by clicking a link
       this.isOpen = false;
     },
+  },
+  components: {
+    Cart
   },
 };
 </script>
