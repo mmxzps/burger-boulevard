@@ -12,48 +12,38 @@
 </template>
 
 <script>
+import { useCartStore } from '@/stores/cart';
+
 export default {
   props: {
     burger: Object,
   },
-  data(){
-    return{
-     
+  methods: {
+    addToCart(burger) {
+      const cartStore = useCartStore();
+      cartStore.addToCart(burger);
     }
-  },
-  methods:{
-    async addToCart(burger){
-      let cart = JSON.parse(localStorage.getItem('cart')) || [];
-      cart.push(burger);
-      localStorage.setItem('cart', JSON.stringify(cart))
-    }
-  },
-  mounted(){
-    // this.cart = JSON.parse(localStorage.getItem('cart')) || [];
   }
 };
 </script>
 
+
 <style scoped>
 .card {
-  border: 1px solid #ccc;
+  border: 1px solid #534f4f;
   padding: 0px 3px;
   margin: 10px 0;
   border-radius: 8px;
-  background-color: grey;
-  background-image: url('https://images.unsplash.com/photo-1551782450-17144efb9c50?q=80&w=960');
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover; 
+  border-radius: 3px;
+  background-color: #242323;
   height: auto;
   min-height: 100px;
 }
 .card-text{
-  background-color: rgb(0, 10, 0, 0.8);
   height:100%;
   min-height:98px;
   padding:10px;
-  color:white;
+  color:rgb(196, 190, 190);
   text-shadow: 1px 1px black;
 
 }
@@ -67,7 +57,14 @@ export default {
   }
 
 .card-button{
-  z-index: 4;
+  margin: 10px;
+  border:1px solid black;
+  padding: 5px;
+  border-radius: 3px;
+  color:white;
+  font: 1em sans-serif;
+  background-color: #4f4492;
+  width: 4.5rem;
 }
 .card:hover{
   transform: scale(1.01);
