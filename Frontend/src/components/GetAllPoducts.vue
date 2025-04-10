@@ -10,7 +10,7 @@ export default {
   methods: {
     async getApi() {
       try {
-        const res = await fetch('https://localhost:7115/api/Products');
+        const res = await fetch('https://localhost:7115/api/Components');
         const data = await res.json();
         
         this.burgers = data; // spara svaret i burgers[]

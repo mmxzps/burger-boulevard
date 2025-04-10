@@ -41,7 +41,7 @@ export default {
   <div class="cart-container" :class="{visa: cartVisible}">
     <ul>
       <li v-for="(item, index) in productList" :key="index" class="cart-li">
-        <span>{{ item.name }} - {{ item.price.basePrice }} kr</span>
+        <span>{{ item.name }} - {{ item.price.current }} kr</span>
         <button class="cart-button" @click="removeFromCart(index)">Ta bort</button>
       </li>
     </ul>

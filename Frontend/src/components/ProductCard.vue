@@ -4,7 +4,7 @@
           <div class="card-text">
             <h2>{{ burger.name }}</h2>
             <p>{{ burger.description }}</p>
-            <p>{{ burger.price.basePrice +'kr' }}</p>
+            <p>{{ burger.price.current +'kr' }}</p>
         </div>
         <button class="card-button" v-on:click="addToCart(burger)">Lägg till</button>
     </div>
