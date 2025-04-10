@@ -1,170 +1,89 @@
 <template>
   <div v-for="order in orders" :key="order.id" class="order">
-    <h2>Order # {{ order.id }}</h2>
-    <p>Status: {{ order.status === 0 ? "Pending" : order.status === 1 ? "Preparing" : order.status === 2 ? "Done" : "Unknown"}}</p>
+    <h2>Order #{{ order.id }}</h2>
+    <p>Status: {{ getStatusText(order.status) }}</p>
     <p>Take Away: {{ order.takeAway ? 'Yes' : 'No' }}</p>
 
-    <div v-for="orderComponent in order.components" :key="orderComponent.id" class="order-item">
-      
-      <div>
-        <h3>{{ orderComponent.component.name ?? "Product name missing" }}</h3>
-        <p>{{ orderComponent.component.description ?? "Description missing" }}</p>
-        <p>Price: {{ orderComponent.component.price }} SEK</p>
-      </div>
+    <div v-for="item in order.components" :key="item.id" class="item">
+      <h3>{{ item.component?.name || "Unnamed" }}</h3>
+      <p>{{ item.component?.description || "No description" }}</p>
+      <p>{{ item.component?.price }} SEK</p>
     </div>
   </div>
 </template>
 
 <script>
-import { ordersStore } from './ordersStore.js';
-
 export default {
   data() {
     return {
-      orders: ordersStore.orders
+      orders: [],
     };
   },
+  methods: {
+    getStatusText(status) {
+      return ['Pending', 'Preparing', 'Done'][status] ?? 'Unknown';
+    },
+  },
   async mounted() {
-  try {
-    const response = await fetch('https://localhost:7115/api/Orders');
-    if (!response.ok) {
-      throw new Error('Failed to fetch data');
+    try {
+      const res = await fetch('https://localhost:7115/api/Orders');
+      if (!res.ok) throw new Error('Fetch failed');
+      this.orders = await res.json();
+    } catch (err) {
+      console.error(err);
     }
-    const data = await response.json();
-    console.log('Fetched orders data:', data); // Log the data to inspect
-    this.orders = data;  // Store it in your component's orders
-  } catch (error) {
-    console.error('Error fetching orders:', error);
-  }
-}
-  // async mounted() {
-  //   await ordersStore.fetchOrders();
-  //   this.orders = ordersStore.orders;
-  // }
+  },
 };
 </script>
 
-
 <style scoped>
+body {
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+}
 .order {
-  font-family: 'Arial', sans-serif;
-  padding: 20px;
-  max-width: 900px;
-  margin: 0 auto;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 1rem auto;
+  padding: 1rem;
+  max-width: 600px;
+  background: #fafafa;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 }
 
-
 .order h2 {
-  font-size: 2rem;
-  margin-bottom: 10px;
-  color: #333;
+  margin-bottom: 0.5rem;
 }
 
 .order p {
-  font-size: 1rem;
-  color: #666;
-  margin-bottom: 10px;
-}
-
-
-.order-item {
-  margin-bottom: 20px;
-  padding: 15px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.order-item h3 {
-  font-size: 1.5rem;
-  color: #444;
-  margin-bottom: 10px;
-}
-
-.order-item h4 {
-  font-size: 1.2rem;
-  margin-bottom: 5px;
+  margin: 0.25rem 0;
   color: #555;
 }
-
-
-.order-item p {
-  font-size: 1rem;
-  color: #777;
-  margin-left: 20px;
+order:first-child {
+  margin-top: 0;
+  padding-top: 20px;
 }
 
-
-.order-item ul {
-  list-style-type: none;
-  padding-left: 20px;
-}
-
-.order-item ul li {
-  margin-bottom: 5px;
-}
-
-.order-item div {
-  margin-bottom: 15px;
-}
-
-.order-item div p {
-  font-size: 1rem;
-  color: #666;
-}
-
-
-.order-item .menu {
+.item {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #fff;
+  border-radius: 6px;
   border-left: 4px solid #007bff;
-  padding-left: 20px;
-  margin-top: 15px;
+  transition: background 0.2s;
 }
 
-.order-item .product {
-  border-left: 4px solid #28a745;
-  padding-left: 20px;
-  margin-top: 10px;
+.item:hover {
+  background: #f0f0f0;
 }
 
-
-.order-item .ingredient {
-  font-size: 1rem;
-  color: #888;
-  margin-left: 20px;
-  padding: 5px 0;
+.item h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1.1rem;
 }
 
-
-.order-item:hover {
-  background-color: #f4f4f4;
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.order-item h3:hover {
-  color: #007bff;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .order {
-    padding: 15px;
-    max-width: 100%;
-  }
-
-  .order-item h3 {
-    font-size: 1.3rem;
-  }
-
-  .order-item h4 {
-    font-size: 1rem;
-  }
-
-  .order-item p {
-    font-size: 0.9rem;
-  }
+.item p {
+  margin: 0.15rem 0;
+  color: #666;
 }
 </style>
