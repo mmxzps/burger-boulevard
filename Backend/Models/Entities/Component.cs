@@ -23,6 +23,8 @@ public class Component : IIntoDto<Dto.Component>
 
   public virtual ICollection<OrderComponent> OrderComponents { get; set; } = [];
 
+  public decimal CurrentPrice =>
+    Price.BasePrice * (Discount?.Multiplier ?? 1);
   public required Price Price { get; set; }
 	public required Discount? Discount { get; set; }
 
@@ -36,7 +38,7 @@ public class Component : IIntoDto<Dto.Component>
     Description = Description,
     ImageUrl = ImageUrl,
     Categories = Categories.Select(c => c.ToDto()),
-    Price = Price.BasePrice,
+    OriginalPrice = Price.BasePrice,
     Discount = Discount?.Multiplier,
     DisplayOrderIndex = DisplayOrderIndex
   };
