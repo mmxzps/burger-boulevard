@@ -1,6 +1,7 @@
-using Backend.Models.Dto;
+using Backend.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Order = Backend.Models.Dto.Order;
 
 namespace Backend.Controllers;
 
@@ -35,4 +36,24 @@ public class Orders : ControllerBase
     Ok((await context.Orders
         .AsNoTracking()
         .FirstOrDefaultAsync(o => o.Id == id))?.ToDto());
+
+	[HttpPut("{id}")]
+	public async Task<ActionResult> UpdateStatus(BackendContext context, int id, [FromBody] OrderStatus status)
+	{
+		var order = await context.Orders
+			.FindAsync(id);
+
+		if (order == null)
+			return NotFound();
+
+		if (order.Status != status)
+		{
+			order.Status = status;
+			await context.SaveChangesAsync();
+			return Ok(order.ToDto());
+		}
+		
+		return NoContent(); //If nothing changed, return 204 No Content
+	}
+	
 }
