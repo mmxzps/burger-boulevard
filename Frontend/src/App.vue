@@ -1,11 +1,13 @@
 <script>
 import GetAllPoducts from './components/GetAllPoducts.vue';
 import NavBar from './components/NavBar.vue';
+import Cart from './components/Cart.vue';
 
 export default {
   components: {
     GetAllPoducts,
-    NavBar
+    NavBar,
+    Cart
   }
 }
 </script>

@@ -18,7 +18,7 @@ Import-Module SqlServer
 Invoke-SqlCmd -ConnectionString $ConnectionString -InputFile $PSScriptRoot/Populate.sql -QueryTimeout 120 &&
 Write-Host "Database populated with data."
 
-Get-ChildItem ./Images/
+Get-ChildItem $PSScriptRoot/Images
 | ForEach-Object {
   $id = $_.Name
   $data = '0x' + ((Format-Hex -Path $_.FullName | Select -ExpandProperty HexBytes) | Join-String).Replace(' ', '')

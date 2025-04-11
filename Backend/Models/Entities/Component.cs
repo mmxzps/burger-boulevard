@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace Backend.Models.Entities;
 
 public enum ComponentLevel
@@ -18,23 +16,18 @@ public class Component : IIntoDto<Dto.Component>
   public int? ImageId { get; set; }
   public required Image? Image { get; set; }
   public string? ImageUrl =>
-    ImageId is int id ? $"/Images/{id}" : null;
+    ImageId is int id ? $"/api/Images/{id}" : null;
 	public virtual ICollection<Category> Categories { get; set; } = [];
 
   public virtual ICollection<ComponentChildPolicy> ChildPolicies { get; set; } = [];
 
   public virtual ICollection<OrderComponent> OrderComponents { get; set; } = [];
 
+  public decimal CurrentPrice =>
+    Price.BasePrice * (Discount?.Multiplier ?? 1);
   public required Price Price { get; set; }
 	public required Discount? Discount { get; set; }
 
-  private bool? _vegan;
-
-  public bool Vegan
-  {
-    get => _vegan ?? ChildPolicies.Any(p => p.Child.Vegan);
-    set => _vegan = value;
-  }
   public int? DisplayOrderIndex { get; set; } // Only useful for level 0 components.
 
   public Dto.Component ToDto() => new Dto.Component
@@ -45,9 +38,8 @@ public class Component : IIntoDto<Dto.Component>
     Description = Description,
     ImageUrl = ImageUrl,
     Categories = Categories.Select(c => c.ToDto()),
-    Price = Price.BasePrice,
+    OriginalPrice = Price.BasePrice,
     Discount = Discount?.Multiplier,
-    Vegan = Vegan,
     DisplayOrderIndex = DisplayOrderIndex
   };
 }

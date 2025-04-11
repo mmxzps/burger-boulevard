@@ -24,9 +24,6 @@ public class Components : ControllerBase
       int? categoryId) =>
     Ok(context.Components
         .AsNoTracking()
-        .Include(c => c.Categories)
-        .Include(c => c.ChildPolicies)
-        .Include(c => c.Price)
         .Where(c =>
           (categoryId == null || c.Categories.Any(cat => cat.Id == categoryId)) &&
           (level == null || c.Level == level))
@@ -34,21 +31,21 @@ public class Components : ControllerBase
 
   [HttpGet("{id}")]
   public async Task<ActionResult<Component>> Get(BackendContext context, int id) =>
-    Ok((await context.Components
-          .Include(c => c.Categories)
-          .Include(c => c.ChildPolicies)
-          .Include(c => c.Price)
-          .FirstOrDefaultAsync(c => c.Id == id))?.ToDto());
+    await context.Components
+      .AsNoTracking()
+      .FirstOrDefaultAsync(c => c.Id == id) is Models.Entities.Component component ?
+    Ok(component.ToDto()) : NotFound();
+
+  [HttpGet("{id}/policies")]
+  public async Task<ActionResult<Component>> Policies(BackendContext context, int id) =>
+    await context.Components
+      .AsNoTracking()
+      .Include(c => c.ChildPolicies)
+      .ThenInclude(p => p.Child)
+      .FirstOrDefaultAsync(c => c.Id == id) is Models.Entities.Component component ?
+    Ok(component.ChildPolicies.Select(p => p.ToDto())) : NotFound();
 
   [HttpGet("featured")]
   public ActionResult<IEnumerable<Component>> Featured(BackendContext context) =>
-    Ok(context.FeaturedComponents
-        .AsNoTracking()
-        .Include(c => c.Component)
-        .ThenInclude(c => c.Categories)
-        .Include(c => c.Component)
-        .ThenInclude(c => c.ChildPolicies)
-        .Include(c => c.Component)
-        .ThenInclude(c => c.Price)
-        .Select(c => c.ToDto()));
+    Ok(context.FeaturedComponents.AsNoTracking().Select(c => c.ToDto()));
 }
