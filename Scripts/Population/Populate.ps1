@@ -12,21 +12,19 @@ if (-not $ConnectionString) {
 
 Write-Host "Using connection string: $ConnectionString"
 
-$connection = New-Object System.Data.SqlClient.SqlConnection
-$connection.ConnectionString = $ConnectionString
+Install-Module SqlServer
+Import-Module SqlServer
 
-try {
-    $connection.Open()
-    Write-Host "Connected to database."
+Invoke-SqlCmd -ConnectionString $ConnectionString -InputFile $PSScriptRoot/Populate.sql -QueryTimeout 120 &&
+Write-Host "Database populated with data."
 
-    $command = $connection.CreateCommand()
-    $command.CommandText = Get-Content $PSScriptRoot/Populate.sql
-    Write-Host "Executing..."
-    $command.ExecuteNonQuery()
-    Write-Host "Done. Database populated."
-} catch {
-    Write-Host "Error: $_" -ForegroundColor Red
-    Write-Host "Stack Trace: $($_.Exception.StackTrace)" -ForegroundColor Yellow
-} finally {
-    $connection.Close()
+Get-ChildItem $PSScriptRoot/Images
+| ForEach-Object {
+  $id = $_.Name
+  $data = '0x' + ((Format-Hex -Path $_.FullName | Select -ExpandProperty HexBytes) | Join-String).Replace(' ', '')
+  Write-Host "Populating database with image: $id"
+  Invoke-SqlCmd -ConnectionString $ConnectionString -Query "SET IDENTITY_INSERT Images ON; INSERT INTO Images (Id, Data) VALUES ($id, $data); UPDATE Components SET ImageId = $id WHERE Id = $id;" -QueryTimeout 120
 }
+
+Write-Host "Database populated with images."
+Write-Host "Done."

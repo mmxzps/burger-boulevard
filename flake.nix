@@ -14,6 +14,7 @@
           omnisharp-roslyn
           nodejs
           sqlcmd
+          powershell
         ];
       };
     }
