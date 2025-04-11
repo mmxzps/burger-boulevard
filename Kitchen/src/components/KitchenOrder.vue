@@ -1,37 +1,23 @@
 <template>
-  <div v-for="order in orders" :key="order.id" class="order">
+  <div>
     <h2>Order #{{ order.id }}</h2>
-    <p>Status: {{ getStatusText(order.status) }}</p>
+    <p>Status: {{ order.status || 'Unknown' }}</p>
     <p>Take Away: {{ order.takeAway ? 'Yes' : 'No' }}</p>
 
-    <div v-for="item in order.components" :key="item.id" class="item">
+    
       <h3>{{ item.component?.name || "Unnamed" }}</h3>
       <p>{{ item.component?.description || "No description" }}</p>
       <p>{{ item.component?.price }} SEK</p>
     </div>
-  </div>
+  
 </template>
 
 <script>
 export default {
   data() {
     return {
-      orders: [],
+      order: Object,
     };
-  },
-  methods: {
-    getStatusText(status) {
-      return ['Pending', 'Preparing', 'Done'][status] ?? 'Unknown';
-    },
-  },
-  async mounted() {
-    try {
-      const res = await fetch('https://localhost:7115/api/Orders');
-      if (!res.ok) throw new Error('Fetch failed');
-      this.orders = await res.json();
-    } catch (err) {
-      console.error(err);
-    }
   },
 };
 </script>
