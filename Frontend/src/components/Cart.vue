@@ -26,8 +26,43 @@ export default {
     },
     makeOrder(){
       alert('Beställ knapp fungerar ej. än.');
+    },
+    increaseQuantity(item){
+      const cartStore = useCartStore();
+      cartStore.addToCart(item);
+      this.loadCart(cartStore);
+    },
+    decreaseQuantity(item){
+      const cartStore = useCartStore();
+      const index = this.productList.findIndex(p=>p.id == item.id);
+
+      if(index !== -1){
+        cartStore.removeFromCart(index);
+        this.loadCart(cartStore);
+      }
+    }
+  },
+  computed:{
+    groupedCartItems(){
+      const grouped = {};
+
+      this.productList.forEach(item =>{
+        const key = item.id;
+
+        if(!grouped[key]){
+          grouped[key]={
+            ...item,
+            quantity:1
+          };
+        }else{
+          grouped[key].quantity +=1;
+        }
+      });
+
+      return Object.values(grouped);
     }
   }
+
 };
 
 </script>
@@ -40,12 +75,23 @@ export default {
 
   <div class="cart-container" :class="{visa: cartVisible}">
     <ul>
-      <li v-for="(item, index) in productList" :key="index" class="cart-li">
-        <span>{{ item.name }} - {{ item.price.current }} kr</span>
-        <button class="cart-button" @click="removeFromCart(index)">Ta bort</button>
+
+      <li v-for="(item, index) in groupedCartItems" :key="index" class="cart-li">
+          <span>{{ item.name }} - {{ item.price.current }} kr</span>
+            <div class="quantity-buttons-container">
+
+              <div class="quantity-control">
+                  <button class="quantity-button" @click="decreaseQuantity(item)">➖</button>
+                  <span id="quantity">{{ item.quantity }}</span>
+                  <button class="quantity-button" @click="increaseQuantity(item)">➕</button>
+              </div>
+              <button class="cart-button" @click="removeFromCart(item)">Ta bort</button>
+
+            </div>
       </li>
+
     </ul>
-    <button class="cart-button" @click="makeOrder()">Besäll</button>
+    <button class="cart-button" @click="makeOrder()">Beställ</button>
     <button class="cart-button" @click="showCart()">Stäng</button>
 
   </div>
@@ -99,5 +145,23 @@ export default {
   font: 1em sans-serif;
   background-color: #4f4492;
   width: 4.5rem;
+}
+.quantity-control{
+  width: 77px;
+  justify-content: end;
+  display: flex;
+  margin-right: 5px;
+}
+.quantity-button{
+  background: none;
+border: none;
+cursor: pointer;
+}
+#quantity{
+  margin: 4px;
+}
+.quantity-buttons-container{
+  display: flex;
+  align-items: center;
 }
 </style>
