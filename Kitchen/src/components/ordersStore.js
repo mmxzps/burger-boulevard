@@ -25,6 +25,7 @@ export const useOrdersStore = defineStore('orders', {
                 const response = await fetch('https://localhost:7115/api/Orders')
                 if (response.ok) {
                     const data = await response.json()
+                    console.log(data)
                     this.setOrders(data)
                 }
             }

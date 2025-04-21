@@ -3,31 +3,43 @@
     <h2>Order #{{ order.id }}</h2>
     <p>Status: {{ order.status || 'Unknown' }}</p>
     <p>Take Away: {{ order.takeAway ? 'Yes' : 'No' }}</p>
+    <button @click="collapsed = !collapsed">
+        <span :class="{ rotated: !collapsed }">▼</span>
+      </button>
     <div v-for="item in order.components" :key="item.id" class="item">
       <h3>{{ item.component?.name || "Unnamed" }}</h3>
-      <p>{{ item.component?.description || "No description" }}</p>
-      <p>{{ item.component?.price || "N/A"}} SEK</p>
+      <div v-show="!collapsed">
+        <p>{{ item.component?.description || "No description" }}</p>
+          <p>{{ item.component?.price || "N/A"}} SEK</p>
+      </div>
+      
     </div>
   </div>
 
+  
+  <!-- <div v-for="child in item.component.children" :key="child.id">
+      <p>{{ child.name }}</p>
+  </div> -->
+
 </template>
 
-<script>
-export default {
-  props: {
-    order: {
-      type: Object,
-      required: true,
-    },
-  }
-};
+<script setup>
+import { ref } from 'vue';
+defineProps({
+  order: {
+    type: Object,
+    required: true,
+  },
+});
+
+const collapsed = ref(true);
 </script>
 
 <style scoped>
 .order {
-  margin: 1rem auto;
-  padding: 1rem;
-  max-width: 600px;
+  margin: 0.5rem auto;
+  padding: 0.5rem;
+  
   background: #fafafa;
   border-radius: 8px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
@@ -46,10 +58,14 @@ order:first-child {
   margin-top: 0;
   padding-top: 20px;
 }
+.rotated {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
+}
 
 .item {
-  margin-top: 1rem;
-  padding: 0.75rem;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
   background: #fff;
   border-radius: 6px;
   border-left: 4px solid #007bff;

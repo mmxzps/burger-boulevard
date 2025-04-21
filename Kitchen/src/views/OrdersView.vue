@@ -1,21 +1,21 @@
 <template>
     <div class="orders-wrapper">
       <div class="column pending">
-        <h2>Pending Orders</h2>
+        <h2>Pending</h2>
         <div v-for="order in pendingOrders" :key="order.id" class="order">
           <KitchenOrder :order="order" />
         </div>
       </div>
   
       <div class="column preparing">
-        <h2>Preparing Orders</h2>
+        <h2>Preparing</h2>
         <div v-for="order in preparingOrders" :key="order.id" class="order">
           <KitchenOrder :order="order" />
         </div>
       </div>
   
       <div class="column done">
-        <h2>Done Orders</h2>
+        <h2>Done</h2>
         <div v-for="order in doneOrders" :key="order.id" class="order">
           <KitchenOrder :order="order" />
         </div>
@@ -58,6 +58,8 @@ onMounted(() =>  {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
   height: 100%; /* Ensure the columns fill vertically */
+  border-width: 2px;
+  border-style: solid;
 }
 
 .column h2 {
@@ -72,7 +74,15 @@ onMounted(() =>  {
   border-radius: 6px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
-
+.pending {
+  border-color: red;
+}
+.preparing {
+  border-color: yellow;
+}
+.done {
+  border-color: green;
+}
 .order:last-child {
   margin-bottom: 0;
 }

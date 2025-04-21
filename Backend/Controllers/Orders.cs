@@ -23,11 +23,15 @@ public class Orders : ControllerBase
     Ok(context.Orders
 	    .AsNoTracking()
 	    .Include(o => o.Components)
-	    .ThenInclude(oc => oc.Component)
-	    .ThenInclude(c => c.Categories)
+			.ThenInclude(oc => oc.Component)
+				.ThenInclude(c => c.Categories)
 	    .Include(o => o.Components)
-	    .ThenInclude(oc => oc.Component)
-	    .ThenInclude(c => c.Price)
+			.ThenInclude(oc => oc.Component)
+				.ThenInclude(c => c.Price)
+	    .Include(o => o.Components)
+			.ThenInclude(oc => oc.Component)
+				.ThenInclude(c => c.ChildPolicies)
+					.ThenInclude(cp => cp.Child)
 	    .ToList() 
 	    .Select(o => o.ToDto()));
 
