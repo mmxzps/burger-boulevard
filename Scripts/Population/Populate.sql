@@ -152,6 +152,6 @@ INSERT INTO CategoryComponent (CategoriesId, ComponentsId) VALUES
   (1, 32),
   (1, 33);
 
--- TODO add discounts
+-- TODO: add discounts
 
 COMMIT;
