@@ -35,7 +35,7 @@ public class Program
         builder.Services.AddSwaggerGen(opt => opt.CustomSchemaIds(type => type.ToString()));
 
         var app = builder.Build();
-
+        //t
         if (app.Environment.IsDevelopment())
         {
           app.UseSwagger();

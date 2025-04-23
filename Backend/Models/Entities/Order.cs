@@ -1,10 +1,16 @@
-﻿namespace Backend.Models.Entities;
+using System.Text.Json.Serialization;
 
+namespace Backend.Models.Entities;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum OrderStatus
 {
-    Pending,
-    Preparing,
-    Done
+  [JsonStringEnumMemberName("pending")]
+  Pending,
+  [JsonStringEnumMemberName("preparing")]
+  Preparing,
+  [JsonStringEnumMemberName("done")]
+  Done
 }
 
 public class Order : IIntoDto<Dto.Order>
