@@ -1,16 +1,18 @@
 <template>
   <div class="order">
-    <h2>Order #{{ order.id }}</h2>
-    <p>Status: {{ order.status || 'Unknown' }}</p>
-    <p>Take Away: {{ order.takeAway ? 'Yes' : 'No' }}</p>
-    <button @click="collapsed = !collapsed">
-        <span :class="{ rotated: !collapsed }">▼</span>
+    <div class="order-header">
+      <h2>Order #{{ order.id }}</h2>
+      <h4 class="align-right">{{ order.takeAway ? 'Take Away' : 'Eat Here' }}</h4>
+      <h4 class="align-right">Ordered: {{ order.orderTime }}</h4>
+      <button @click="collapsed = !collapsed">
+          <span :class="{ rotated: !collapsed }">▼</span>
       </button>
+    </div>
     <div v-for="item in order.components" :key="item.id" class="item">
-      <h3>{{ item.component?.name || "Unnamed" }}</h3>
+      <h4>{{ item.component?.name || "Unnamed" }}</h4>
       <div v-show="!collapsed">
         <p>{{ item.component?.description || "No description" }}</p>
-          <p>{{ item.component?.price || "N/A"}} SEK</p>
+          <p>{{ item.component?.price.current || "N/A"}} SEK</p>
       </div>
       
     </div>
@@ -44,7 +46,12 @@ const collapsed = ref(true);
   border-radius: 8px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
-
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; 
+  width: 100%; 
+}
 .order h2 {
   margin-bottom: 0.5rem;
 }

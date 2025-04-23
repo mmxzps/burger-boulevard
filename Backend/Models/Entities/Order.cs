@@ -26,6 +26,7 @@ public class Order : IIntoDto<Dto.Order>
     Id = Id,
     Status = Status,
     Components = Components.Select(c => c.ToDto()),
-    TakeAway = TakeAway
-  };
+    TakeAway = TakeAway,
+    OrderTime = OrderTime
+	};
 }

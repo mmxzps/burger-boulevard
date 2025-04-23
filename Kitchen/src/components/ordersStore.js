@@ -9,13 +9,13 @@ export const useOrdersStore = defineStore('orders', {
             return state.orders;
         },
         pendingOrders: (state) => {
-            return state.orders.filter(order => order.status === 0);
+            return state.orders.filter(order => order.status === 'pending');
         },
         preparingOrders: (state) => {
-            return state.orders.filter(order => order.status === 1);
+            return state.orders.filter(order => order.status === 'preparing');
         },
         doneOrders: (state) => {
-            return state.orders.filter(order => order.status === 2);
+            return state.orders.filter(order => order.status === 'done');
         },
     },
     actions: {
