@@ -15,6 +15,8 @@
           nodejs
           sqlcmd
           powershell
+          javascript-typescript-langserver
+          vue-language-server
         ];
       };
     }
