@@ -4,33 +4,21 @@ import { useCartStore } from '@/stores/cart';
 export default {
   data() {
     return {
-      productList: [],
       cartVisible: true,
     };
   },
-  mounted() {
-    const cartStore = useCartStore();
-    this.loadCart(cartStore);
-  },
+  
   methods: {
-    loadCart(store) {
-      this.productList = store.cart;
-    },
-    removeFromCart(index) {
+    removeFromCart(item) {
       const cartStore = useCartStore();
-      cartStore.removeFromCart(index);
-      this.loadCart(cartStore); 
+      cartStore.removeAllOfItem(item.id);
     },
     showCart(){
       this.cartVisible = !this.cartVisible
     },
-    makeOrder(){
-      alert('Beställ knapp fungerar ej. än.');
-    },
     increaseQuantity(item){
       const cartStore = useCartStore();
       cartStore.addToCart(item);
-      this.loadCart(cartStore);
     },
     decreaseQuantity(item){
       const cartStore = useCartStore();
@@ -38,11 +26,16 @@ export default {
 
       if(index !== -1){
         cartStore.removeFromCart(index);
-        this.loadCart(cartStore);
       }
     }
   },
   computed:{
+    cartStore(){
+      return useCartStore();
+    },
+    productList(){
+      return this.cartStore.cart;
+    },
     groupedCartItems(){
       const grouped = {};
 
@@ -91,7 +84,7 @@ export default {
       </li>
 
     </ul>
-    <button class="cart-button" @click="makeOrder()">Beställ</button>
+    <button class="cart-button" ><router-link to="/checkout" @click="showCart">Till Kassa</router-link></button>
     <button class="cart-button" @click="showCart()">Stäng</button>
 
   </div>
@@ -102,9 +95,8 @@ export default {
 .cart-icon:hover{
   cursor: pointer;
 }
-.cart-icon-container{
-  width: 50px;
-  height: 50px;
+.cart-icon{
+  width: 4rem;
 }
 
 .cart-container ul{ 
@@ -141,10 +133,11 @@ export default {
   padding: 5px;
   border-radius: 3px;
   text-shadow: 1px 1px rgb(54, 52, 52);
-  color:white;
+  color: hsla(160, 100%, 37%, 1);
   font: 1em sans-serif;
   background-color: #4f4492;
-  width: 4.5rem;
+  min-width: 4.5rem;
+  cursor:pointer;
 }
 .quantity-control{
   width: 77px;
