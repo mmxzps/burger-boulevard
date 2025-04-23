@@ -13,8 +13,9 @@ public class Order : IIntoDto<Dto.Order>
   public required OrderStatus Status { get; set; }
   public virtual ICollection<OrderComponent> Components { get; set; } = [];
   public bool TakeAway { get; set; }
+  public TimeOnly OrderTime { get; set; } = TimeOnly.FromDateTime(DateTime.Now);
 
-  public Dto.Order ToDto() => new Dto.Order
+	public Dto.Order ToDto() => new Dto.Order
   {
     Id = Id,
     Status = Status,
