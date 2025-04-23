@@ -1,5 +1,4 @@
 <template>
-  <!-- Fullscreen container -->
   <div class="order-type-overlay">
     <div class="order-type-modal">
       <h2 class="order-type-heading">
@@ -26,7 +25,6 @@
 <script setup>
 import { onMounted, onUnmounted } from 'vue'
 
-// Define props and emits
 const emit = defineEmits(['choose'])
 
 // Methods
