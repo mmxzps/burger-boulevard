@@ -3,6 +3,7 @@ using Backend;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Migrations
 {
     [DbContext(typeof(BackendContext))]
-    partial class BackendContextModelSnapshot : ModelSnapshot
+    [Migration("20250409165623_SCRUM-37")]
+    partial class SCRUM37
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,7 +38,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Backend.Models.Entities.Component", b =>
@@ -76,7 +79,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("PriceId");
 
-                    b.ToTable("Components", (string)null);
+                    b.ToTable("Components");
                 });
 
             modelBuilder.Entity("Backend.Models.Entities.ComponentChildPolicy", b =>
@@ -108,7 +111,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("ComponentChildPolicies", (string)null);
+                    b.ToTable("ComponentChildPolicies");
                 });
 
             modelBuilder.Entity("Backend.Models.Entities.Discount", b =>
@@ -125,7 +128,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Discounts", (string)null);
+                    b.ToTable("Discounts");
                 });
 
             modelBuilder.Entity("Backend.Models.Entities.FeaturedComponent", b =>
@@ -147,7 +150,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("ComponentId");
 
-                    b.ToTable("FeaturedComponents", (string)null);
+                    b.ToTable("FeaturedComponents");
                 });
 
             modelBuilder.Entity("Backend.Models.Entities.Image", b =>
@@ -165,7 +168,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Images", (string)null);
+                    b.ToTable("Images");
                 });
 
             modelBuilder.Entity("Backend.Models.Entities.Order", b =>
@@ -184,7 +187,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Backend.Models.Entities.OrderComponent", b =>
@@ -212,7 +215,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("OrderComponents", (string)null);
+                    b.ToTable("OrderComponents");
                 });
 
             modelBuilder.Entity("Backend.Models.Entities.Price", b =>
@@ -229,7 +232,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Prices", (string)null);
+                    b.ToTable("Prices");
                 });
 
             modelBuilder.Entity("CategoryComponent", b =>
@@ -244,7 +247,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("ComponentsId");
 
-                    b.ToTable("CategoryComponent", (string)null);
+                    b.ToTable("CategoryComponent");
                 });
 
             modelBuilder.Entity("Backend.Models.Entities.Component", b =>

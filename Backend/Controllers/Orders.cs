@@ -9,15 +9,7 @@ namespace Backend.Controllers;
 [ApiController]
 public class Orders : ControllerBase
 {
-  [HttpGet("statuses")]
-  public ActionResult<IDictionary<string, Models.Entities.OrderStatus>> Statuses() =>
-    Ok(new Dictionary<string, Models.Entities.OrderStatus>() {
-        { "pending", Models.Entities.OrderStatus.Pending },
-        { "preparing", Models.Entities.OrderStatus.Preparing },
-        { "done", Models.Entities.OrderStatus.Done },
-        });
-
-  // TODO Fix proper safety guards around these endpoints.
+  // TODO Create proper safety guards around these endpoints.
   [HttpGet]
   public ActionResult<IEnumerable<Order>> All(BackendContext context) =>
     Ok(context.Orders
@@ -59,5 +51,25 @@ public class Orders : ControllerBase
 		
 		return NoContent(); //If nothing changed, return 204 No Content
 	}
-	
+
+  [HttpPost]
+  public async Task<ActionResult<Order>> Create(BackendContext context, Models.Dto.Create.Order createOrder)
+  {
+    var order = context.Orders
+      .Add(new Models.Entities.Order
+        {
+        Status = Models.Entities.OrderStatus.Pending,
+        TakeAway = createOrder.TakeAway,
+        });
+    order.Entity.Components = createOrder.ToOrderComponentEntities(context, order.Entity);
+    await context.SaveChangesAsync();
+
+    return CreatedAtAction(
+        nameof(Create),
+        (await context.Orders
+         .AsNoTracking()
+         .Include(o => o.Components)
+         .ThenInclude(oc => oc.Component)
+         .FirstOrDefaultAsync(o => o.Id == order.Entity.Id))?.ToDto());
+  }
 }
