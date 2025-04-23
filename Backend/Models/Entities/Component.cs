@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace Backend.Models.Entities;
 
 public enum ComponentLevel
@@ -9,24 +7,39 @@ public enum ComponentLevel
   Menu = 2
 }
 
-public class Component
+public class Component : IIntoDto<Dto.Component>
 {
   public int Id { get; set; }
   public ComponentLevel Level { get; set; }
   public required string Name { get; set; }
-	public required string? Description { get; set; }
-	public ICollection<Category> Categories { get; set; } = [];
+	public string? Description { get; set; }
+  public int? ImageId { get; set; }
+  public required Image? Image { get; set; }
+  public string? ImageUrl =>
+    ImageId is int id ? $"/api/Images/{id}" : null;
+	public virtual ICollection<Category> Categories { get; set; } = [];
 
-  [InverseProperty("Parent")]
   public virtual ICollection<ComponentChildPolicy> ChildPolicies { get; set; } = [];
 
   public virtual ICollection<OrderComponent> OrderComponents { get; set; } = [];
 
+  public decimal CurrentPrice =>
+    Price.BasePrice * (Discount?.Multiplier ?? 1);
   public required Price Price { get; set; }
 	public required Discount? Discount { get; set; }
 
-  // If null, check child components.
-  public bool? Vegan { get; set; }
-  // Only useful for level 0 components.
-  public int? DisplayOrderIndex { get; set; }
+  public int? DisplayOrderIndex { get; set; } // Only useful for level 0 components.
+
+  public Dto.Component ToDto() => new Dto.Component
+  {
+    Id = Id,
+    Level = Level,
+    Name = Name,
+    Description = Description,
+    ImageUrl = ImageUrl,
+    Categories = Categories.Select(c => c.ToDto()),
+    OriginalPrice = Price.BasePrice,
+    Discount = Discount?.Multiplier,
+    DisplayOrderIndex = DisplayOrderIndex
+  };
 }

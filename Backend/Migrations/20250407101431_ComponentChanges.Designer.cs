@@ -3,6 +3,7 @@ using Backend;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Migrations
 {
     [DbContext(typeof(BackendContext))]
-    partial class BackendContextModelSnapshot : ModelSnapshot
+    [Migration("20250407101431_ComponentChanges")]
+    partial class ComponentChanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,9 +58,6 @@ namespace Backend.Migrations
                     b.Property<int?>("DisplayOrderIndex")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ImageId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Level")
                         .HasColumnType("int");
 
@@ -71,8 +71,6 @@ namespace Backend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DiscountId");
-
-                    b.HasIndex("ImageId");
 
                     b.HasIndex("PriceId");
 
@@ -88,15 +86,6 @@ namespace Backend.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ChildId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Default")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Max")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Min")
                         .HasColumnType("int");
 
                     b.Property<int>("ParentId")
@@ -148,24 +137,6 @@ namespace Backend.Migrations
                     b.HasIndex("ComponentId");
 
                     b.ToTable("FeaturedComponents");
-                });
-
-            modelBuilder.Entity("Backend.Models.Entities.Image", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<byte[]>("Data")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)")
-                        .HasComment("PNG image data");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Images");
                 });
 
             modelBuilder.Entity("Backend.Models.Entities.Order", b =>
@@ -253,10 +224,6 @@ namespace Backend.Migrations
                         .WithMany("Components")
                         .HasForeignKey("DiscountId");
 
-                    b.HasOne("Backend.Models.Entities.Image", "Image")
-                        .WithMany("Components")
-                        .HasForeignKey("ImageId");
-
                     b.HasOne("Backend.Models.Entities.Price", "Price")
                         .WithMany()
                         .HasForeignKey("PriceId")
@@ -264,8 +231,6 @@ namespace Backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Discount");
-
-                    b.Navigation("Image");
 
                     b.Navigation("Price");
                 });
@@ -348,11 +313,6 @@ namespace Backend.Migrations
                 });
 
             modelBuilder.Entity("Backend.Models.Entities.Discount", b =>
-                {
-                    b.Navigation("Components");
-                });
-
-            modelBuilder.Entity("Backend.Models.Entities.Image", b =>
                 {
                     b.Navigation("Components");
                 });
