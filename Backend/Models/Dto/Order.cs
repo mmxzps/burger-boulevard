@@ -6,6 +6,6 @@ public class Order
   public required Entities.OrderStatus Status { get; set; }
   public required IEnumerable<OrderComponent> Components { get; set; }
   public bool TakeAway { get; set; }
-
+  public decimal TotalPrice { get; set; }
   public TimeOnly OrderTime { get; set; }
 }
