@@ -8,14 +8,6 @@ namespace Backend.Controllers;
 [ApiController]
 public class Orders : ControllerBase
 {
-  [HttpGet("statuses")]
-  public ActionResult<IDictionary<string, Models.Entities.OrderStatus>> Statuses() =>
-    Ok(new Dictionary<string, Models.Entities.OrderStatus>() {
-        { "pending", Models.Entities.OrderStatus.Pending },
-        { "preparing", Models.Entities.OrderStatus.Preparing },
-        { "done", Models.Entities.OrderStatus.Done },
-        });
-
   // TODO Create proper safety guards around these endpoints.
   [HttpGet]
   public ActionResult<IEnumerable<Order>> All(BackendContext context) =>

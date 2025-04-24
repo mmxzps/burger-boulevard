@@ -1,12 +1,18 @@
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia'
 
-export const useCartStore = defineStore('cart',{
-  state: ()=> ({ 
+export const useCartStore = defineStore('cart', {
+  state: () => ({
+    orderType: null,
     cart: JSON.parse(localStorage.getItem('cart')) || [],
     takeAway: JSON.parse(localStorage.getItem('takeAway')) ?? true,
    }),
   actions: {
-    addToCart(item){
+    setOrderType(type) {
+      this.orderType = type
+      localStorage.setItem('orderType', type)
+    },
+    
+    addToCart(item) {
       this.cart.push(item)
       localStorage.setItem('cart', JSON.stringify(this.cart))
     },

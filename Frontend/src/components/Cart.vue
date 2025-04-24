@@ -1,5 +1,6 @@
-<script>
-import { useCartStore } from '@/stores/cart';
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useCartStore } from '@/stores/cart'
 
 export default {
   data() {
@@ -64,7 +65,7 @@ export default {
 
 <template>
 
-    <h2 class="cart-icon" @click="showCart()">🛒 {{ productList.length }}</h2>
+  <h2 class="cart-icon" @click="showCart()">🛒 {{ productList.length }}</h2>
 
   <div class="cart-container" :class="{visa: cartVisible}">
     <ul>
@@ -87,44 +88,43 @@ export default {
     <button class="cart-button" ><router-link to="/checkout" @click="showCart">Till Kassa</router-link></button>
     <button class="cart-button" @click="showCart()">Stäng</button>
 
-  </div>
+</div>
 </template>
-
 
 <style>
 .cart-icon:hover{
-  cursor: pointer;
+cursor: pointer;
 }
 .cart-icon{
   width: 4rem;
 }
 
 .cart-container ul{ 
-  padding: 15px;
+padding: 15px;
 }
 .visa{
-  display: none;
+display: none;
 }
 .cart-container {
-  border: 1px solid wheat;
-  position: fixed;
-  right: 10px;
-  top: 45px;
-  background-color: #242323;
-  color:rgb(196, 190, 190);
-  padding: 10px;
-  z-index: 1000;
-  width: 23rem;
-  border-radius: 1%;
+border: 1px solid wheat;
+position: fixed;
+right: 10px;
+top: 45px;
+background-color: #242323;
+color:rgb(196, 190, 190);
+padding: 10px;
+z-index: 1000;
+width: 23rem;
+border-radius: 1%;
 }
 .cart-li span{
-  margin-right: 15px;
+margin-right: 15px;
 }
 .cart-li{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 5px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-top: 5px;
 }
 
 .cart-button{
@@ -156,5 +156,23 @@ cursor: pointer;
 .quantity-buttons-container{
   display: flex;
   align-items: center;
+}
+.quantity-control{
+width: 77px;
+justify-content: end;
+display: flex;
+margin-right: 5px;
+}
+.quantity-button{
+background: none;
+border: none;
+cursor: pointer;
+}
+#quantity{
+margin: 4px;
+}
+.quantity-buttons-container{
+display: flex;
+align-items: center;
 }
 </style>
