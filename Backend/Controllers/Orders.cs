@@ -1,6 +1,7 @@
 using Backend.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Order = Backend.Models.Dto.Order;
 
 namespace Backend.Controllers;
 
@@ -19,12 +20,31 @@ public class Orders : ControllerBase
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Order>> Get(BackendContext context, int id) =>
-      (await context.Orders
-       .AsNoTracking()
-       .Include(o => o.Components)
-       .ThenInclude(oc => oc.Component)
-       .FirstOrDefaultAsync(o => o.Id == id))?.ToDto() is Order order ?
-      Ok(order) : NotFound();
+        (await context.Orders
+         .AsNoTracking()
+         .Include(o => o.Components)
+         .ThenInclude(oc => oc.Component)
+         .FirstOrDefaultAsync(o => o.Id == id))?.ToDto() is Order order ?
+        Ok(order) : NotFound();
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult> UpdateStatus(BackendContext context, int id, [FromBody] OrderUpdateDto orderUpdateDto)
+    {
+        var order = await context.Orders
+            .FindAsync(id);
+
+        if (order == null)
+            return NotFound();
+
+        if (order.Status != orderUpdateDto.Status)
+        {
+            order.Status = orderUpdateDto.Status;
+            await context.SaveChangesAsync();
+            return Ok(order.ToDto());
+        }
+
+        return NoContent(); // If nothing changed, return 204 No Content
+    }
 
     [HttpPost]
     public async Task<ActionResult<Order>> Create(BackendContext context, Models.Dto.Create.Order createOrder)

@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Backend.Models.Entities;
 
@@ -20,6 +20,7 @@ public class Order : IIntoDto<Dto.Order>
     public virtual ICollection<OrderComponent> Components { get; set; } = [];
     public bool TakeAway { get; set; }
     public decimal TotalPrice { get; set; }
+    public TimeOnly OrderTime { get; set; } = TimeOnly.FromDateTime(DateTime.Now);
 
     public Dto.Order ToDto() => new Dto.Order
     {
@@ -27,6 +28,7 @@ public class Order : IIntoDto<Dto.Order>
         Status = Status,
         Components = Components.Select(c => c.ToDto()),
         TakeAway = TakeAway,
-        TotalPrice = TotalPrice
+        TotalPrice = TotalPrice,
+        OrderTime = OrderTime
     };
 }

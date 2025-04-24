@@ -1,4 +1,5 @@
 <script>
+import { ref, computed, onMounted } from 'vue'
 import { useCartStore } from '@/stores/cart'
 
 export default {
@@ -69,6 +70,9 @@ export default {
     <button class="cart-button" @click="makeOrder">Beställ</button>
     <button class="cart-button" @click="cartVisible = false">Stäng</button>
   </div>
+
+  <button class="cart-button"><router-link to="/checkout" @click="showCart">Till Kassa</router-link></button>
+  <button class="cart-button" @click="showCart()">Stäng</button>
 </template>
 
 <style>
@@ -79,6 +83,10 @@ export default {
 .cart-icon-container {
   width: 50px;
   height: 50px;
+}
+
+.cart-icon {
+  width: 4rem;
 }
 
 .cart-container ul {
@@ -116,9 +124,9 @@ export default {
   border-radius: 3px;
   text-shadow: 1px 1px rgb(54, 52, 52);
   color: white;
-  font: 1em sans-serif;
   background-color: #4f4492;
-  width: 4.5rem;
+  min-width: 4.5rem;
+  cursor: pointer;
 }
 
 .quantity-control {
