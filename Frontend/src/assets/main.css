@@ -1,36 +1,22 @@
 @import './base.css';
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+.button {
+  display: block;
+  width: 100%;
+  font-size: 1.5rem;
+  padding: .5rem;
+  background-color: #f5d451;
+  border: 5px solid #f5d451;
+  border-radius: 10px;
+  color: #222;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
-}
-
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+.button:hover {
+  background-color: #fff;
 }
 
 @media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 0;
-    padding: 0 2rem;
-    width: 578px;
-  }
 }
