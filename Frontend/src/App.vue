@@ -1,36 +1,21 @@
-<script setup>
-import NavBar from './components/NavBar.vue'
-import ChooseOrderType from './components/ChooseOrderType.vue'
-import { useCartStore } from '@/stores/cart'
-import { onMounted } from 'vue'
+<script>
+import GetAllPoducts from './components/GetAllPoducts.vue';
+import NavBar from './components/NavBar.vue';
+import Cart from './components/Cart.vue';
 
-const cart = useCartStore()
-
-function setOrderType(type) {
-  cart.setOrderType(type)
+export default {
+  components: {
+    GetAllPoducts,
+    NavBar,
+    Cart
+  }
 }
-
-onMounted(() => {
-  
-  const savedType = localStorage.getItem('orderType')
-  if (savedType) {
-  
-    cart.setOrderType(savedType)
-  } else {
-    
-    cart.setOrderType(null)
-}
-})
 </script>
 
 <template>
   <div id="app">
     <NavBar />
-    <ChooseOrderType
-      v-if="!cart.orderType"
-      @choose="setOrderType"
-    />
-    <main v-else>
+    <main>
       <router-view />
     </main>
   </div>

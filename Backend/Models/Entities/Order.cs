@@ -1,15 +1,9 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace Backend.Models.Entities;
 
-namespace Backend.Models.Entities;
-
-[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum OrderStatus
 {
-  [JsonStringEnumMemberName("pending")]
   Pending,
-  [JsonStringEnumMemberName("preparing")]
   Preparing,
-  [JsonStringEnumMemberName("done")]
   Done
 }
 
