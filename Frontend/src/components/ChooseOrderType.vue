@@ -5,16 +5,10 @@
         Vill du?
       </h2>
       <div class="order-type-buttons">
-        <button
-          @click="choose('eatHere')"
-          class="order-button eat-here-button"
-        >
+        <button @click="choose('eatHere')" class="order-button eat-here-button">
           <span>Äta här</span>
         </button>
-        <button
-          @click="choose('takeAway')"
-          class="order-button take-away-button"
-        >
+        <button @click="choose('takeAway')" class="order-button take-away-button">
           <span>Ta med</span>
         </button>
       </div>
@@ -89,7 +83,7 @@ onUnmounted(() => {
   .order-type-heading {
     font-size: 2rem;
   }
-  
+
   .order-type-buttons {
     flex-direction: row;
     justify-content: center;
