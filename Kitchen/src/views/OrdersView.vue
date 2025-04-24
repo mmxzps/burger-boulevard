@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, onBeforeUnmount } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useOrdersStore } from '../components/ordersStore.js';
 import KitchenOrder from '../components/KitchenOrder.vue';
@@ -32,10 +32,14 @@ import KitchenOrder from '../components/KitchenOrder.vue';
 const ordersStore = useOrdersStore();
 const {pendingOrders, preparingOrders, doneOrders} = storeToRefs(ordersStore);
 
-onMounted(() =>  {
-  ordersStore.fetchOrders();
+onMounted(async () =>  {
+  await ordersStore.fetchOrders();       
+  ordersStore.startFetchingOrders(); 
 });
 
+onBeforeUnmount(() => {
+            ordersStore.stopFetchingOrders()
+        })
 </script>
 
 <style scoped>
