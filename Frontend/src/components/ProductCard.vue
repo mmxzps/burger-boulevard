@@ -1,13 +1,12 @@
 <script>
 import { useCartStore } from '@/stores/cart'
-import { baseUrl } from '@/api.js'
+import * as api from '@/api.js'
 
 export default {
   data() {
     return {
-      baseUrl,
+      baseUrl: api.baseUrl,
       ingredients: [],
-      extractedIngredients: [],
       detailsVisible: false,
       quantity: 1
     }
@@ -18,7 +17,7 @@ export default {
   },
 
   mounted() {
-    this.fetchIngredients();
+    this.fetchIngredients()
   },
 
   methods: {
@@ -29,113 +28,67 @@ export default {
     },
 
     async fetchIngredients() {
-      try {
-        const burgerId = this.burger.id;
-        if (!burgerId) {
-          console.error('No burger ID found:', this.burger);
-          return;
-        }
-
-        const response = await fetch(`https://localhost:7115/api/Components/${burgerId}/policies`);
-
-        if (!response.ok) {
-          throw new Error(`API returned ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('Raw ingredient data:', data);
-
-        if (Array.isArray(data) && data.length > 0) {
-          this.ingredients = data;
-
-          this.extractedIngredients = this.ingredients.map(item => {
-            if (item.child && item.child.name) {
-              return {
-                id: item.id,
-                name: item.child.name,
-                description: item.child.description,
-                quantity: item.default || 1,
-                min: item.min || 0,
-                max: item.max || 10,
-                originalQuantity: item.default || 1
-              };
-            }
-
-            return {
-              id: item.id,
-              name: `Unknown Ingredient ${item.id}`,
-              description: null,
-              quantity: 1,
-              min: 0,
-              max: 10,
-              originalQuantity: 1
-            };
-          });
-
-          console.log('Extracted ingredients:', this.extractedIngredients);
-        } else {
-          console.warn('No ingredients found for burger:', burgerId);
-        }
-      } catch (error) {
-        console.error('Error fetching ingredients:', error);
-      }
+      this.ingredients = (await api.getComponentPolicies(this.component.id)).data.map(item => ({
+        id: item.id,
+        name: item.child.name,
+        description: item.child.description,
+        quantity: item.default,
+        min: item.min,
+        max: item.max,
+        originalQuantity: item.default
+      }))
     },
 
     changeIngredientQuantity(index, change) {
-      const ingredient = this.extractedIngredients[index];
-      const newQuantity = ingredient.quantity + change;
+      const ingredient = this.extractedIngredients[index]
+      const newQuantity = ingredient.quantity + change
 
-      if (newQuantity >= ingredient.min && newQuantity <= ingredient.max) {
-        ingredient.quantity = newQuantity;
-      }
+      if (newQuantity >= ingredient.min && newQuantity <= ingredient.max)
+        ingredient.quantity = newQuantity
     },
 
     showDetails(event) {
-      if (event.target.closest('.card-button')) {
-        return;
-      }
-      this.detailsVisible = true;
+      if (!event.target.closest('.card-button'))
+        this.detailsVisible = true
     },
 
     hideDetails() {
-      this.detailsVisible = false;
-      this.quantity = 1;
+      this.detailsVisible = false
+      this.quantity = 1
 
-      if (this.extractedIngredients.length > 0) {
+      if (this.extractedIngredients.length > 0)
         this.extractedIngredients.forEach(ingredient => {
-          ingredient.quantity = ingredient.originalQuantity;
+          ingredient.quantity = ingredient.originalQuantity
         });
-      }
     },
 
     increaseQuantity() {
-      this.quantity++;
+      this.quantity++
     },
 
     decreaseQuantity() {
-      if (this.quantity > 1) {
-        this.quantity--;
-      }
+      if (this.quantity > 1)
+        this.quantity--
     },
 
     addCustomizedToCart() {
-      const cartStore = useCartStore();
+      const cartStore = useCartStore()
 
       const modifiedIngredients = this.extractedIngredients
-        .filter(ing => ing.quantity !== ing.originalQuantity);
+        .filter(ing => ing.quantity !== ing.originalQuantity)
 
       const customizedBurger = {
-        ...this.burger,
+        ...this.component,
         quantity: this.quantity,
         ingredients: this.extractedIngredients.filter(ing => ing.quantity > 0),
         modifiedIngredients: modifiedIngredients,
         isCustomized: modifiedIngredients.length > 0,
-        totalPrice: this.burger.price.current * this.quantity
-      };
+        totalPrice: this.component.price.current * this.quantity
+      }
 
-      console.log('Adding customized burger to cart with modified ingredients:', modifiedIngredients);
-      cartStore.addToCart(customizedBurger);
-      this.hideDetails();
+      console.log('Adding customized burger to cart with modified ingredients:', modifiedIngredients)
+      cartStore.addToCart(customizedBurger)
+      this.hideDetails()
     }
   }
 }
@@ -153,12 +106,12 @@ export default {
   <div class="card-container">
     <div class="card" @click="showDetails">
       <div class="card-text">
-        <h2>{{ burger.name }}</h2>
-        <p>{{ burger.description }}</p>
-        <p>{{ burger.price.current + 'kr' }}</p>
+        <h2>{{ component.name }}</h2>
+        <p>{{ component.description }}</p>
+        <p>{{ component.price.current + 'kr' }}</p>
       </div>
 
-      <button class="card-button" @click.stop="addToCart(burger)">Lägg till</button>
+      <button class="card-button" @click.stop="addToCart(component)">Lägg till</button>
     </div>
 
     <div v-if="detailsVisible" class="product-detail-overlay" @click.self="hideDetails">
@@ -166,9 +119,9 @@ export default {
         <button class="close-button" @click="hideDetails">×</button>
 
         <div class="product-info">
-          <h2>{{ burger.name }}</h2>
-          <p class="description">{{ burger.description }}</p>
-          <p class="price">{{ burger.price.current }} kr</p>
+          <h2>{{ component.name }}</h2>
+          <p class="description">{{ component.description }}</p>
+          <p class="price">{{ component.price.current }} kr</p>
 
           <div v-if="extractedIngredients.length > 0" class="popup-ingredients-section">
             <h3>Ingredienser</h3>
@@ -204,7 +157,7 @@ export default {
 
         <div class="action-buttons">
           <button class="add-button" @click="addCustomizedToCart">
-            Lägg till ({{ burger.price.current * quantity }} kr)
+            Lägg till ({{ component.price.current * quantity }} kr)
           </button>
         </div>
       </div>
