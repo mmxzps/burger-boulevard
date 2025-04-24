@@ -1,4 +1,4 @@
-<script setup>
+<script>
 import { ref, computed, onMounted } from 'vue'
 import { useCartStore } from '@/stores/cart'
 
@@ -79,7 +79,7 @@ export default {
                   <span id="quantity">{{ item.quantity }}</span>
                   <button class="quantity-button" @click="increaseQuantity(item)">➕</button>
               </div>
-              <button class="cart-button" @click="removeFromCart(item)">Ta bort</button>
+              <!-- <button class="cart-button" @click="removeFromCart(item)">Ta bort</button> -->
 
             </div>
       </li>
