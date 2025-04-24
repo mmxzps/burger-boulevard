@@ -25,6 +25,8 @@ public class Orders : ControllerBase
 			.ThenInclude(oc => oc.Component)
 				.ThenInclude(c => c.ChildPolicies)
 					.ThenInclude(cp => cp.Child)
+	    .Include(o => o.Components)
+			.ThenInclude(oc => oc.Parent)
 	    .ToList() 
 	    .Select(o => o.ToDto()));
 

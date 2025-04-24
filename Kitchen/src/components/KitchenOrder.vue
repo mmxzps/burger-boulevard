@@ -82,7 +82,7 @@ const props = defineProps({
   },
 });
 
-const collapsed = ref(true);
+const collapsed = ref(false);
 
 const statusMap = {
   pending: ['preparing'],
@@ -94,8 +94,8 @@ const mainComponents = computed(() =>
   props.order.components.filter(c => c.parent === null)
 );
 
-const getChildren = () =>
-  props.order.components.filter(c => c.children === null);
+const getChildren = (mainId) =>
+  props.order.components.filter(c => c.parent === mainId);
 
 const statusOptions = computed(() => {
   const currentStatus = props.order.status;
