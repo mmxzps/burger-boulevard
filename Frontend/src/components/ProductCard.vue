@@ -1,74 +1,62 @@
-<template>
-  <div class="card-container">
-      <div class="card">
-          <div class="card-text">
-            <h2>{{ burger.name }}</h2>
-            <p>{{ burger.description }}</p>
-            <p>{{ burger.price.current +'kr' }}</p>
-        </div>
-        <button class="card-button" v-on:click="addToCart(burger)">Lägg till</button>
-    </div>
-  </div>
-</template>
-
 <script>
-import { useCartStore } from '@/stores/cart';
+import { useCartStore } from '@/stores/cart'
+import { baseUrl } from '@/api.js'
 
 export default {
-  props: {
-    burger: Object,
+  data() {
+    return {
+      baseUrl
+    }
   },
+
+  props: {
+    component: Object
+  },
+
   methods: {
-    addToCart(burger) {
-      const cartStore = useCartStore();
-      cartStore.addToCart(burger);
+    addToCart(component) {
+      const cartStore = useCartStore()
+      cartStore.cart.push(component)
+      cartStore.save()
     }
   }
 };
 </script>
 
+<template>
+  <div class="product">
+    <img :src="baseUrl + component.imageUrl" alt="" class="product-image" />
+    <span class="product-name">{{ component.name }}</span>
+    <p class="product-description">{{ component.description }}</p>
+    <span class="product-price">{{ component.price.current }}kr</span>
+    <button class="button" @click="addToCart(component)">Lägg till</button>
+  </div>
+</template>
 
 <style scoped>
-.card {
-  border: 1px solid #534f4f;
-  padding: 0px 3px;
-  margin: 10px 0;
-  border-radius: 8px;
-  border-radius: 3px;
-  background-color: #242323;
-  height: auto;
-  min-height: 100px;
+.product {
   width: 20rem;
 }
-.card-text{
-  height:100%;
-  min-height:98px;
-  padding:10px;
-  color:rgb(196, 190, 190);
-  text-shadow: 1px 1px black;
 
+.product-image {
+  display: block;
+  margin: 0 auto;
+  height: 14rem;
+  width: auto;
+  border-radius: 5px;
 }
-.card-text p {
-  font-size:15px; 
-  font-style: italic; 
-  }
 
-  .card-text h2 {
-    border-bottom: 1px solid grey;
-  }
-
-.card-button{
-  margin: 10px;
-  border:1px solid black;
-  padding: 5px;
-  border-radius: 3px;
-  color:white;
-  font: 1em sans-serif;
-  background-color: #4f4492;
-  width: 4.5rem;
+.product-name {
+  font-size: 1.6rem;
+  font-weight: bold;
 }
-.card:hover{
-  transform: scale(1.01);
-  transition: transform 0.9 eas-out;
+
+.product-description {
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.product-price {
+  font-size: 1.5rem;
 }
 </style>
