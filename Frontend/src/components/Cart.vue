@@ -1,90 +1,92 @@
-<script setup>
+<script>
 import { ref, computed, onMounted } from 'vue'
 import { useCartStore } from '@/stores/cart'
 
-const productList = ref([])
-const cartVisible = ref(true)
-const cartStore = useCartStore()
-
-onMounted(() => {
-  loadCart()
-})
-
-function loadCart() {
-  productList.value = cartStore.cart
-}
-
-function removeFromCart(index) {
-  cartStore.removeFromCart(index)
-  loadCart()
-}
-
-function showCart() {
-  cartVisible.value = !cartVisible.value
-}
-
-function makeOrder() {
-  alert('Beställ knapp fungerar ej. än.')
-}
-
-function increaseQuantity(item) {
-  cartStore.addToCart(item)
-  loadCart()
-}
-
-function decreaseQuantity(item) {
-  const index = productList.value.findIndex(p => p.id == item.id)
+export default {
+  data() {
+    return {
+      cartVisible: true,
+    };
+  },
   
-  if (index !== -1) {
-    cartStore.removeFromCart(index)
-    loadCart()
-  }
-}
+  methods: {
+    removeFromCart(item) {
+      const cartStore = useCartStore();
+      cartStore.removeAllOfItem(item.id);
+    },
+    showCart(){
+      this.cartVisible = !this.cartVisible
+    },
+    increaseQuantity(item){
+      const cartStore = useCartStore();
+      cartStore.addToCart(item);
+    },
+    decreaseQuantity(item){
+      const cartStore = useCartStore();
+      const index = this.productList.findIndex(p=>p.id == item.id);
 
-const groupedCartItems = computed(() => {
-  const grouped = {}
-  
-  productList.value.forEach(item => {
-    const key = item.id
-    
-    if (!grouped[key]) {
-      grouped[key] = {
-        ...item,
-        quantity: 1
+      if(index !== -1){
+        cartStore.removeFromCart(index);
       }
-    } else {
-      grouped[key].quantity += 1
     }
-  })
-  
-  return Object.values(grouped)
-})
+  },
+  computed:{
+    cartStore(){
+      return useCartStore();
+    },
+    productList(){
+      return this.cartStore.cart;
+    },
+    groupedCartItems(){
+      const grouped = {};
+
+      this.productList.forEach(item =>{
+        const key = item.id;
+
+        if(!grouped[key]){
+          grouped[key]={
+            ...item,
+            quantity:1
+          };
+        }else{
+          grouped[key].quantity +=1;
+        }
+      });
+
+      return Object.values(grouped);
+    }
+  }
+
+};
+
 </script>
+
+
 
 <template>
 
   <h2 class="cart-icon" @click="showCart()">🛒 {{ productList.length }}</h2>
 
-<div class="cart-container" :class="{visa: cartVisible}">
-  <ul>
+  <div class="cart-container" :class="{visa: cartVisible}">
+    <ul>
 
-    <li v-for="(item, index) in groupedCartItems" :key="index" class="cart-li">
-        <span>{{ item.name }} - {{ item.price.current }} kr</span>
-          <div class="quantity-buttons-container">
+      <li v-for="(item, index) in groupedCartItems" :key="index" class="cart-li">
+          <span>{{ item.name }} - {{ item.price.current }} kr</span>
+            <div class="quantity-buttons-container">
 
-            <div class="quantity-control">
-                <button class="quantity-button" @click="decreaseQuantity(item)">➖</button>
-                <span id="quantity">{{ item.quantity }}</span>
-                <button class="quantity-button" @click="increaseQuantity(item)">➕</button>
+              <div class="quantity-control">
+                  <button class="quantity-button" @click="decreaseQuantity(item)">➖</button>
+                  <span id="quantity">{{ item.quantity }}</span>
+                  <button class="quantity-button" @click="increaseQuantity(item)">➕</button>
+              </div>
+              <!-- <button class="cart-button" @click="removeFromCart(item)">Ta bort</button> -->
+
             </div>
-            <button class="cart-button" @click="removeFromCart(item)">Ta bort</button>
+      </li>
 
-          </div>
-    </li>
-
-  </ul>
-  <button class="cart-button" @click="makeOrder()">Beställ</button>
-  <button class="cart-button" @click="showCart()">Stäng</button>
+    </ul>
+    <button class="cart-button" ><router-link to="/checkout" @click="showCart">Till Kassa</router-link></button>
+    <button class="cart-button" @click="showCart()">Stäng</button>
 
 </div>
 </template>
@@ -93,9 +95,8 @@ const groupedCartItems = computed(() => {
 .cart-icon:hover{
 cursor: pointer;
 }
-.cart-icon-container{
-width: 50px;
-height: 50px;
+.cart-icon{
+  width: 4rem;
 }
 
 .cart-container ul{ 
@@ -127,15 +128,34 @@ margin-top: 5px;
 }
 
 .cart-button{
-margin: 5px;
-border:1px solid black;
-padding: 5px;
-border-radius: 3px;
-text-shadow: 1px 1px rgb(54, 52, 52);
-color:white;
-font: 1em sans-serif;
-background-color: #4f4492;
-width: 4.5rem;
+  margin: 5px;
+  border:1px solid black;
+  padding: 5px;
+  border-radius: 3px;
+  text-shadow: 1px 1px rgb(54, 52, 52);
+  color: hsla(160, 100%, 37%, 1);
+  font: 1em sans-serif;
+  background-color: #4f4492;
+  min-width: 4.5rem;
+  cursor:pointer;
+}
+.quantity-control{
+  width: 77px;
+  justify-content: end;
+  display: flex;
+  margin-right: 5px;
+}
+.quantity-button{
+  background: none;
+border: none;
+cursor: pointer;
+}
+#quantity{
+  margin: 4px;
+}
+.quantity-buttons-container{
+  display: flex;
+  align-items: center;
 }
 .quantity-control{
 width: 77px;
