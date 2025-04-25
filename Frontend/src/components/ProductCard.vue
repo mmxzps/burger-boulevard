@@ -40,7 +40,7 @@ export default {
     },
 
     changeIngredientQuantity(index, change) {
-      const ingredient = this.extractedIngredients[index]
+      const ingredient = this.ingredients[index]
       const newQuantity = ingredient.quantity + change
 
       if (newQuantity >= ingredient.min && newQuantity <= ingredient.max)
@@ -56,8 +56,8 @@ export default {
       this.detailsVisible = false
       this.quantity = 1
 
-      if (this.extractedIngredients.length > 0)
-        this.extractedIngredients.forEach(ingredient => {
+      if (this.ingredients.length > 0)
+        this.ingredients.forEach(ingredient => {
           ingredient.quantity = ingredient.originalQuantity
         });
     },
@@ -74,13 +74,13 @@ export default {
     addCustomizedToCart() {
       const cartStore = useCartStore()
 
-      const modifiedIngredients = this.extractedIngredients
+      const modifiedIngredients = this.ingredients
         .filter(ing => ing.quantity !== ing.originalQuantity)
 
       const customizedBurger = {
         ...this.component,
         quantity: this.quantity,
-        ingredients: this.extractedIngredients.filter(ing => ing.quantity > 0),
+        ingredients: this.ingredients.filter(ing => ing.quantity > 0),
         modifiedIngredients: modifiedIngredients,
         isCustomized: modifiedIngredients.length > 0,
         totalPrice: this.component.price.current * this.quantity
@@ -95,23 +95,13 @@ export default {
 </script>
 
 <template>
-  <div class="product">
-    <img :src="baseUrl + component.imageUrl" alt="" class="product-image" />
-    <span class="product-name">{{ component.name }}</span>
-    <p class="product-description">{{ component.description }}</p>
-    <span class="product-price">{{ component.price.current }}kr</span>
-    <button class="button" @click="addToCart(component)">Lägg till</button>
-  </div>
-
   <div class="card-container">
-    <div class="card" @click="showDetails">
-      <div class="card-text">
-        <h2>{{ component.name }}</h2>
-        <p>{{ component.description }}</p>
-        <p>{{ component.price.current + 'kr' }}</p>
-      </div>
-
-      <button class="card-button" @click.stop="addToCart(component)">Lägg till</button>
+    <div class="product" @click="showDetails">
+      <img :src="component.imageUrl ? baseUrl + component.imageUrl : ''" alt="" class="product-image" />
+      <span class="product-name">{{ component.name }}</span>
+      <p class="product-description">{{ component.description }}</p>
+      <span class="product-price">{{ component.price.current }}kr</span>
+      <button class="button" @click.stop="addToCart(component)">Lägg till</button>
     </div>
 
     <div v-if="detailsVisible" class="product-detail-overlay" @click.self="hideDetails">
@@ -123,20 +113,20 @@ export default {
           <p class="description">{{ component.description }}</p>
           <p class="price">{{ component.price.current }} kr</p>
 
-          <div v-if="extractedIngredients.length > 0" class="popup-ingredients-section">
+          <div v-if="ingredients.length > 0" class="popup-ingredients-section">
             <h3>Ingredienser</h3>
             <ul class="popup-ingredients-list">
-              <li v-for="(ingredient, index) in extractedIngredients" :key="ingredient.id"
-                class="popup-ingredient-item">
+              <li v-for="(ingredient, index) in ingredients" :key="ingredient.id" class="popup-ingredient-item">
                 <div class="ingredient-content">
                   <span>{{ ingredient.name }}</span>
                   <div class="ingredient-controls">
                     <button class="ingredient-control-btn remove-btn" @click="changeIngredientQuantity(index, -1)"
-                      :disabled="ingredient.quantity <= 0">
+                      :disabled="ingredient.quantity <= ingredient.min">
                       -
                     </button>
                     <span class="ingredient-quantity">{{ ingredient.quantity }}</span>
-                    <button class="ingredient-control-btn add-btn" @click="changeIngredientQuantity(index, 1)">
+                    <button class="ingredient-control-btn add-btn" @click="changeIngredientQuantity(index, 1)"
+                      :disabled="ingredient.quantity >= ingredient.max">
                       +
                     </button>
                   </div>
@@ -170,6 +160,23 @@ export default {
 .product {
   width: 20rem;
   cursor: pointer;
+  animation: popup .4s ease;
+}
+
+@keyframes popup {
+  0% {
+    opacity: 0;
+    scale: 0.9;
+  }
+
+  20% {
+    opacity: 1;
+    scale: 1.05;
+  }
+
+  100% {
+    scale: 1;
+  }
 }
 
 .product-image {

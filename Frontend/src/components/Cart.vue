@@ -6,7 +6,7 @@ export default {
   data() {
     return {
       cartStore: useCartStore(),
-      cartVisible: false
+      cartVisible: true
     }
   },
 
@@ -51,59 +51,46 @@ export default {
 </script>
 
 <template>
-  <h2 class="cart-icon" @click="cartVisible = !cartVisible">🛒 {{ cartStore.cart.length }}</h2>
-
   <div class="cart-container" v-if="cartVisible">
+    {{ groupedCartItems.length }} produkter
+
     <ul>
       <li v-for="item in groupedCartItems" :key="item.id" class="cart-li">
         <span>{{ item.name }} - {{ item.price.current }} kr</span>
         <div class="quantity-buttons-container">
           <div class="quantity-control">
             <button class="quantity-button" @click="decreaseQuantity(item)">➖</button>
-            <span id="quantity">{{ item.quantity }}</span>
+            <span>{{ item.quantity }}</span>
             <button class="quantity-button" @click="increaseQuantity(item)">➕</button>
           </div>
           <button class="cart-button" @click="removeFromCart(item)">Ta bort</button>
         </div>
       </li>
     </ul>
-    <button class="cart-button" @click="makeOrder">Beställ</button>
-    <button class="cart-button" @click="cartVisible = false">Stäng</button>
-  </div>
+    <button class="button" @click="makeOrder">Beställ</button>
+    <button class="button" @click="cartVisible = false">Stäng</button>
 
-  <button class="cart-button"><router-link to="/checkout" @click="showCart">Till Kassa</router-link></button>
-  <button class="cart-button" @click="showCart()">Stäng</button>
+    <button class="button">
+      <router-link to="/checkout" @click="cartVisible = false">Till Kassa</router-link>
+    </button>
+  </div>
 </template>
 
-<style>
-.cart-icon:hover {
-  cursor: pointer;
+<style scoped>
+.button {
+  display: inline;
+  width: max-content;
 }
 
-.cart-icon-container {
-  width: 50px;
-  height: 50px;
-}
-
-.cart-icon {
-  width: 4rem;
+.cart-container {
+  width: 100%;
+  padding: 1rem;
+  background-color: #fff2be;
+  border-radius: 30px 30px 0 0;
 }
 
 .cart-container ul {
   padding: 15px;
-}
-
-.cart-container {
-  border: 1px solid wheat;
-  position: fixed;
-  right: 10px;
-  top: 45px;
-  background-color: #242323;
-  color: rgb(196, 190, 190);
-  padding: 10px;
-  z-index: 1000;
-  width: 23rem;
-  border-radius: 1%;
 }
 
 .cart-li span {
@@ -140,10 +127,6 @@ export default {
   background: none;
   border: none;
   cursor: pointer;
-}
-
-#quantity {
-  margin: 4px;
 }
 
 .quantity-buttons-container {
