@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace Backend.Models.Entities;
 
 public enum ComponentLevel
@@ -24,8 +26,10 @@ public class Component : IIntoDto<Dto.Component>
     public virtual ICollection<OrderComponent> OrderComponents { get; set; } = [];
 
     public decimal CurrentPrice =>
-      Price.BasePrice * (Discount?.Multiplier ?? 1);
-    public required Price Price { get; set; }
+      Price * (Discount?.Multiplier ?? 1);
+
+    [Precision(8, 4)]
+    public decimal Price { get; set; }
     public required Discount? Discount { get; set; }
 
     public Dto.Component ToDto() => new Dto.Component
@@ -36,7 +40,7 @@ public class Component : IIntoDto<Dto.Component>
         Description = Description,
         ImageUrl = ImageUrl,
         Categories = Categories.Select(c => c.ToDto()),
-        OriginalPrice = Price.BasePrice,
+        OriginalPrice = Price,
         Discount = Discount?.Multiplier
     };
 }
