@@ -28,7 +28,7 @@ SET IDENTITY_INSERT Categories OFF;
 
 -- Ingredients
 SET IDENTITY_INSERT Components ON;
-INSERT INTO Components (Id, Level, Name, Price, Standalone) VALUES
+INSERT INTO Components (Id, Level, Name, Price, Independent) VALUES
   (1,  0, 'Bröd',                   5,  0),
   (2,  0, 'Veganskt bröd',          5,  0),
   (3,  0, 'Köttburgare',            10, 0),
@@ -50,7 +50,7 @@ INSERT INTO Components (Id, Level, Name, Price, Standalone) VALUES
   (19, 0, 'Senap',                  5,  0);
 
 -- Products
-INSERT INTO Components (Id, Level, Name, Description, Price, Standalone) VALUES
+INSERT INTO Components (Id, Level, Name, Description, Price, Independent) VALUES
   (20, 1, 'Cheeseburgare',          'Saftig nötköttsbiff med smält cheddarost, sallad, tomat, syltlök och majonnäs på ett mjukt bröd.',              99,  1),
   (21, 1, 'Vegoburgare',            'Växtbaserad burgare med bönor, quinoa, avokado, sallad, tomat, rödlök och vegansk majonnäs på veganskt bröd.',  99,  1),
   (22, 1, 'ITHS-special',           'Nötköttsbiff, bacon, BBQ-sås, cheddarost och coleslaw på briochebröd. En exklusiv burgare för ITHS-studenter.', 109, 1),
@@ -63,10 +63,10 @@ INSERT INTO Components (Id, Level, Name, Description, Price, Standalone) VALUES
   (29, 1, 'Currysås',               'En kryddig och aromatisk sås som ger en indisk touch till dina måltider.',                                      5,   1),
   (30, 1, 'Cheddardipsås',          'En krämig och ostig sås med cheddar, perfekt för att doppa pommes frites eller grönsaksstavar.',                5,   1);
 
-INSERT INTO Components (Id, Level, Name, Description, Price, Standalone) VALUES
+INSERT INTO Components (Id, Level, Name, Description, Price, Independent) VALUES
   (60, 1, 'Hot Wing', 'Krispiga och heta kycklingvingar med en rökig BBQ-sås', 20, 0);
 
-INSERT INTO Components (Id, Level, Name, Price, Standalone) VALUES
+INSERT INTO Components (Id, Level, Name, Price, Independent) VALUES
   (31, 2, 'Cheeseburgarmeny', 60, 1),
   (32, 2, 'Vegomeny',         65, 1),
   (33, 2, 'ITHS-meny',        89, 1);

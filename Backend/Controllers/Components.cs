@@ -20,13 +20,13 @@ public class Components : ControllerBase
     [HttpGet]
     public ActionResult<IEnumerable<Component>> Find(
         BackendContext context,
-        bool? standalone,
+        bool? independent,
         Models.Entities.ComponentLevel? level,
         int? categoryId) =>
       Ok(context.Components
           .AsNoTracking()
           .Where(c =>
-            (standalone == null || c.Standalone == standalone) &&
+            (independent == null || c.Independent == independent) &&
             (categoryId == null || c.Categories.Any(cat => cat.Id == categoryId)) &&
             (level == null || c.Level == level))
           .Select(c => c.ToDto()));
