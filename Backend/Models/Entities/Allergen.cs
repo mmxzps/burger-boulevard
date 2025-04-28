@@ -1,12 +1,12 @@
-﻿namespace Backend.Models.Entities;
+namespace Backend.Models.Entities;
 
-public class Category : IIntoDto<Dto.Category>
+public class Allergen : IIntoDto<Dto.Allergen>
 {
     public int Id { get; set; }
     public required string Name { get; set; }
     public virtual ICollection<Component> Components { get; set; } = [];
 
-    public Dto.Category ToDto() => new Dto.Category
+    public Dto.Allergen ToDto() => new Dto.Allergen
     {
         Id = Id,
         Name = Name
