@@ -49,8 +49,6 @@ public class Orders : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Order>> Create(BackendContext context, Models.Dto.Create.Order createOrder)
     {
-        // TODO: Verify component policies
-
         var order = context.Orders
           .Add(new Models.Entities.Order
           {
@@ -62,7 +60,11 @@ public class Orders : ControllerBase
         order.Entity.Components = createOrder.ToOrderComponentEntities(context, order.Entity);
 
         foreach (var oc in order.Entity.Components)
+        {
+            if (!oc.Component.Independent)
+                throw new Exception($"Non-independent component '{oc.Component.Name}' ({oc.Component.Id}) cannot be defined as top-level.");
             oc.VerifyPolicies();
+        }
 
         order.Entity.TotalPrice = order.Entity.Components.Sum(oc => oc.EvaluatePrice());
 
