@@ -17,4 +17,6 @@ public class Component
 
     [JsonIgnore] public decimal OriginalPrice { get; set; }
     [JsonIgnore] public decimal? Discount { get; set; }
+
+    public bool Standalone { get; set; }
 }

@@ -32,6 +32,8 @@ public class Component : IIntoDto<Dto.Component>
     public decimal Price { get; set; }
     public required Discount? Discount { get; set; }
 
+    public bool Standalone { get; set; }
+
     public Dto.Component ToDto() => new Dto.Component
     {
         Id = Id,
@@ -41,6 +43,7 @@ public class Component : IIntoDto<Dto.Component>
         ImageUrl = ImageUrl,
         Categories = Categories.Select(c => c.ToDto()),
         OriginalPrice = Price,
-        Discount = Discount?.Multiplier
+        Discount = Discount?.Multiplier,
+        Standalone = Standalone
     };
 }
