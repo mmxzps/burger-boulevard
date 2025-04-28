@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Models.Entities;
 
@@ -19,6 +20,7 @@ public class Order : IIntoDto<Dto.Order>
     public required OrderStatus Status { get; set; }
     public virtual ICollection<OrderComponent> Components { get; set; } = [];
     public bool TakeAway { get; set; }
+    [Precision(8, 4)]
     public decimal TotalPrice { get; set; }
     public TimeOnly OrderTime { get; set; } = TimeOnly.FromDateTime(DateTime.Now);
 
