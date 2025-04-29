@@ -1,21 +1,32 @@
 @import './base.css';
 
-.button {
+.button, .button-secondary {
   display: block;
   width: 100%;
   font-size: 1.5rem;
   padding: .5rem 3rem;
-  background-color: #f5d451;
-  border: 5px solid #f5d451;
   border-radius: 10px;
   color: #222;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+}
+
+.button {
+  background-color: #f5d451;
+  border: 5px solid #f5d451;
 }
 
 .button:hover {
   background-color: #fff;
+}
+
+.button-secondary {
+  background-color: #fff;
+  border: 5px solid transparent;
+}
+
+.button-secondary:hover {
+  border-color: #f5d451;
 }
 
 @media (min-width: 1024px) {

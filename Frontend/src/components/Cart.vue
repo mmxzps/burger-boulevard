@@ -67,6 +67,9 @@ export default {
         </div>
       </li>
     </ul>
+    <button class="button-secondary" @click="cartStore.orderType = null; cartStore.save()">
+      {{ cartStore.orderType ? 'Tar med' : 'Äter här' }}
+    </button>
     <button class="button" @click="makeOrder">Beställ</button>
     <button class="button" @click="cartVisible = false">Stäng</button>
 
@@ -77,7 +80,8 @@ export default {
 </template>
 
 <style scoped>
-.button {
+.button,
+.button-secondary {
   display: inline;
   width: max-content;
 }

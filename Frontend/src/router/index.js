@@ -1,12 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import GetAllProducts from '../components/GetAllProducts.vue'
-import CheckoutView from '../Views/CheckoutView.vue'
+import ProductsView from '@/views/Products.vue'
+import CheckoutView from '@/views/Checkout.vue'
 
 const routes = [
   {
-    path: '/:category',
+    path: '/:category?',
     // name: '',
-    component: GetAllProducts
+    component: ProductsView
   },
   {
     path: '/checkout',

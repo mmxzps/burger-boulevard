@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 
 export const useCartStore = defineStore('cart', {
   state: () => ({
+    // true = ta med, false = ät här.
     orderType: JSON.parse(localStorage.getItem('orderType')),
     cart: JSON.parse(localStorage.getItem('cart')) || []
   }),

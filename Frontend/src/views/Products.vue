@@ -2,10 +2,10 @@
 import * as api from '@/api.js'
 import { useCartStore } from '@/stores/cart'
 
-import ProductCard from './ProductCard.vue'
-import CategoryNavigation from './CategoryNavigation.vue'
-import ChooseOrderType from './ChooseOrderType.vue'
-import Cart from './Cart.vue'
+import ProductCard from '@/components/ProductCard.vue'
+import CategoryNavigation from '@/components/CategoryNavigation.vue'
+import ChooseOrderType from '@/components/ChooseOrderType.vue'
+import Cart from '@/components/Cart.vue'
 
 export default {
   data() {
@@ -45,7 +45,7 @@ export default {
 </script>
 
 <template>
-  <ChooseOrderType v-if="!cart.orderType" @choose="choice => { cart.orderType = choice; cart.save() }" />
+  <ChooseOrderType v-if="cart.orderType == null" @choose="choice => { cart.orderType = choice; cart.save() }" />
 
   <article v-else>
     <div>
@@ -82,7 +82,6 @@ article {
   flex-wrap: wrap;
   gap: 2rem;
 
-  padding: 2rem;
   margin: 0 auto;
 }
 
@@ -93,5 +92,6 @@ article {
 
 h1 {
   font-weight: bold;
+  margin: 2rem 0;
 }
 </style>

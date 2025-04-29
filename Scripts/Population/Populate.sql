@@ -138,6 +138,7 @@ INSERT INTO CategoryComponent (CategoriesId, ComponentsId) VALUES
   (1, 32),
   (1, 33);
 
--- TODO: Assign discounts on components
+-- TODO: Assign discounts
+-- TODO: Create and assign allergens
 
 COMMIT;

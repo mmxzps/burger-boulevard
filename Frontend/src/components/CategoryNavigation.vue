@@ -27,12 +27,12 @@ export default {
 </script>
 
 <template>
-  <nav>
+  <nav :class="{ open: isOpen }">
     <button class="menu-toggle" @click="isOpen = !isOpen">
       <span v-for="_ in 3" class="bar"></span>
     </button>
 
-    <ul :class="{ open: isOpen }">
+    <ul>
       <li v-for="category in categories">
         <router-link @click="closeMenu" :to="'/' + category.id">
           {{ category.name }}
@@ -83,18 +83,38 @@ nav>ul li a:hover {
 }
 
 @media (max-width: 768px) {
+  nav {
+    position: fixed;
+    width: 100%;
+  }
+
+  nav:not(.open) {
+    right: 100%;
+  }
+
+  nav.open .menu-toggle {
+    left: 0;
+  }
+
   .menu-toggle {
+    position: absolute;
     display: flex;
     flex-direction: column;
+    width: 3rem;
+    height: 3rem;
+    top: 0;
+    left: 100%;
     background: none;
     border: none;
+    border-bottom-right-radius: 40%;
     cursor: pointer;
+    font-size: 2rem;
   }
 
   .menu-toggle .bar {
-    height: 3px;
-    width: 25px;
-    background-color: #ffffff;
+    height: 0.3rem;
+    width: 2rem;
+    background-color: #333;
     margin: 4px 0;
     transition: 0.4s;
   }
