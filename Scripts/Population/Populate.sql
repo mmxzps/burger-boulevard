@@ -2,7 +2,6 @@ BEGIN TRANSACTION;
 
 -- Reset database.
 DELETE FROM Discounts;
-DELETE FROM Prices;
 DELETE FROM Categories;
 DELETE FROM Components;
 DELETE FROM ComponentChildPolicies;
