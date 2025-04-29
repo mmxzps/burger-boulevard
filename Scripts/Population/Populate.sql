@@ -63,7 +63,7 @@ INSERT INTO Components (Id, Level, Name, Description, Price, Independent) VALUES
   (30, 1, 'Cheddardipsås',          'En krämig och ostig sås med cheddar, perfekt för att doppa pommes frites eller grönsaksstavar.',                5,   1);
 
 INSERT INTO Components (Id, Level, Name, Description, Price, Independent) VALUES
-  (60, 1, 'Hot Wing', 'Krispiga och heta kycklingvingar med en rökig BBQ-sås', 20, 0);
+  (60, 1, 'Hot Wing', 'Krispiga och heta kycklingvingar med en rökig BBQ-sås', 20, 1);
 
 INSERT INTO Components (Id, Level, Name, Price, Independent) VALUES
   (31, 2, 'Cheeseburgarmeny', 60, 1),
