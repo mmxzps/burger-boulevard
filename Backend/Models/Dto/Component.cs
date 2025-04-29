@@ -9,7 +9,9 @@ public class Component
   public int Id { get; set; }
   public Entities.ComponentLevel Level { get; set; }
   public required string Name { get; set; }
-	public required string? Description { get; set; }
+  public required string? Description { get; set; }
+  public required List<Component> AddedComponents { get; set; }
+  public required List<Component> RemovedComponents { get; set; }
 	public required IEnumerable<Category> Categories { get; set; }
   public string? ImageUrl { get; set; }
 

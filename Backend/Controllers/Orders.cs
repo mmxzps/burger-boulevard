@@ -1,6 +1,7 @@
 using Backend.Models.Dto;
-using Backend.Models.Entities;
+using Backend.Models.Dto.Utilities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Order = Backend.Models.Dto.Order;
 
@@ -13,22 +14,24 @@ public class Orders : ControllerBase
   // TODO Create proper safety guards around these endpoints.
   [HttpGet]
   public ActionResult<IEnumerable<Order>> All(BackendContext context) =>
-    Ok(context.Orders
-	    .AsNoTracking()
-	    .Include(o => o.Components)
+	  Ok(context.Orders.AsNoTracking()
+		  .Include(o => o.Components)
 			.ThenInclude(oc => oc.Component)
 				.ThenInclude(c => c.Categories)
-	    .Include(o => o.Components)
+		  .Include(o => o.Components)
 			.ThenInclude(oc => oc.Component)
 				.ThenInclude(c => c.Price)
-	    .Include(o => o.Components)
+		  .Include(o => o.Components)
 			.ThenInclude(oc => oc.Component)
 				.ThenInclude(c => c.ChildPolicies)
 					.ThenInclude(cp => cp.Child)
-	    .Include(o => o.Components)
+		  .Include(o => o.Components)
 			.ThenInclude(oc => oc.Parent)
-	    .ToList() 
-	    .Select(o => o.ToDto()));
+		  .Select(o => o.ToDto())
+		  .ToList());
+
+
+    
 
   [HttpGet("{id}")]
     public async Task<ActionResult<Order>> Get(BackendContext context, int id) =>

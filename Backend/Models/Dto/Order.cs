@@ -9,3 +9,4 @@ public class Order
   public decimal TotalPrice { get; set; }
   public TimeOnly OrderTime { get; set; }
 }
+
