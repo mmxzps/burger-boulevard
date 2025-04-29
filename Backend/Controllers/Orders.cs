@@ -30,8 +30,7 @@ public class Orders : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateStatus(BackendContext context, int id, [FromBody] OrderUpdateDto orderUpdateDto)
     {
-        var order = await context.Orders
-            .FindAsync(id);
+        var order = await context.Orders.FindAsync(id);
 
         if (order == null)
             return NotFound();

@@ -5,7 +5,7 @@
 namespace Backend.Migrations
 {
     /// <inheritdoc />
-    public partial class AddOrderTotalPrice : Migration
+    public partial class PendingModelChangesMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -14,6 +14,8 @@ namespace Backend.Migrations
                 name: "TotalPrice",
                 table: "Orders",
                 type: "decimal(18,2)",
+                precision: 18,
+                scale: 2,
                 nullable: false,
                 defaultValue: 0m);
         }
