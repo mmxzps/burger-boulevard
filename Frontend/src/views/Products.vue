@@ -45,17 +45,19 @@ export default {
 </script>
 
 <template>
-  <ChooseOrderType v-if="cart.orderType == null" @choose="choice => { cart.orderType = choice; cart.save() }" />
+  <ChooseOrderType v-if="cart.takeAway == null" @choose="choice => { cart.takeAway = choice; cart.save() }" />
 
   <article v-else>
     <div>
       <CategoryNavigation />
+      
     </div>
 
     <div class="content-container">
       <h1>{{ browsingCategory?.name }}</h1>
       <div class="products-container">
         <ProductCard v-for="product in categoryProducts" :key="product.id" :component="product" />
+        <div v-if="browsingCategory == null"><p>hej</p></div>
       </div>
     </div>
 

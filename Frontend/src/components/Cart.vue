@@ -67,8 +67,8 @@ export default {
         </div>
       </li>
     </ul>
-    <button class="button-secondary" @click="cartStore.orderType = null; cartStore.save()">
-      {{ cartStore.orderType ? 'Tar med' : 'Äter här' }}
+    <button class="button-secondary" @click="cartStore.takeAway = null; cartStore.save()">
+      {{ cartStore.takeAway ? 'Tar med' : 'Äter här' }}
     </button>
     <button class="button" @click="makeOrder">Beställ</button>
     <button class="button" @click="cartVisible = false">Stäng</button>

@@ -3,13 +3,13 @@ import { defineStore } from 'pinia'
 export const useCartStore = defineStore('cart', {
   state: () => ({
     // true = ta med, false = ät här.
-    orderType: JSON.parse(localStorage.getItem('orderType')),
+    takeAway: JSON.parse(localStorage.getItem('takeAway')),
     cart: JSON.parse(localStorage.getItem('cart')) || []
   }),
 
   actions: {
     save() {
-      localStorage.setItem('orderType', this.orderType)
+      localStorage.setItem('takeAway', this.takeAway)
 
       if (this.cart.length === 0)
         localStorage.removeItem('cart')
