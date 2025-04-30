@@ -46,8 +46,8 @@ onBeforeUnmount(() => {
 .orders-wrapper {
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 0.5rem;
+  padding: 0.5rem;
   width: 100%;
   height: 100%;
   flex-wrap: nowrap; /* Ensure columns do not wrap */
@@ -72,9 +72,9 @@ onBeforeUnmount(() => {
 }
 
 .order {
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   background-color: white;
-  padding: 0.75rem;
+  padding: 0.5em;
   border-radius: 6px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }

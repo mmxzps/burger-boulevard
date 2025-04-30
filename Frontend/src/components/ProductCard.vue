@@ -1,13 +1,107 @@
+<script>
+import { useCartStore } from '@/stores/cart'
+import * as api from '@/api.js'
+
+export default {
+  data() {
+    return {
+      baseUrl: api.baseUrl,
+      ingredients: [],
+      detailsVisible: false,
+      quantity: 1
+    }
+  },
+
+  props: {
+    component: Object
+  },
+
+  mounted() {
+    this.fetchIngredients()
+  },
+
+  methods: {
+    addToCart(component) {
+      const cartStore = useCartStore()
+      cartStore.cart.push(component)
+      cartStore.save()
+    },
+
+    async fetchIngredients() {
+      this.ingredients = (await api.getComponentPolicies(this.component.id)).data.map(item => ({
+        id: item.id,
+        name: item.child.name,
+        description: item.child.description,
+        quantity: item.default,
+        min: item.min,
+        max: item.max,
+        originalQuantity: item.default
+      }))
+    },
+
+    changeIngredientQuantity(index, change) {
+      const ingredient = this.ingredients[index]
+      const newQuantity = ingredient.quantity + change
+
+      if (newQuantity >= ingredient.min && newQuantity <= ingredient.max)
+        ingredient.quantity = newQuantity
+    },
+
+    showDetails(event) {
+      if (!event.target.closest('.card-button'))
+        this.detailsVisible = true
+    },
+
+    hideDetails() {
+      this.detailsVisible = false
+      this.quantity = 1
+
+      if (this.ingredients.length > 0)
+        this.ingredients.forEach(ingredient => {
+          ingredient.quantity = ingredient.originalQuantity
+        });
+    },
+
+    increaseQuantity() {
+      this.quantity++
+    },
+
+    decreaseQuantity() {
+      if (this.quantity > 1)
+        this.quantity--
+    },
+
+    addCustomizedToCart() {
+      const cartStore = useCartStore()
+
+      const modifiedIngredients = this.ingredients
+        .filter(ing => ing.quantity !== ing.originalQuantity)
+
+      const customizedBurger = {
+        ...this.component,
+        quantity: this.quantity,
+        ingredients: this.ingredients.filter(ing => ing.quantity > 0),
+        modifiedIngredients: modifiedIngredients,
+        isCustomized: modifiedIngredients.length > 0,
+        totalPrice: this.component.price.current * this.quantity
+      }
+
+      console.log('Adding customized burger to cart with modified ingredients:', modifiedIngredients)
+      cartStore.addToCart(customizedBurger)
+      this.hideDetails()
+    }
+  }
+}
+</script>
+
 <template>
   <div class="card-container">
-    <div class="card" @click="showDetails">
-      <div class="card-text">
-        <h2>{{ burger.name }}</h2>
-        <p>{{ burger.description }}</p>
-        <p>{{ burger.price.current + 'kr' }}</p>
-      </div>
-
-      <button class="card-button" @click.stop="addToCart(burger)">Lägg till</button>
+    <div class="product" @click="showDetails">
+      <img :src="component.imageUrl ? baseUrl + component.imageUrl : ''" alt="" class="product-image" />
+      <span class="product-name">{{ component.name }}</span>
+      <p class="product-description">{{ component.description }}</p>
+      <span class="product-price">{{ component.price.current }}kr</span>
+      <button class="button" @click.stop="addToCart(component)">Lägg till</button>
     </div>
 
     <div v-if="detailsVisible" class="product-detail-overlay" @click.self="hideDetails">
@@ -15,27 +109,24 @@
         <button class="close-button" @click="hideDetails">×</button>
 
         <div class="product-info">
-          <h2>{{ burger.name }}</h2>
-          <p class="description">{{ burger.description }}</p>
-          <p class="price">{{ burger.price.current }} kr</p>
+          <h2>{{ component.name }}</h2>
+          <p class="description">{{ component.description }}</p>
+          <p class="price">{{ component.price.current }} kr</p>
 
-          <div v-if="extractedIngredients.length > 0" class="popup-ingredients-section">
+          <div v-if="ingredients.length > 0" class="popup-ingredients-section">
             <h3>Ingredienser</h3>
             <ul class="popup-ingredients-list">
-              <li v-for="(ingredient, index) in extractedIngredients" :key="ingredient.id" class="popup-ingredient-item">
+              <li v-for="(ingredient, index) in ingredients" :key="ingredient.id" class="popup-ingredient-item">
                 <div class="ingredient-content">
                   <span>{{ ingredient.name }}</span>
                   <div class="ingredient-controls">
-                    <button
-                      class="ingredient-control-btn remove-btn"
-                      @click="changeIngredientQuantity(index, -1)"
-                      :disabled="ingredient.quantity <= 0">
+                    <button class="ingredient-control-btn remove-btn" @click="changeIngredientQuantity(index, -1)"
+                      :disabled="ingredient.quantity <= ingredient.min">
                       -
                     </button>
                     <span class="ingredient-quantity">{{ ingredient.quantity }}</span>
-                    <button
-                      class="ingredient-control-btn add-btn"
-                      @click="changeIngredientQuantity(index, 1)">
+                    <button class="ingredient-control-btn add-btn" @click="changeIngredientQuantity(index, 1)"
+                      :disabled="ingredient.quantity >= ingredient.max">
                       +
                     </button>
                   </div>
@@ -56,7 +147,7 @@
 
         <div class="action-buttons">
           <button class="add-button" @click="addCustomizedToCart">
-            Lägg till ({{ burger.price.current * quantity }} kr)
+            Lägg till ({{ component.price.current * quantity }} kr)
           </button>
         </div>
       </div>
@@ -64,181 +155,50 @@
   </div>
 </template>
 
-<script>
-import { useCartStore } from '@/stores/cart';
-
-export default {
-  props: {
-    burger: Object,
-  },
-  data() {
-    return {
-      ingredients: [],
-      extractedIngredients: [],
-      detailsVisible: false,
-      quantity: 1
-    };
-  },
-  mounted() {
-    this.fetchIngredients();
-  },
-  methods: {
-    addToCart(burger) {
-      const cartStore = useCartStore();
-      cartStore.addToCart(burger);
-    },
-    async fetchIngredients() {
-      try {
-        const burgerId = this.burger.id;
-        if (!burgerId) {
-          console.error('No burger ID found:', this.burger);
-          return;
-        }
-
-        const response = await fetch(`https://localhost:7115/api/Components/${burgerId}/policies`);
-
-        if (!response.ok) {
-          throw new Error(`API returned ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('Raw ingredient data:', data);
-
-        if (Array.isArray(data) && data.length > 0) {
-          this.ingredients = data;
-
-          this.extractedIngredients = this.ingredients.map(item => {
-            if (item.child && item.child.name) {
-              return {
-                id: item.id,
-                name: item.child.name,
-                description: item.child.description,
-                quantity: item.default || 1,
-                min: item.min || 0,
-                max: item.max || 10,
-                originalQuantity: item.default || 1
-              };
-            }
-
-            return {
-              id: item.id,
-              name: `Unknown Ingredient ${item.id}`,
-              description: null,
-              quantity: 1,
-              min: 0,
-              max: 10,
-              originalQuantity: 1
-            };
-          });
-
-          console.log('Extracted ingredients:', this.extractedIngredients);
-        } else {
-          console.warn('No ingredients found for burger:', burgerId);
-        }
-      } catch (error) {
-        console.error('Error fetching ingredients:', error);
-      }
-    },
-    changeIngredientQuantity(index, change) {
-      const ingredient = this.extractedIngredients[index];
-      const newQuantity = ingredient.quantity + change;
-
-      if (newQuantity >= ingredient.min && newQuantity <= ingredient.max) {
-        ingredient.quantity = newQuantity;
-      }
-    },
-    showDetails(event) {
-      if (event.target.closest('.card-button')) {
-        return;
-      }
-      this.detailsVisible = true;
-    },
-    hideDetails() {
-      this.detailsVisible = false;
-      this.quantity = 1;
-
-      if (this.extractedIngredients.length > 0) {
-        this.extractedIngredients.forEach(ingredient => {
-          ingredient.quantity = ingredient.originalQuantity;
-        });
-      }
-    },
-    increaseQuantity() {
-      this.quantity++;
-    },
-    decreaseQuantity() {
-      if (this.quantity > 1) {
-        this.quantity--;
-      }
-    },
-    addCustomizedToCart() {
-      const cartStore = useCartStore();
-
-      const modifiedIngredients = this.extractedIngredients
-        .filter(ing => ing.quantity !== ing.originalQuantity);
-
-      const customizedBurger = {
-        ...this.burger,
-        quantity: this.quantity,
-        ingredients: this.extractedIngredients.filter(ing => ing.quantity > 0),
-        modifiedIngredients: modifiedIngredients,
-        isCustomized: modifiedIngredients.length > 0,
-        totalPrice: this.burger.price.current * this.quantity
-      };
-
-      console.log('Adding customized burger to cart with modified ingredients:', modifiedIngredients);
-      cartStore.addToCart(customizedBurger);
-      this.hideDetails();
-    }
-  }
-};
-</script>
 
 <style scoped>
-.card {
-  border: 1px solid #534f4f;
-  padding: 0px 3px;
-  margin: 10px 0;
-  border-radius: 8px;
-  border-radius: 3px;
-  background-color: #242323;
-  height: auto;
-  min-height: 100px;
+.product {
   width: 20rem;
   cursor: pointer;
+  animation: popup .4s ease;
 }
 
-.card-text {
-  height: 100%;
-  min-height: 98px;
-  padding: 10px;
-  color: rgb(196, 190, 190);
-  text-shadow: 1px 1px black;
+@keyframes popup {
+  0% {
+    opacity: 0;
+    scale: 0.9;
+  }
+
+  20% {
+    opacity: 1;
+    scale: 1.05;
+  }
+
+  100% {
+    scale: 1;
+  }
 }
 
-.card-text p {
-  font-size: 15px;
-  font-style: italic;
+.product-image {
+  display: block;
+  margin: 0 auto;
+  height: 14rem;
+  width: auto;
+  border-radius: 5px;
 }
 
-.card-text h2 {
-  border-bottom: 1px solid grey;
+.product-name {
+  font-size: 1.6rem;
+  font-weight: bold;
 }
 
-.card-button {
-  margin: 10px;
-  border: 1px solid black;
-  padding: 5px;
-  border-radius: 3px;
-  color: white;
-  font: 1em sans-serif;
-  background-color: #4f4492;
-  width: 4.5rem;
+.product-description {
+  font-size: 1.1rem;
+  color: #333;
 }
 
-.card:hover {
-  transform: scale(1.01);
-  transition: transform 0.9s ease-out;
+.product-price {
+  font-size: 1.5rem;
 }
 
 .product-detail-overlay {

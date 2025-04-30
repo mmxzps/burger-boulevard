@@ -1,6 +1,6 @@
 using Backend.Models.Dto;
-using Backend.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Order = Backend.Models.Dto.Order;
 
@@ -10,10 +10,20 @@ namespace Backend.Controllers;
 [ApiController]
 public class Orders : ControllerBase
 {
-    // TODO Create proper safety guards around these endpoints.
+    // TODO: Create proper safety guards around these endpoints.
     [HttpGet]
     public ActionResult<IEnumerable<Order>> All(BackendContext context) =>
-      Ok(context.Orders.AsNoTracking().Select(o => o.ToDto()));
+      Ok(context.Orders
+        .AsNoTracking()
+        .Include(o => o.Components)
+        .ThenInclude(oc => oc.Component)
+        .Select(o => o.ToDto()));
+
+    [HttpGet("Queue")]
+    public ActionResult<IEnumerable<Order>> AllQueue(BackendContext context) =>
+      Ok(context.Orders.AsNoTracking()
+        .Select(o => o.ToQueueDto())
+        .ToList());
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Order>> Get(BackendContext context, int id) =>
@@ -39,14 +49,12 @@ public class Orders : ControllerBase
             return Ok(order.ToDto());
         }
 
-        return NoContent(); //If nothing changed, return 204 No Content
+        return NoContent(); // If nothing changed, return 204 No Content
     }
 
     [HttpPost]
     public async Task<ActionResult<Order>> Create(BackendContext context, Models.Dto.Create.Order createOrder)
     {
-        // TODO: Verify component policies
-
         var order = context.Orders
           .Add(new Models.Entities.Order
           {
@@ -58,7 +66,11 @@ public class Orders : ControllerBase
         order.Entity.Components = createOrder.ToOrderComponentEntities(context, order.Entity);
 
         foreach (var oc in order.Entity.Components)
+        {
+            if (!oc.Component.Independent)
+                throw new Exception($"Non-independent component '{oc.Component.Name}' ({oc.Component.Id}) cannot be defined as top-level.");
             oc.VerifyPolicies();
+        }
 
         order.Entity.TotalPrice = order.Entity.Components.Sum(oc => oc.EvaluatePrice());
 
