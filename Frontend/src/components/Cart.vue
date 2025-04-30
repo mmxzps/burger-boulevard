@@ -84,6 +84,11 @@ export default {
 .button-secondary {
   display: inline;
   width: max-content;
+  font-size: 0.9rem;
+  margin: 2px;
+  padding: 8px 12px;
+  border-radius: 5px;
+  margin-bottom: 1rem;
 }
 
 .cart-container {

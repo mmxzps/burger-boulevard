@@ -57,7 +57,25 @@ export default {
       <h1>{{ browsingCategory?.name }}</h1>
       <div class="products-container">
         <ProductCard v-for="product in categoryProducts" :key="product.id" :component="product" />
-        <div v-if="browsingCategory == null"><p>hej</p></div>
+        <div v-if="browsingCategory == null" class="category-container">
+          
+          <router-link to="/menus">
+            <div class="category-div catemeny"></div>
+          </router-link>
+
+          <router-link to="/burgers">
+            <div class="category-div cateburg"></div>
+          </router-link>
+
+          <router-link to="/sides">
+            <div class="category-div cateside"></div>
+          </router-link>
+
+          <router-link to="/drinks">
+            <div class="category-div catedrink"></div>
+          </router-link>
+          
+        </div>
       </div>
     </div>
 
@@ -68,6 +86,52 @@ export default {
 </template>
 
 <style scoped>
+.category-container{
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 50rem;
+  margin-top: 4rem;
+  margin-bottom: 3rem;
+}
+.category-div {
+  max-height: 25rem;
+  min-height: 16rem;
+  flex: 1 1 20rem;
+  max-width: 18rem;
+  min-width: 16rem;
+  margin: 1rem;
+  box-shadow: 1px 1px 2px rgb(175, 173, 173);
+  border-radius: 2%;
+}
+.catemeny{
+  background-image: url('../categoryImg/menyer.png');
+  background-size: cover;  
+  background-position: center;
+  cursor: pointer;
+}
+.cateburg{
+  background-image: url('../categoryImg/burgare.jpg');
+  background-size: cover;  
+  background-position: center;
+}
+.catemeny:hover,
+.cateside:hover,
+.catedrink:hover,
+.cateburg:hover{ 
+  transform: scale(1.01);
+}
+.cateside{
+  background-image: url('../categoryImg/tillbehor.jpg');
+  background-size: cover;  
+  background-position: center;
+}
+.catedrink{
+  background-image: url('../categoryImg/drickor.png');
+  background-size: cover;  
+  background-position: center;
+}
 article {
   display: flex;
   height: 100vh;
@@ -76,7 +140,7 @@ article {
 .content-container {
   padding: 2em;
   max-height: 100%;
-  overflow: scroll;
+  /* overflow: scroll; */
 }
 
 .products-container {
