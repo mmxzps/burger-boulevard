@@ -160,6 +160,9 @@ export default {
 </template>
 
 <style>
+#quantity{
+  padding: 5px;
+}
 .confirm-container{
   display: flex;
   flex-direction: column;
@@ -212,7 +215,7 @@ ul {
 }
 .order-price{
   display: inline-block;
-  width: 3rem;
+  width: 3.5rem;
   text-align: end;
 }
 .order-divider{
