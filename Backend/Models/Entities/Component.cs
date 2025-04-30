@@ -66,11 +66,9 @@ public class Component : IIntoDto<Dto.Component>
             .Select(p => p.Child)
             .ToList();
 
-				Console.WriteLine("Before filtering: ");
-				Console.WriteLine($"Actual Child Components count: {actualChildComponents.Count}");
-				Console.WriteLine($"Standard Child Components count: {standardChildComponents.Count}");
+	        
 
-				dto.AddedComponents = actualChildComponents
+          dto.AddedComponents = actualChildComponents
             .Where(ac => !standardChildComponents.Any(sc => sc.Id == ac.Id))
             .Select(c => c.ToDto())
             .ToList();
