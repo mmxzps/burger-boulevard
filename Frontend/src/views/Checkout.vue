@@ -21,18 +21,14 @@ export default {
       this.productList = store.cart;
     },
     increaseQuantity(item){
-      const cartStore = useCartStore();
-      cartStore.addToCart(item);
-      this.loadCart(cartStore);
+      this.cartStore.cart.push(item)
+      this.cartStore.save()
     },
     decreaseQuantity(item){
-      const cartStore = useCartStore();
-      const index = this.productList.findIndex(p=>p.id == item.id);
+      this.cartStore.cart.splice(this.cartStore.cart.findIndex(i => i.id == item.id), 1)
+      this.cartStore.save()
 
-      if(index !== -1){
-        cartStore.removeFromCart(index);
-        this.loadCart(cartStore);
-      }
+      
     },
 
     placeOrder() {
