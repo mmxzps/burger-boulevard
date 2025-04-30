@@ -9,3 +9,10 @@ public class Order
   public decimal TotalPrice { get; set; }
   public TimeOnly OrderTime { get; set; }
 }
+
+public class OrderQueue
+{
+	public int Id { get; set; } //TODO: Change to QueueId when implemented.
+	public TimeOnly OrderTime { get; set; }
+}
+

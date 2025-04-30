@@ -26,11 +26,17 @@ public class Order : IIntoDto<Dto.Order>
 
     public Dto.Order ToDto() => new Dto.Order
     {
-        Id = Id,
-        Status = Status,
-        Components = Components.Select(c => c.ToDto()),
-        TakeAway = TakeAway,
-        TotalPrice = TotalPrice,
-        OrderTime = OrderTime
+      Id = Id,
+      Status = Status,
+      Components = Components.Select(c => c.ToDto()),
+      TakeAway = TakeAway,
+      TotalPrice = TotalPrice,
+      OrderTime = OrderTime
+    };
+
+    public Dto.OrderQueue ToQueueDto() => new Dto.OrderQueue
+    {
+      Id = Id,
+      OrderTime = OrderTime
     };
 }
