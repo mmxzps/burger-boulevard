@@ -62,7 +62,7 @@ const statusMap = {
 };
 
 const mainComponents = computed(() =>
-  props.order.components.filter(c => c.parent === null)
+  props.order.components.filter(c => c.component.level === 1)
 );
 
 
