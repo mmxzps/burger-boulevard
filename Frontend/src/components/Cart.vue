@@ -52,9 +52,13 @@ export default {
 
 <template>
   <div class="cart-container" v-if="cartVisible">
-    {{ groupedCartItems.length }} produkter
+    <button class="button">
+      <router-link to="/checkout" @click="cartVisible = false">Till Kassa</router-link>
+    </button>
 
-    <ul>
+    🛒{{ this.cartStore.cart.length }} 
+
+    <!-- <ul>
       <li v-for="item in groupedCartItems" :key="item.id" class="cart-li">
         <span>{{ item.name }} - {{ item.price.current }} kr</span>
         <div class="quantity-buttons-container">
@@ -66,16 +70,14 @@ export default {
           <button class="cart-button" @click="removeFromCart(item)">Ta bort</button>
         </div>
       </li>
-    </ul>
-    <button class="button-secondary" @click="cartStore.takeAway = null; cartStore.save()">
+    </ul> -->
+    <!-- <button class="button-secondary" @click="cartStore.takeAway = null; cartStore.save()">
       {{ cartStore.takeAway ? 'Tar med' : 'Äter här' }}
-    </button>
-    <button class="button" @click="makeOrder">Beställ</button>
-    <button class="button" @click="cartVisible = false">Stäng</button>
+    </button> -->
+    <!-- <button class="button" @click="makeOrder">Beställ</button> -->
+    <!-- <button class="button" @click="cartVisible = false">Stäng</button> -->
 
-    <button class="button">
-      <router-link to="/checkout" @click="cartVisible = false">Till Kassa</router-link>
-    </button>
+
   </div>
 </template>
 
@@ -95,7 +97,9 @@ export default {
   width: 100%;
   padding: 1rem;
   background-color: #fff2be;
-  border-radius: 30px 30px 0 0;
+  justify-content: space-between;
+  display:flex ;
+  font-size: 33px;
 }
 
 .cart-container ul {

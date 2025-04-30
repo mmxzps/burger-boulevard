@@ -58,7 +58,7 @@ export default {
       <div class="products-container">
         <ProductCard v-for="product in categoryProducts" :key="product.id" :component="product" />
         <div v-if="browsingCategory == null" class="category-container">
-          
+
           <router-link to="/menus">
             <div class="category-div catemeny"></div>
           </router-link>
@@ -93,7 +93,8 @@ export default {
   flex-wrap: wrap;
   max-width: 50rem;
   margin-top: 4rem;
-  margin-bottom: 3rem;
+  margin-bottom: 8rem;
+  justify-content: center
 }
 .category-div {
   max-height: 25rem;
@@ -139,8 +140,8 @@ article {
 
 .content-container {
   padding: 2em;
-  max-height: 100%;
-  /* overflow: scroll; */
+  height: fit-content;
+  padding-bottom: 9rem;
 }
 
 .products-container {
