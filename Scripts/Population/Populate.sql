@@ -1,6 +1,7 @@
 BEGIN TRANSACTION;
 
 -- Reset database.
+DELETE FROM Allergens;
 DELETE FROM Discounts;
 DELETE FROM Categories;
 DELETE FROM Components;
@@ -47,6 +48,26 @@ INSERT INTO Components (Id, Level, Name, Price, Independent) VALUES
   (17, 0, 'Coleslaw',               5,  0),
   (18, 0, 'Ketchup',                5,  0),
   (19, 0, 'Senap',                  5,  0);
+
+SET IDENTITY_INSERT Allergens ON;
+INSERT INTO Discounts (Id, Name) VALUES
+  (1, 'Kött'),
+  (2, 'Fågel'),
+  (3, 'Gluten'),
+  (4, 'Laktos'),
+  (5, 'Ägg'),
+  (6, 'Mjölkprotein');
+SET IDENTITY_INSERT Allergens OFF;
+
+INSERT INTO AllergenComponent (ComponentsId, AllergensId) VALUES
+  (1, 3),
+  (3, 1),
+  (4, 2),
+  (6, 4),
+  (10, 5),
+  (15, 1),
+  (17, 4),
+  (17, 6);
 
 -- Products
 INSERT INTO Components (Id, Level, Name, Description, Price, Independent) VALUES
@@ -137,8 +158,5 @@ INSERT INTO CategoryComponent (CategoriesId, ComponentsId) VALUES
   (1, 31),
   (1, 32),
   (1, 33);
-
--- TODO: Assign discounts
--- TODO: Create and assign allergens
 
 COMMIT;
