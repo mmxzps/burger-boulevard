@@ -10,3 +10,9 @@ public class Order
   public TimeOnly OrderTime { get; set; }
 }
 
+public class OrderQueue
+{
+	public int Id { get; set; } //TODO: Change to QueueId when implemented.
+	public TimeOnly OrderTime { get; set; }
+}
+

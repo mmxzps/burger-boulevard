@@ -32,5 +32,11 @@ public class Order : IIntoDto<Dto.Order>
 		OrderTime = OrderTime
 	};
 
-	
+	public Dto.OrderQueue ToQueueDto() => new Dto.OrderQueue
+	{
+		Id = Id,
+		OrderTime = OrderTime
+	};
+
+
 }

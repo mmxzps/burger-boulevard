@@ -1,5 +1,4 @@
 using Backend.Models.Dto;
-using Backend.Models.Dto.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
@@ -30,8 +29,11 @@ public class Orders : ControllerBase
 		  .Select(o => o.ToDto())
 		  .ToList());
 
-
-    
+  [HttpGet("Queue")]
+  public ActionResult<IEnumerable<Order>> AllQueue(BackendContext context) =>
+	  Ok(context.Orders.AsNoTracking()
+		  .Select(o => o.ToQueueDto())
+		  .ToList());
 
   [HttpGet("{id}")]
     public async Task<ActionResult<Order>> Get(BackendContext context, int id) =>
