@@ -16,7 +16,9 @@ public class Orders : ControllerBase
       Ok(context.Orders
         .AsNoTracking()
         .Include(o => o.Components)
-        .ThenInclude(oc => oc.Component)
+			.ThenInclude(oc => oc.Component)
+				.ThenInclude(c => c.ChildPolicies)
+					.ThenInclude(cp => cp.Child)
         .Select(o => o.ToDto()));
 
     [HttpGet("Queue")]
