@@ -29,8 +29,8 @@ public class BackendContext : DbContext
         modelBuilder.Entity<ComponentChildPolicy>(b =>
             {
                 b.HasOne(p => p.Parent)
-              .WithMany(c => c.ChildPolicies)
-              .OnDelete(DeleteBehavior.Restrict);
+                  .WithMany(c => c.ChildPolicies)
+                  .OnDelete(DeleteBehavior.Restrict);
                 b.Navigation(p => p.Child).AutoInclude();
             });
     }

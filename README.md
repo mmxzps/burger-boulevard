@@ -33,16 +33,18 @@ Scripts/Population/Population.ps1
 
 Länka API till frontend:
 
-```powershell
-Add-Content -Path Frontend/.env.local -Value "VITE_API_BASE_URL = 'http://localhost:5269'"
+Skapa filen `Frontend/.env.local` med innehållet:
+
+```env
+VITE_API_BASE_URL = 'http://localhost:5269'
 ```
+
+Se till att HTTP-scheme (`http` eller `https`) och port stämmer överens med backend. Se [launchSettings.json](Backend/Properties/launchSettings.json) för adress.
 
 Installera Node.js-paket:
 
 ```powershell
-cd Frontend
-npm install
-cd ..
+npm install --prefix Frontend
 ```
 
 ## TODO: Köksfrontend

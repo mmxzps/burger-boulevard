@@ -1,5 +1,6 @@
 using Backend.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Order = Backend.Models.Dto.Order;
 
@@ -15,8 +16,16 @@ public class Orders : ControllerBase
       Ok(context.Orders
         .AsNoTracking()
         .Include(o => o.Components)
-        .ThenInclude(oc => oc.Component)
+			.ThenInclude(oc => oc.Component)
+				.ThenInclude(c => c.ChildPolicies)
+					.ThenInclude(cp => cp.Child)
         .Select(o => o.ToDto()));
+
+    [HttpGet("Queue")]
+    public ActionResult<IEnumerable<Order>> AllQueue(BackendContext context) =>
+      Ok(context.Orders.AsNoTracking()
+        .Select(o => o.ToQueueDto())
+        .ToList());
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Order>> Get(BackendContext context, int id) =>
