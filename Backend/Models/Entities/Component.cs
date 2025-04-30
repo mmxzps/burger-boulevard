@@ -66,8 +66,6 @@ public class Component : IIntoDto<Dto.Component>
             .Select(p => p.Child)
             .ToList();
 
-	        
-
           dto.AddedComponents = actualChildComponents
             .Where(ac => !standardChildComponents.Any(sc => sc.Id == ac.Id))
             .Select(c => c.ToDto())
