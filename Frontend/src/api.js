@@ -15,3 +15,6 @@ export const getComponents = (level, categoryId) =>
 
 export const getComponentPolicies = (componentId) =>
   client.get(`components/${componentId}/policies`)
+
+export const getBurgerMenus = () =>
+  client.get('components', { params: { level: 2 } })
