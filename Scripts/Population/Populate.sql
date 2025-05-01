@@ -1,8 +1,8 @@
 BEGIN TRANSACTION;
 
 -- Reset database.
+DELETE FROM Allergens;
 DELETE FROM Discounts;
-DELETE FROM Prices;
 DELETE FROM Categories;
 DELETE FROM Components;
 DELETE FROM ComponentChildPolicies;
@@ -13,19 +13,6 @@ SET IDENTITY_INSERT Discounts ON;
 INSERT INTO Discounts (Id, Multiplier) VALUES
   (1, 0.7); -- 30% off
 SET IDENTITY_INSERT Discounts OFF;
-
-SET IDENTITY_INSERT Prices ON;
-INSERT INTO Prices (Id, BasePrice) VALUES
-  (1, 5),
-  (2, 10),
-  (3, 15),
-  (4, 20),
-  (5, 60),
-  (6, 65),
-  (7, 89),
-  (8, 99),
-  (9, 109);
-SET IDENTITY_INSERT Prices OFF;
 
 SET IDENTITY_INSERT Categories ON;
 INSERT INTO Categories (Id, Name) VALUES
@@ -41,49 +28,71 @@ SET IDENTITY_INSERT Categories OFF;
 
 -- Ingredients
 SET IDENTITY_INSERT Components ON;
-INSERT INTO Components (Id, Level, Name, PriceId, DisplayOrderIndex) VALUES
-  (1,  0, 'Bröd',                   1, 1),
-  (2,  0, 'Veganskt bröd',          1, 2),
-  (3,  0, 'Köttburgare',            2, 3),
-  (4,  0, 'Kycklingburgare',        2, 4),
-  (5,  0, 'Växtbaserad hamburgare', 2, 5),
-  (6,  0, 'Ost',                    2, 6),
-  (7,  0, 'Sallad',                 1, 7),
-  (8,  0, 'Tomat',                  1, 8),
-  (9,  0, 'Syltlök',                1, 9),
-  (10, 0, 'Majonnäs',               1, 10),
-  (11, 0, 'Quinoa',                 1, 11),
-  (12, 0, 'Avokado',                1, 12),
-  (13, 0, 'Rödlök',                 1, 13),
-  (14, 0, 'Vegansk majonnäs',       1, 14),
-  (15, 0, 'Bacon',                  2, 15),
-  (16, 0, 'BBQ-sås',                1, 16),
-  (17, 0, 'Coleslaw',               1, 17),
-  (18, 0, 'Ketchup',                1, 18),
-  (19, 0, 'Senap',                  1, 19);
+INSERT INTO Components (Id, Level, Name, Price, Independent) VALUES
+  (1,  0, 'Bröd',                   5,  0),
+  (2,  0, 'Veganskt bröd',          5,  0),
+  (3,  0, 'Köttburgare',            10, 0),
+  (4,  0, 'Kycklingburgare',        10, 0),
+  (5,  0, 'Växtbaserad hamburgare', 10, 0),
+  (6,  0, 'Ost',                    10, 0),
+  (7,  0, 'Sallad',                 5,  0),
+  (8,  0, 'Tomat',                  5,  0),
+  (9,  0, 'Syltlök',                5,  0),
+  (10, 0, 'Majonnäs',               5,  0),
+  (11, 0, 'Quinoa',                 5,  0),
+  (12, 0, 'Avokado',                5,  0),
+  (13, 0, 'Rödlök',                 5,  0),
+  (14, 0, 'Vegansk majonnäs',       5,  0),
+  (15, 0, 'Bacon',                  10, 0),
+  (16, 0, 'BBQ-sås',                5,  0),
+  (17, 0, 'Coleslaw',               5,  0),
+  (18, 0, 'Ketchup',                5,  0),
+  (19, 0, 'Senap',                  5,  0);
+
+SET IDENTITY_INSERT Allergens ON;
+INSERT INTO Discounts (Id, Name) VALUES
+  (1, 'Kött'),
+  (2, 'Fågel'),
+  (3, 'Gluten'),
+  (4, 'Laktos'),
+  (5, 'Ägg'),
+  (6, 'Mjölkprotein');
+SET IDENTITY_INSERT Allergens OFF;
+
+INSERT INTO AllergenComponent (ComponentsId, AllergensId) VALUES
+  (1, 3),
+  (3, 1),
+  (4, 2),
+  (6, 4),
+  (10, 5),
+  (15, 1),
+  (17, 4),
+  (17, 6);
 
 -- Products
-INSERT INTO Components (Id, Level, Name, Description, PriceId) VALUES
-  (20, 1, 'Cheeseburgare',          'Saftig nötköttsbiff med smält cheddarost, sallad, tomat, syltlök och majonnäs på ett mjukt bröd.',              8),
-  (21, 1, 'Vegoburgare',            'Växtbaserad burgare med bönor, quinoa, avokado, sallad, tomat, rödlök och vegansk majonnäs på veganskt bröd.',  8),
-  (22, 1, 'ITHS-special',           'Nötköttsbiff, bacon, BBQ-sås, cheddarost och coleslaw på briochebröd. En exklusiv burgare för ITHS-studenter.', 9),
-  (23, 1, 'Coca Cola',              '',                                                                                                              4),
-  (24, 1, 'Fanta',                  '',                                                                                                              4),
-  (25, 1, 'Pommes Frites (Liten)',  'En liten portion krispiga pommes frites, perfekt som tillbehör till en måltid.',                                2),
-  (26, 1, 'Pommes Frites (Medium)', 'En medium portion pommes frites för dem som vill ha en lagom mängd.',                                           3),
-  (27, 1, 'Pommes Frites (Stor)',   'En stor portion krispiga pommes frites, idealisk för de som vill ha mer.',                                      4),
-  (28, 1, 'Barbequesås',            'En rökig och söt sås som ger en extra dimension till dina favoriträtter.',                                      1),
-  (29, 1, 'Currysås',               'En kryddig och aromatisk sås som ger en indisk touch till dina måltider.',                                      1),
-  (30, 1, 'Cheddardipsås',          'En krämig och ostig sås med cheddar, perfekt för att doppa pommes frites eller grönsaksstavar.',                1);
+INSERT INTO Components (Id, Level, Name, Description, Price, Independent) VALUES
+  (20, 1, 'Cheeseburgare',          'Saftig nötköttsbiff med smält cheddarost, sallad, tomat, syltlök och majonnäs på ett mjukt bröd.',              99,  1),
+  (21, 1, 'Vegoburgare',            'Växtbaserad burgare med bönor, quinoa, avokado, sallad, tomat, rödlök och vegansk majonnäs på veganskt bröd.',  99,  1),
+  (22, 1, 'ITHS-special',           'Nötköttsbiff, bacon, BBQ-sås, cheddarost och coleslaw på briochebröd. En exklusiv burgare för ITHS-studenter.', 109, 1),
+  (23, 1, 'Coca Cola',              '',                                                                                                              20,  1),
+  (24, 1, 'Fanta',                  '',                                                                                                              20,  1),
+  (25, 1, 'Pommes Frites (Liten)',  'En liten portion krispiga pommes frites, perfekt som tillbehör till en måltid.',                                10,  1),
+  (26, 1, 'Pommes Frites (Medium)', 'En medium portion pommes frites för dem som vill ha en lagom mängd.',                                           15,  1),
+  (27, 1, 'Pommes Frites (Stor)',   'En stor portion krispiga pommes frites, idealisk för de som vill ha mer.',                                      20,  1),
+  (28, 1, 'Barbequesås',            'En rökig och söt sås som ger en extra dimension till dina favoriträtter.',                                      5,   1),
+  (29, 1, 'Currysås',               'En kryddig och aromatisk sås som ger en indisk touch till dina måltider.',                                      5,   1),
+  (30, 1, 'Cheddardipsås',          'En krämig och ostig sås med cheddar, perfekt för att doppa pommes frites eller grönsaksstavar.',                5,   1);
 
-INSERT INTO Components (Id, Level, Name, Description, PriceId) VALUES
-  (60, 1, 'Hot Wing', 'Krispiga och heta kycklingvingar med en rökig BBQ-sås', 4);
+INSERT INTO Components (Id, Level, Name, Description, Price, Independent) VALUES
+  (60, 1, 'Hot Wing', 'Krispiga och heta kycklingvingar med en rökig BBQ-sås', 20, 1);
 
-INSERT INTO Components (Id, Level, Name, PriceId) VALUES
-  (31, 2, 'Cheeseburgarmeny', 5),
-  (32, 2, 'Vegomeny',         6),
-  (33, 2, 'ITHS-meny',        7);
+INSERT INTO Components (Id, Level, Name, Price, Independent) VALUES
+  (31, 2, 'Cheeseburgarmeny', 60, 1),
+  (32, 2, 'Vegomeny',         65, 1),
+  (33, 2, 'ITHS-meny',        89, 1);
 SET IDENTITY_INSERT Components OFF;
+
+UPDATE Components SET DiscountId = 1 WHERE Id = 24;
 
 INSERT INTO FeaturedComponents (Title, ComponentId) VALUES
   ('Exklusivt för ITHS-studenter', 22);
@@ -151,7 +160,5 @@ INSERT INTO CategoryComponent (CategoriesId, ComponentsId) VALUES
   (1, 31),
   (1, 32),
   (1, 33);
-
--- TODO: add discounts
 
 COMMIT;

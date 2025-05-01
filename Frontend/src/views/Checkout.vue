@@ -21,18 +21,14 @@ export default {
       this.productList = store.cart;
     },
     increaseQuantity(item){
-      const cartStore = useCartStore();
-      cartStore.addToCart(item);
-      this.loadCart(cartStore);
+      this.cartStore.cart.push(item)
+      this.cartStore.save()
     },
     decreaseQuantity(item){
-      const cartStore = useCartStore();
-      const index = this.productList.findIndex(p=>p.id == item.id);
+      this.cartStore.cart.splice(this.cartStore.cart.findIndex(i => i.id == item.id), 1)
+      this.cartStore.save()
 
-      if(index !== -1){
-        cartStore.removeFromCart(index);
-        this.loadCart(cartStore);
-      }
+      
     },
 
     placeOrder() {
@@ -120,6 +116,7 @@ export default {
 </script>
 
 <template>
+   <router-link to="/" class="back-button">← Tillbaka</router-link>
   <div v-if="showOrderConfirm" class="confirm-container">
     <h2>Tack för din beställning!</h2>
     <p>Din order har skickats till köket.</p>
@@ -163,6 +160,9 @@ export default {
 </template>
 
 <style>
+#quantity{
+  padding: 5px;
+}
 .confirm-container{
   display: flex;
   flex-direction: column;
@@ -215,7 +215,7 @@ ul {
 }
 .order-price{
   display: inline-block;
-  width: 3rem;
+  width: 3.5rem;
   text-align: end;
 }
 .order-divider{
