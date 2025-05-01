@@ -15,12 +15,22 @@ const routes = [
   {
     path: '/menus',
     name: 'Menus',
-    component: Menus
+    component: () => import('../views/Menus.vue')
+  },
+  {
+    path: '/menu/:id',
+    name: 'MenuDetail',
+    component: () => import('../views/MenuDetail.vue')
   },
   {
     path: '/burgers',
     name: 'Burgers',
     component: Burgers
+  },
+  {
+    path: '/burger/:id',
+    name: 'BurgerDetail',
+    component: () => import('../views/BurgerDetail.vue')
   },
   {
     path: '/sides',
