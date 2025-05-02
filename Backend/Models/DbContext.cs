@@ -8,6 +8,7 @@ public class BackendContext : DbContext
     public required DbSet<Component> Components { get; set; }
     public required DbSet<ComponentChildPolicy> ComponentChildPolicies { get; set; }
     public required DbSet<Category> Categories { get; set; }
+    public required DbSet<Allergen> Allergens { get; set; }
     public required DbSet<Discount> Discounts { get; set; }
     public required DbSet<FeaturedComponent> FeaturedComponents { get; set; }
     public required DbSet<Order> Orders { get; set; }
@@ -20,18 +21,19 @@ public class BackendContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Component>(b =>
-            {
-                b.Navigation(c => c.Categories).AutoInclude();
-                b.Navigation(c => c.Discount).AutoInclude();
-            });
-
         modelBuilder.Entity<ComponentChildPolicy>(b =>
             {
                 b.HasOne(p => p.Parent)
                   .WithMany(c => c.ChildPolicies)
                   .OnDelete(DeleteBehavior.Restrict);
                 b.Navigation(p => p.Child).AutoInclude();
+            });
+
+        modelBuilder.Entity<Component>(b =>
+            {
+                b.Navigation(c => c.Allergens).AutoInclude();
+                b.Navigation(c => c.Categories).AutoInclude();
+                b.Navigation(c => c.Discount).AutoInclude();
             });
     }
 }

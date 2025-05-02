@@ -26,6 +26,16 @@ INSERT INTO Categories (Id, Name) VALUES
   (8, 'Dessert');
 SET IDENTITY_INSERT Categories OFF;
 
+SET IDENTITY_INSERT Allergens ON;
+INSERT INTO Allergens (Id, Name) VALUES
+  (1, 'Kött'),
+  (2, 'Fågel'),
+  (3, 'Gluten'),
+  (4, 'Laktos'),
+  (5, 'Ägg'),
+  (6, 'Mjölkprotein');
+SET IDENTITY_INSERT Allergens OFF;
+
 -- Ingredients
 SET IDENTITY_INSERT Components ON;
 INSERT INTO Components (Id, Level, Name, Price, Independent) VALUES
@@ -48,16 +58,6 @@ INSERT INTO Components (Id, Level, Name, Price, Independent) VALUES
   (17, 0, 'Coleslaw',               5,  0),
   (18, 0, 'Ketchup',                5,  0),
   (19, 0, 'Senap',                  5,  0);
-
-SET IDENTITY_INSERT Allergens ON;
-INSERT INTO Discounts (Id, Name) VALUES
-  (1, 'Kött'),
-  (2, 'Fågel'),
-  (3, 'Gluten'),
-  (4, 'Laktos'),
-  (5, 'Ägg'),
-  (6, 'Mjölkprotein');
-SET IDENTITY_INSERT Allergens OFF;
 
 INSERT INTO AllergenComponent (ComponentsId, AllergensId) VALUES
   (1, 3),

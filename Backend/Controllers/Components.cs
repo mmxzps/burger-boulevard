@@ -8,15 +8,6 @@ namespace Backend.Controllers;
 [ApiController]
 public class Components : ControllerBase
 {
-    [HttpGet("levels")]
-    public ActionResult<IDictionary<string, Models.Entities.ComponentLevel>> Levels() =>
-      new Dictionary<string, Models.Entities.ComponentLevel>
-      {
-          { "ingredient", Models.Entities.ComponentLevel.Ingredient },
-          { "product", Models.Entities.ComponentLevel.Product },
-          { "menu", Models.Entities.ComponentLevel.Menu }
-      };
-
     [HttpGet]
     public ActionResult<IEnumerable<Component>> Find(
         BackendContext context,
@@ -24,7 +15,7 @@ public class Components : ControllerBase
         Models.Entities.ComponentLevel? level,
         int? categoryId) =>
       Ok(context.Components
-          .AsNoTracking()
+          .Include(c => c.ChildPolicies)
           .Where(c =>
             (independent == null || c.Independent == independent) &&
             (categoryId == null || c.Categories.Any(cat => cat.Id == categoryId)) &&
@@ -33,21 +24,17 @@ public class Components : ControllerBase
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Component>> Get(BackendContext context, int id) =>
+      // FIX: For some reason, deep child policies not loaded, unlike the other - quantitative - functions.
       await context.Components
-        .AsNoTracking()
+        .Include(c => c.ChildPolicies)
         .FirstOrDefaultAsync(c => c.Id == id) is Models.Entities.Component component ?
       Ok(component.ToDto()) : NotFound();
 
-    [HttpGet("{id}/policies")]
-    public async Task<ActionResult<Component>> Policies(BackendContext context, int id) =>
-      await context.Components
-        .AsNoTracking()
-        .Include(c => c.ChildPolicies)
-        .ThenInclude(p => p.Child)
-        .FirstOrDefaultAsync(c => c.Id == id) is Models.Entities.Component component ?
-      Ok(component.ChildPolicies.Select(p => p.ToDto())) : NotFound();
-
     [HttpGet("featured")]
     public ActionResult<IEnumerable<Component>> Featured(BackendContext context) =>
-      Ok(context.FeaturedComponents.AsNoTracking().Select(c => c.ToDto()));
+      Ok(context.FeaturedComponents
+          .AsNoTracking()
+          .Include(fc => fc.Component)
+          .ThenInclude(c => c.ChildPolicies)
+          .Select(c => c.ToDto()));
 }
