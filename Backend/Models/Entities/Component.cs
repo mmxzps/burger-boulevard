@@ -51,34 +51,51 @@ public class Component : IIntoDto<Dto.Component>
         Discount = Discount?.Multiplier
       };
 
-      if (OrderComponents.Any())
-      {
-        var orderComponent = OrderComponents.FirstOrDefault();
+		if (OrderComponents.Any())
+		{
+			var orderComponent = OrderComponents.FirstOrDefault();
 
-        if (orderComponent != null)
-        {
-          var actualChildComponents = orderComponent
-            .Order.Components.Where(c => c.ParentId == orderComponent.Id)
-            .Select(c => c.Component)
-            .ToList();
+			if (orderComponent != null)
+			{
+				var actualChildComponents = orderComponent
+				  .Order.Components.Where(c => c.ParentId == orderComponent.Id)
+				  .Select(c => c.Component)
+				  .ToList();
 
-          var standardChildComponents = ChildPolicies
-            .Select(p => p.Child)
-            .ToList();
+				var standardChildComponents = ChildPolicies
+				  .Select(p => p.Child)
+				  .ToList();
 
-          dto.AddedComponents = actualChildComponents
-            .Where(ac => !standardChildComponents.Any(sc => sc.Id == ac.Id))
-            .Select(c => c.ToDto())
-            .ToList();
+				var actualGroups = actualChildComponents.GroupBy(c => c.Id).ToDictionary(g => g.Key, g => g.Count());
+				var standardGroups = standardChildComponents.GroupBy(c => c.Id).ToDictionary(g => g.Key, g => g.Count());
 
-          dto.RemovedComponents = standardChildComponents
-            .Where(sc => !actualChildComponents.Any(ac => ac.Id == sc.Id))
-            .Select(c => c.ToDto())
-            .ToList();
-        }
+				// Components added more times than standard
+				dto.AddedComponents = actualGroups
+					.SelectMany(kvp =>
+					{
+						var standardCount = standardGroups.TryGetValue(kvp.Key, out var sc) ? sc : 0;
+						var addedCount = kvp.Value - standardCount;
+						return addedCount > 0
+							? Enumerable.Repeat(actualChildComponents.First(c => c.Id == kvp.Key).ToDto(), addedCount)
+							: Enumerable.Empty<Dto.Component>();
+					})
+					.ToList();
 
-      }
+				// Components missing compared to standard
+				dto.RemovedComponents = standardGroups
+					.SelectMany(kvp =>
+					{
+						var actualCount = actualGroups.TryGetValue(kvp.Key, out var ac) ? ac : 0;
+						var removedCount = kvp.Value - actualCount;
+						return removedCount > 0
+							? Enumerable.Repeat(standardChildComponents.First(c => c.Id == kvp.Key).ToDto(), removedCount)
+							: Enumerable.Empty<Dto.Component>();
+					})
+					.ToList();
+			}
 
-      return dto;
+		}
+
+		return dto;
     }
 }
