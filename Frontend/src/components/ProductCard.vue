@@ -1,14 +1,22 @@
 <script>
 import { useCartStore } from '@/stores/cart'
-import * as api from '@/api.js'
+import { useApiCacheStore } from '@/stores/apiCache'
+import * as api from '@/api'
+
+const componentToTreeWithDefaults = (component) => ({
+  componentId: component.id,
+  children: component.childPolicies.flatMap(policy =>
+    Array(policy.default).fill(componentToTreeWithDefaults(policy.child)))
+})
 
 export default {
   data() {
     return {
+      cartStore: useCartStore(),
       baseUrl: api.baseUrl,
-      ingredients: [],
-      detailsVisible: false,
-      quantity: 1
+      componentTree: componentToTreeWithDefaults(this.component),
+      quantity: 1,
+      detailsVisible: false
     }
   },
 
@@ -16,79 +24,34 @@ export default {
     component: Object
   },
 
-  mounted() {
-    this.fetchIngredients()
-  },
-
   methods: {
-    addToCart(component) {
-      const cartStore = useCartStore()
-      cartStore.cart.push(component)
-      cartStore.save()
+    countChildrenInTree(id) {
+      return this.componentTree.children.filter(o => o.componentId == id).length
     },
 
-    async fetchIngredients() {
-      this.ingredients = (await api.getComponentPolicies(this.component.id)).data.map(item => ({
-        id: item.id,
-        name: item.child.name,
-        description: item.child.description,
-        quantity: item.default,
-        min: item.min,
-        max: item.max,
-        originalQuantity: item.default
-      }))
+    addToCart() {
+      this.cartStore.cart.push(...Array(this.quantity).fill(this.componentTree))
+      this.cartStore.save()
     },
 
-    changeIngredientQuantity(index, change) {
-      const ingredient = this.ingredients[index]
-      const newQuantity = ingredient.quantity + change
-
-      if (newQuantity >= ingredient.min && newQuantity <= ingredient.max)
-        ingredient.quantity = newQuantity
+    changeQuantity(diff) {
+      const newQuantity = this.quantity + diff
+      if (newQuantity >= 0)
+        this.quantity = newQuantity
     },
 
-    showDetails(event) {
-      if (!event.target.closest('.card-button'))
-        this.detailsVisible = true
+    changeIngredientQuantity(policy, diff) {
+      const newQuantity = this.countChildrenInTree(policy.child.id) + diff
+
+      if (newQuantity < policy.min || newQuantity > policy.max)
+        return
+
+      this.componentTree.children = this.componentTree.children.filter(o => o.componentId != policy.child.id)
+      this.componentTree.children.push(...Array(newQuantity).fill(componentToTreeWithDefaults(policy.child)))
     },
 
-    hideDetails() {
-      this.detailsVisible = false
-      this.quantity = 1
-
-      if (this.ingredients.length > 0)
-        this.ingredients.forEach(ingredient => {
-          ingredient.quantity = ingredient.originalQuantity
-        });
-    },
-
-    increaseQuantity() {
-      this.quantity++
-    },
-
-    decreaseQuantity() {
-      if (this.quantity > 1)
-        this.quantity--
-    },
-
-    addCustomizedToCart() {
-      const cartStore = useCartStore()
-
-      const modifiedIngredients = this.ingredients
-        .filter(ing => ing.quantity !== ing.originalQuantity)
-
-      const customizedBurger = {
-        ...this.component,
-        quantity: this.quantity,
-        ingredients: this.ingredients.filter(ing => ing.quantity > 0),
-        modifiedIngredients: modifiedIngredients,
-        isCustomized: modifiedIngredients.length > 0,
-        totalPrice: this.component.price.current * this.quantity
-      }
-
-      console.log('Adding customized burger to cart with modified ingredients:', modifiedIngredients)
-      cartStore.addToCart(customizedBurger)
-      this.hideDetails()
+    resetData() {
+      Object.assign(this.$data, this.$options.data.apply(this))
     }
   }
 }
@@ -96,37 +59,37 @@ export default {
 
 <template>
   <div class="card-container">
-    <div class="product" @click="showDetails">
+    <div class="product" @click="detailsVisible = true">
       <img :src="component.imageUrl ? baseUrl + component.imageUrl : ''" alt="" class="product-image" />
       <span class="product-name">{{ component.name }}</span>
       <p class="product-description">{{ component.description }}</p>
       <span class="product-price">{{ component.price.current }}kr</span>
-      <button class="button" @click.stop="addToCart(component)">Lägg till</button>
+      <button class="button" @click.stop="addToCart">Lägg till</button>
     </div>
 
-    <div v-if="detailsVisible" class="product-detail-overlay" @click.self="hideDetails">
+    <div v-if="detailsVisible" class="product-detail-overlay" @click.self="resetData">
       <div class="product-detail-container">
-        <button class="close-button" @click="hideDetails">×</button>
+        <button class="close-button" @click="resetData">×</button>
 
         <div class="product-info">
           <h2>{{ component.name }}</h2>
           <p class="description">{{ component.description }}</p>
           <p class="price">{{ component.price.current }} kr</p>
 
-          <div v-if="ingredients.length > 0" class="popup-ingredients-section">
-            <h3>Ingredienser</h3>
+          <div v-if="component.childPolicies.length > 0" class="popup-ingredients-section">
+            <h1>Ingredienser</h1>
             <ul class="popup-ingredients-list">
-              <li v-for="(ingredient, index) in ingredients" :key="ingredient.id" class="popup-ingredient-item">
+              <li v-for="policy in component.childPolicies" :key="policy.id" class="popup-ingredient-item">
                 <div class="ingredient-content">
-                  <span>{{ ingredient.name }}</span>
+                  <span>{{ policy.child.name }}</span>
                   <div class="ingredient-controls">
-                    <button class="ingredient-control-btn remove-btn" @click="changeIngredientQuantity(index, -1)"
-                      :disabled="ingredient.quantity <= ingredient.min">
+                    <button class="ingredient-control-btn remove-btn" @click="changeIngredientQuantity(policy, -1)"
+                      :disabled="countChildrenInTree(policy.child.id) <= policy.min">
                       -
                     </button>
-                    <span class="ingredient-quantity">{{ ingredient.quantity }}</span>
-                    <button class="ingredient-control-btn add-btn" @click="changeIngredientQuantity(index, 1)"
-                      :disabled="ingredient.quantity >= ingredient.max">
+                    <span class="ingredient-quantity">{{ countChildrenInTree(policy.child.id) }}</span>
+                    <button class="ingredient-control-btn add-btn" @click="changeIngredientQuantity(policy, 1)"
+                      :disabled="countChildrenInTree(policy.child.id) >= policy.max">
                       +
                     </button>
                   </div>
@@ -138,15 +101,15 @@ export default {
           <div class="quantity-control">
             <span>Antal:</span>
             <div class="quantity-buttons">
-              <button @click="decreaseQuantity" :disabled="quantity <= 1">-</button>
+              <button @click="changeQuantity(-1)" :disabled="quantity <= 1">-</button>
               <span>{{ quantity }}</span>
-              <button @click="increaseQuantity">+</button>
+              <button @click="changeQuantity(1)">+</button>
             </div>
           </div>
         </div>
 
         <div class="action-buttons">
-          <button class="add-button" @click="addCustomizedToCart">
+          <button class="add-button" @click="addToCart(); resetData()">
             Lägg till ({{ component.price.current * quantity }} kr)
           </button>
         </div>
@@ -257,7 +220,7 @@ export default {
   margin-bottom: 24px;
 }
 
-.popup-ingredients-section h3 {
+.popup-ingredients-section h1 {
   font-size: 18px;
   margin-bottom: 16px;
   border-bottom: 1px solid grey;

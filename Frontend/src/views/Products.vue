@@ -4,7 +4,7 @@ import { useCartStore } from '@/stores/cart'
 
 import ProductCard from '@/components/ProductCard.vue'
 import CategoryNavigation from '@/components/CategoryNavigation.vue'
-import ChooseOrderType from '@/components/ChooseOrderType.vue'
+import TakeAwayChoice from '@/components/TakeAwayChoice.vue'
 import Cart from '@/components/Cart.vue'
 
 export default {
@@ -36,7 +36,7 @@ export default {
   },
 
   components: {
-    ChooseOrderType,
+    TakeAwayChoice,
     CategoryNavigation,
     ProductCard,
     Cart
@@ -45,19 +45,21 @@ export default {
 </script>
 
 <template>
-  <ChooseOrderType v-if="cart.takeAway == null" @choose="choice => { cart.takeAway = choice; cart.save() }" />
+  <TakeAwayChoice v-if="cart.takeAway == null" @choose="choice => { cart.takeAway = choice; cart.save() }" />
 
   <article v-else>
     <div>
       <CategoryNavigation />
-      
     </div>
 
     <div class="content-container">
       <h1>{{ browsingCategory?.name }}</h1>
       <div class="products-container">
         <ProductCard v-for="product in categoryProducts" :key="product.id" :component="product" />
-        <div v-if="browsingCategory == null"><p>hej</p></div>
+
+        <div v-if="browsingCategory == null">
+          <p>hej</p>
+        </div>
       </div>
     </div>
 
@@ -83,8 +85,8 @@ article {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
-
   margin: 0 auto;
+  margin-bottom: 10vh;
 }
 
 .cart-container {

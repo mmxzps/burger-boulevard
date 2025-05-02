@@ -9,6 +9,7 @@
   color: #222;
   font-weight: 500;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .button {
@@ -16,17 +17,9 @@
   border: 5px solid #f5d451;
 }
 
-.button:hover {
-  background-color: #fff;
-}
-
 .button-secondary {
   background-color: #fff;
   border: 5px solid transparent;
-}
-
-.button-secondary:hover {
-  border-color: #f5d451;
 }
 
 @media (min-width: 1024px) {
