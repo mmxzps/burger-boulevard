@@ -1,19 +1,31 @@
 <script>
+import * as api from '@/api.js'
+
 export default {
   data() {
     return {
-      menus: []
+      menus: [],
+      loading: true,
+      error: null
     };
   },
   mounted() {
-    fetch("https://localhost:7115/api/Components?level=2")
-      .then(response => response.json())
-      .then(data => {
-        this.menus = data;
-      })
-      .catch(error => {
-        console.error("Fel vid hämtning:", error);
-      });
+    this.fetchMenus();
+  },
+  methods: {
+    fetchMenus() {
+      this.loading = true;
+      api.getBurgerMenus()
+        .then(response => {
+          this.menus = response.data;
+          this.loading = false;
+        })
+        .catch(error => {
+          console.error("Fel vid hämtning:", error);
+          this.error = "Kunde inte hämta menyer";
+          this.loading = false;
+        });
+    }
   }
 };
 </script>
@@ -22,13 +34,18 @@ export default {
   <div>
     <router-link to="/" class="back-button">← Tillbaka</router-link>
     <h1 class="meny-h1">Menyer</h1>
-    <ul class="cards-container">
+
+    <div v-if="loading" class="loading-state">Laddar menyer...</div>
+    <div v-else-if="error" class="error-state">{{ error }}</div>
+    <ul v-else class="cards-container">
       <li class="menu-card" v-for="menu in menus" :key="menu.id">
-        <h2>{{ menu.name }}</h2>
-        <img src="../categoryImg/menumat.png" alt="Bild saknas" class="burgerPic" />
-        <p>Kategori: {{ menu.categories[0]?.name || 'Okänd' }}</p>
-        <p>Pris: {{ menu.price.current }} kr</p>
-        <button class="add-button">Lägg till</button>
+        <router-link :to="`/menu/${menu.id}`" class="menu-link">
+          <h2>{{ menu.name }}</h2>
+          <img src="../categoryImg/menumat.png" alt="Bild saknas" class="burgerPic" />
+          <p>Kategori: {{ menu.categories[0]?.name || 'Okänd' }}</p>
+          <p>Pris: {{ menu.price.current }} kr</p>
+          <button class="view-button">Visa detaljer</button>
+        </router-link>
       </li>
     </ul>
   </div>
@@ -50,22 +67,29 @@ export default {
 .back-button:hover {
   background-color: #ffcd00;
 }
+
 .meny-h1{
   text-align: center;
   margin: 2rem;
   text-shadow:11px 11px 25px #f5d451;
 }
+
 .burgerPic{
   height: 12rem;
   width: auto;
 }
-.add-button{
+
+.add-button, .view-button {
   border: 1px solid #f5d451;
   background-color: #f5d451;
-  width: 6rem;
+  width: 8rem;
   height: 2rem;
   border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 0.5rem;
 }
+
 .cards-container {
   display: flex;
   flex-wrap: wrap;
@@ -74,6 +98,7 @@ export default {
   justify-content: center;
   margin-bottom: 4rem;
 }
+
 .menu-card {
   border: 1px solid #ccc;
   padding: 1rem;
@@ -83,5 +108,24 @@ export default {
   align-items: center;
   display: flex;
   flex-direction: column;
+}
+
+.menu-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  width: 100%;
+}
+
+.loading-state, .error-state {
+  text-align: center;
+  margin: 2rem;
+  font-size: 1.2rem;
+}
+
+.error-state {
+  color: #e53935;
 }
 </style>
