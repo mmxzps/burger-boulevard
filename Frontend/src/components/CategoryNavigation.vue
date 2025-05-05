@@ -23,6 +23,7 @@ export default {
     </button>
 
     <ul>
+      <li><router-link to="/">Hem</router-link></li>
       <li v-for="category in categories">
         <router-link @click="isOpen = false" :to="'/' + category.id">
           {{ category.name }}

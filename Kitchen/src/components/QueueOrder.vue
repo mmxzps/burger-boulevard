@@ -1,9 +1,8 @@
 <template>
     <div :class="['queue-order', orderStatusClass]">
         <h3>Order #{{props.order.id}}</h3>
-        <h3> - {{ new Date('1970-01-01T' + props.order.orderTime).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) }}</h3>
     </div>
-        
+
 </template>
 
 <script setup>

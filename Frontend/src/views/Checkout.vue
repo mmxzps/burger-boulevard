@@ -52,6 +52,7 @@ export default {
 </script>
 
 <template>
+  <router-link to="/" class="back-button">← Tillbaka</router-link>
   <div v-if="orderId != null" class="confirm-container">
     <h2>Tack för din beställning!</h2>
     <p>Din order har skickats till köket.</p>

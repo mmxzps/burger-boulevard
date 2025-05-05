@@ -35,52 +35,15 @@ public class Component : IIntoDto<Dto.Component>
 
     public bool Independent { get; set; }
 
-    public Dto.Component ToDto()
-    {
-        var dto = new Dto.Component
-        {
-            Id = Id,
-            Level = Level,
-            Name = Name,
-            Description = Description,
-            ImageUrl = ImageUrl,
-            ChildPolicies = ChildPolicies.Select(c => c.ToDto()),
-            AddedComponents = new(),
-            RemovedComponents = new(),
-            Categories = Categories.Select(c => c.ToDto()),
-            Allergens = Allergens.Select(a => a.ToDto()),
-            OriginalPrice = Price,
-            Discount = Discount?.Multiplier
-        };
-
-        if (OrderComponents.Any())
-        {
-            var orderComponent = OrderComponents.FirstOrDefault();
-
-            if (orderComponent != null)
-            {
-                var actualChildComponents = orderComponent
-                  .Order.Components.Where(c => c.ParentId == orderComponent.Id)
-                  .Select(c => c.Component)
-                  .ToList();
-
-                var standardChildComponents = ChildPolicies
-                  .Select(p => p.Child)
-                  .ToList();
-
-                dto.AddedComponents = actualChildComponents
-                  .Where(ac => !standardChildComponents.Any(sc => sc.Id == ac.Id))
-                  .Select(c => c.ToDto())
-                  .ToList();
-
-                dto.RemovedComponents = standardChildComponents
-                  .Where(sc => !actualChildComponents.Any(ac => ac.Id == sc.Id))
-                  .Select(c => c.ToDto())
-                  .ToList();
-            }
-
-        }
-
-        return dto;
-    }
+    public Dto.Component ToDto() => new Dto.Component
+      {
+        Id = Id,
+        Level = Level,
+        Name = Name,
+        Description = Description,
+        ImageUrl = ImageUrl,
+        Categories = Categories.Select(c => c.ToDto()),
+        OriginalPrice = Price,
+        Discount = Discount?.Multiplier
+      };
 }
