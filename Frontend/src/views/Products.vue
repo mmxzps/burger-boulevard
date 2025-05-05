@@ -1,5 +1,6 @@
 <script>
 import * as api from '@/api.js'
+import { useApiCacheStore } from '@/stores/apiCache'
 import { useCartStore } from '@/stores/cart'
 
 import ProductCard from '@/components/ProductCard.vue'
@@ -11,8 +12,8 @@ export default {
   data() {
     return {
       cart: useCartStore(),
-      products: [], // All components fetched from the API
-      categories: [] // Categories from the API
+      components: [],
+      categories: []
     }
   },
 
@@ -25,14 +26,14 @@ export default {
       return this.categories.find(c => c.id == this.browsingCategoryId)
     },
 
-    categoryProducts() {
-      return this.products.filter(p => p.categories.some(c => c.id == this.browsingCategoryId))
+    categoryComponents() {
+      return this.components.filter(p => p.categories.some(c => c.id == this.browsingCategoryId))
     }
   },
 
-  async created() {
-    this.categories = (await api.getCategories()).data
-    this.products = (await api.getComponents(1)).data
+  async mounted() {
+    this.categories = await useApiCacheStore().categories
+    this.components = await useApiCacheStore().components
   },
 
   components: {
@@ -55,7 +56,7 @@ export default {
     <div class="content-container">
       <h1>{{ browsingCategory?.name }}</h1>
       <div class="products-container">
-        <ProductCard v-for="product in categoryProducts" :key="product.id" :component="product" />
+        <ProductCard v-for="component in categoryComponents" :key="component.id" :component="component" />
 
         <div v-if="browsingCategory == null">
           <p>hej</p>
