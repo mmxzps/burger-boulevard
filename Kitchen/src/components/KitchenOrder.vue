@@ -5,7 +5,7 @@
       <div class="order-header">
         <div class="order-title">
           <h2>Order #{{ props.order.id }}</h2>
-          <button class="collapse-btn" @click="collapsed = !collapsed">
+          <button class="collapse-btn" @click="collapsed = !collapsed" :disabled="isCollapseDisabled">
             <span :class="{ rotated: !collapsed }">▼</span>
           </button>
         </div>
@@ -15,24 +15,28 @@
         }) }}</h4>
       </div>
 
-      <div class="btn-container">
-        <UpdateStatusBtn v-for="status in statusOptions" :key="status" :orderId="props.order.id" :status="status"
-          @click="store.updateOrderStatus" />
-      </div>
+
     </div>
 
 
-    <div class="right-side">
+    <div class="middle">
       <div v-for="main in mainComponents" :key="main.id" class="item">
         <h4>{{ main.component?.name || 'Unnamed' }}</h4>
-        <div v-show="!collapsed">
+        <div v-show="!collapsed" >
           <ul>
-            <li v-for="a in main.component.addedComponents" :key="a.id">+ {{ a.name }}</li>
+            <li v-for="a in main.addedComponents" :key="a.id">+ {{ a.name }}</li>
           </ul>
           <ul>
-            <li v-for="r in main.component.removedComponents" :key="r.id">- {{ r.name }}</li>
+            <li v-for="r in main.removedComponents" :key="r.id">- {{ r.name }}</li>
           </ul>
         </div>
+      </div>
+    </div>
+    <div class="right-side">
+      <div class="btn-container">
+        <UpdateStatusBtn v-for="opt in statusOptions" :key="opt.targetStatus"
+          :arrow="opt.arrow" :targetStatus="opt.targetStatus"
+          @click="status => store.updateOrderStatus(props.order.id, status)" />
       </div>
     </div>
   </div>
@@ -54,6 +58,17 @@ const props = defineProps({
 });
 
 const collapsed = ref(false);
+const mainComponents = computed(() =>
+  props.order.components.filter(c => c.component.level === 1)
+);
+
+const isCollapseDisabled = computed(() =>
+  mainComponents.value.every(
+    main =>
+      (main.addedComponents?.length ?? 0) === 0 &&
+      (main.removedComponents?.length ?? 0) === 0
+  )
+);
 
 const statusMap = {
   pending: ['preparing'],
@@ -61,15 +76,26 @@ const statusMap = {
   done: ['preparing'],
 };
 
-const mainComponents = computed(() =>
-  props.order.components.filter(c => c.component.level === 1)
-);
+const arrowMap = {
+  forward: '→',
+  backward: '←',
+};
 
-
+const statusOrder = ['pending', 'preparing', 'done'];
 
 const statusOptions = computed(() => {
   const currentStatus = props.order.status;
-  return statusMap[currentStatus] || []
+  const possibleStatuses = statusMap[currentStatus] || [];
+
+  return possibleStatuses.map(targetStatus => {
+    const currentIndex = statusOrder.indexOf(currentStatus);
+    const targetIndex = statusOrder.indexOf(targetStatus);
+    const direction = targetIndex > currentIndex ? 'forward' : 'backward';
+    return {
+      targetStatus,
+      arrow: arrowMap[direction],
+    };
+  });
 });
 
 </script>
@@ -104,14 +130,18 @@ const statusOptions = computed(() => {
 
 .order h2 {
   margin-bottom: 0;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .order h4 {
   margin: 0.1rem 0;
   font-size: 0.9rem;
 }
-
+span {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
 .rotated {
   transform: rotate(180deg);
   transition: transform 0.3s ease;
@@ -119,20 +149,28 @@ const statusOptions = computed(() => {
 
 .btn-container {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: flex-start;
   gap: 0.5rem;
   margin-top: 0.25rem;
 }
 
-.right-side {
+.middle {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  /* Allow this side to grow and take up remaining space */
-  width: 70%;
-  /* Occupy remaining space */
+  width: 50%;
+
 }
+
+.right-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 20%;
+
+}
+
 .order-title {
   display: flex;
   align-items: center;
@@ -145,6 +183,23 @@ const statusOptions = computed(() => {
   margin-left: 0.5rem;
   cursor: pointer;
   line-height: 1;
+  background: linear-gradient(135deg, #4f46e5, #3b82f6);
+  color: white;
+}
+.collapse-btn:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+.collapse-btn:hover {
+  background: linear-gradient(135deg, #4338ca, #2563eb);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+.collapse-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
 }
 
 .item {

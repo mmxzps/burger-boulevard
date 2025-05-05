@@ -31,6 +31,12 @@ export default {
   transform: translateY(100%);
 }
 
+.button,
+.button-secondary {
+  display: inline;
+  width: max-content;
+}
+
 .cart-container {
   display: flex;
   justify-content: end;
