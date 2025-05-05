@@ -5,11 +5,12 @@ import * as api from '@/api.js'
 export default {
   data() {
     return {
-      burger: null,
-      ingredients: [],
-      loading: true,
-      error: null,
-      quantity: 1
+    burger: null,
+    ingredients: [],
+    loading: true,
+    error: null,
+    quantity: 1,
+    baseUrl: api.baseUrl
     }
   },
 
@@ -101,11 +102,16 @@ export default {
     <div v-else-if="error" class="error-state">{{ error }}</div>
     <div v-else-if="burger" class="burger-content">
       <div class="burger-header">
-        <h1>{{ burger.name }}</h1>
-        <img src="../categoryImg/baraBurgar.png" alt="Burgarbild" class="burger-image">
-        <p class="burger-description">{{ burger.description }}</p>
-        <p class="burger-price">{{ burger.price.current }} kr</p>
-      </div>
+  <h1>{{ burger.name }}</h1>
+  <img
+    :src="`${baseUrl}${burger.imageUrl}`"
+    :alt="burger.name"
+    class="burger-image"
+    @error="$event.target.style.display = 'none'"
+  >
+  <p class="burger-description">{{ burger.description }}</p>
+  <p class="burger-price">{{ burger.price.current }} kr</p>
+</div>
 
       <div class="ingredients-section">
         <h2>Anpassa din hamburgare</h2>

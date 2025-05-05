@@ -6,7 +6,8 @@ export default {
     return {
       menus: [],
       loading: true,
-      error: null
+      error: null,
+      baseUrl: api.baseUrl
     };
   },
   mounted() {
@@ -41,7 +42,12 @@ export default {
       <li class="menu-card" v-for="menu in menus" :key="menu.id">
         <router-link :to="`/menu/${menu.id}`" class="menu-link">
           <h2>{{ menu.name }}</h2>
-          <img src="../categoryImg/menumat.png" alt="Bild saknas" class="burgerPic" />
+          <img
+            :src="`${baseUrl}${menu.imageUrl}`"
+            :alt="menu.name"
+            class="burgerPic"
+            @error="$event.target.style.display = 'none'"
+          />
           <p>Kategori: {{ menu.categories[0]?.name || 'Okänd' }}</p>
           <p>Pris: {{ menu.price.current }} kr</p>
           <button class="view-button">Visa detaljer</button>

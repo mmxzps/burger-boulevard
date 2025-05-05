@@ -50,7 +50,7 @@ export default {
   <article v-else>
     <div>
       <CategoryNavigation />
-      
+
     </div>
 
     <div class="content-container">
@@ -74,7 +74,7 @@ export default {
           <router-link to="/drinks">
             <div class="category-div catedrink"></div>
           </router-link>
-          
+
         </div>
       </div>
     </div>
@@ -108,29 +108,29 @@ export default {
 }
 .catemeny{
   background-image: url('../categoryImg/menyer.png');
-  background-size: cover;  
+  background-size: cover;
   background-position: center;
   cursor: pointer;
 }
 .cateburg{
-  background-image: url('../categoryImg/burgare.jpg');
-  background-size: cover;  
+  background-image: url('../categoryImg/burgare.png');
+  background-size: cover;
   background-position: center;
 }
 .catemeny:hover,
 .cateside:hover,
 .catedrink:hover,
-.cateburg:hover{ 
+.cateburg:hover{
   transform: scale(1.01);
 }
 .cateside{
-  background-image: url('../categoryImg/tillbehor.jpg');
-  background-size: cover;  
+  background-image: url('../categoryImg/tillbehor.png');
+  background-size: cover;
   background-position: center;
 }
 .catedrink{
-  background-image: url('../categoryImg/drickor.png');
-  background-size: cover;  
+  background-image: url('../categoryImg/dryck.png');
+  background-size: cover;
   background-position: center;
 }
 article {
