@@ -24,10 +24,10 @@
         <h4>{{ main.component?.name || 'Unnamed' }}</h4>
         <div v-show="!collapsed" >
           <ul>
-            <li v-for="a in main.component.addedComponents" :key="a.id">+ {{ a.name }}</li>
+            <li v-for="a in main.addedComponents" :key="a.id">+ {{ a.name }}</li>
           </ul>
           <ul>
-            <li v-for="r in main.component.removedComponents" :key="r.id">- {{ r.name }}</li>
+            <li v-for="r in main.removedComponents" :key="r.id">- {{ r.name }}</li>
           </ul>
         </div>
       </div>
@@ -65,8 +65,8 @@ const mainComponents = computed(() =>
 const isCollapseDisabled = computed(() =>
   mainComponents.value.every(
     main =>
-      (main.component?.addedComponents?.length ?? 0) === 0 &&
-      (main.component?.removedComponents?.length ?? 0) === 0
+      (main.addedComponents?.length ?? 0) === 0 &&
+      (main.removedComponents?.length ?? 0) === 0
   )
 );
 
