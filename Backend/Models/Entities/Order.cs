@@ -22,7 +22,8 @@ public class Order : IIntoDto<Dto.Order>
     public bool TakeAway { get; set; }
     [Precision(8, 4)]
     public decimal TotalPrice { get; set; }
-    public TimeOnly OrderTime { get; set; } = TimeOnly.FromDateTime(DateTime.Now);
+
+    public DateTime OrderTime { get; set; } = DateTime.Now;
 
     public Dto.Order ToDto() => new Dto.Order
     {
