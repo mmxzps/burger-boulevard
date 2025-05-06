@@ -44,7 +44,6 @@ const routes = [
   },
   {
     path: '/:category?',
-    name: 'Category',
     component: ProductsView
   }
 ]
