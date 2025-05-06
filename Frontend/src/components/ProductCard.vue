@@ -27,6 +27,8 @@ export default {
   },
 
   methods: {
+    gatherAllergens,
+
     countChildrenInTree(id) {
       return this.componentTree.children.filter(o => o.componentId == id).length
     },
@@ -118,6 +120,13 @@ export default {
 
           <button v-if="isChanged" @click="resetComponentTree">Återställ
             ingredienser</button>
+
+          <ul class="allergens">
+            <li v-for="allergen in gatherAllergens(components, componentTree).sort((a, b) => a.id - b.id)"
+              :key="allergen.id">
+              {{ allergen.name }}
+            </li>
+          </ul>
 
           <div class="quantity-control">
             <span>Antal:</span>
@@ -345,5 +354,18 @@ export default {
 
 .add-button:hover {
   background-color: #3b3370;
+}
+
+.allergens {
+  display: flex;
+  gap: 1rem;
+  list-style: none;
+}
+
+.allergens li {
+  padding: 0 .5rem;
+  border-radius: 5px;
+  background: #4f4492;
+  color: #fff;
 }
 </style>

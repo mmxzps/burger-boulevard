@@ -1,3 +1,5 @@
+import { uniqBy } from 'lodash-es'
+
 export const evaluateAdditionalCost = (components, componentTree) =>
   diff(components, componentTree).added.reduce((sum, component) => sum + component.price.current, 0)
   + componentTree.children.reduce((sum, child) => sum + evaluateAdditionalCost(components, child), 0)
@@ -34,3 +36,15 @@ export const componentToTreeWithDefaults = (component) => ({
   children: component.childPolicies.flatMap(policy =>
     Array(policy.default).fill(componentToTreeWithDefaults(policy.child)))
 })
+
+export const gatherAllergens = (components, componentTree) =>
+  uniqBy([
+    ...components.find(({ id }) => id == componentTree.componentId).allergens,
+    ...componentTree.children.flatMap(child => gatherAllergens(components, child))
+  ], 'id')
+
+export const gatherAllergensComponent = (component) =>
+  uniqBy([
+    ...component.allergens,
+    ...component.childPolicies.flatMap(p => gatherAllergens(p.child))
+  ], 'id')
