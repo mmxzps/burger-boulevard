@@ -158,6 +158,9 @@ INSERT INTO CategoryComponent (CategoriesId, ComponentsId) VALUES
   (4, 30),
   (2, 60),
 
+  (0, 31),
+  (0, 32),
+  (0, 33),
   (1, 31),
   (1, 32),
   (1, 33);
