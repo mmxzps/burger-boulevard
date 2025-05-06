@@ -3,16 +3,23 @@ import { useCartStore } from '@/stores/cart'
 import { useApiCacheStore } from '@/stores/apiCache'
 import * as api from '@/api'
 import { evaluateCost, componentToTreeWithDefaults, gatherAllergens } from '@/util'
+import { isEqualWith } from 'lodash-es'
 
 export default {
   data() {
     return {
       cartStore: useCartStore(),
+      components: null,
+
       baseUrl: api.baseUrl,
-      componentTree: componentToTreeWithDefaults(this.component),
+      componentTree: null,
       quantity: 1,
       detailsVisible: false
     }
+  },
+
+  mounted() {
+    this.resetData()
   },
 
   props: {
@@ -45,8 +52,24 @@ export default {
       this.componentTree.children.push(...Array(newQuantity).fill(componentToTreeWithDefaults(policy.child)))
     },
 
+    defaultComponentTree() {
+      return componentToTreeWithDefaults(this.component)
+    },
+
+    resetComponentTree() {
+      this.componentTree = this.defaultComponentTree()
+    },
+
     resetData() {
       Object.assign(this.$data, this.$options.data.apply(this))
+      this.resetComponentTree()
+      useApiCacheStore().components.then(r => this.components = r)
+    }
+  },
+
+  computed: {
+    totalPrice() {
+      return evaluateCost(this.components, this.componentTree)
     }
   }
 }
@@ -93,6 +116,9 @@ export default {
             </ul>
           </div>
 
+          <button v-if="isChanged" @click="resetComponentTree">Återställ
+            ingredienser</button>
+
           <div class="quantity-control">
             <span>Antal:</span>
             <div class="quantity-buttons">
@@ -105,7 +131,7 @@ export default {
 
         <div class="action-buttons">
           <button class="add-button" @click="addToCart(); resetData()">
-            Lägg till ({{ component.price.current * quantity }} kr)
+            Lägg till ({{ totalPrice * quantity }} kr)
           </button>
         </div>
       </div>
