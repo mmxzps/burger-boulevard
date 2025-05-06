@@ -28,3 +28,9 @@ export const diff = (components, componentTree) =>
       added: [],
       removed: []
     })
+
+export const componentToTreeWithDefaults = (component) => ({
+  componentId: component.id,
+  children: component.childPolicies.flatMap(policy =>
+    Array(policy.default).fill(componentToTreeWithDefaults(policy.child)))
+})

@@ -2,12 +2,7 @@
 import { useCartStore } from '@/stores/cart'
 import { useApiCacheStore } from '@/stores/apiCache'
 import * as api from '@/api'
-
-const componentToTreeWithDefaults = (component) => ({
-  componentId: component.id,
-  children: component.childPolicies.flatMap(policy =>
-    Array(policy.default).fill(componentToTreeWithDefaults(policy.child)))
-})
+import { evaluateCost, componentToTreeWithDefaults, gatherAllergens } from '@/util'
 
 export default {
   data() {
