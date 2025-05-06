@@ -101,7 +101,10 @@ export default {
             <ul class="popup-ingredients-list">
               <li v-for="policy in component.childPolicies" :key="policy.id" class="popup-ingredient-item">
                 <div class="ingredient-content">
-                  <span>{{ policy.child.name }}</span>
+                  <span>
+                    {{ policy.child.name }}
+                    ({{ policy.child.price.current }} kr)
+                  </span>
                   <div class="ingredient-controls">
                     <button class="ingredient-control-btn remove-btn" @click="changeIngredientQuantity(policy, -1)"
                       :disabled="countChildrenInTree(policy.child.id) <= policy.min">
