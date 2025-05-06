@@ -42,7 +42,9 @@ public class Component : IIntoDto<Dto.Component>
         Name = Name,
         Description = Description,
         ImageUrl = ImageUrl,
-        Categories = Categories.Select(c => c.ToDto()),
+        ChildPolicies = ChildPolicies.Select(p => p.ToDto()),
+        Allergens = Allergens.Select(a => a.ToDto()),
+		Categories = Categories.Select(c => c.ToDto()),
         OriginalPrice = Price,
         Discount = Discount?.Multiplier
       };
