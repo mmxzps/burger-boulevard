@@ -24,12 +24,5 @@ export const useCartStore = defineStore('cart', {
       else
         localStorage.setItem(keys.cart, JSON.stringify(this.cart))
     }
-  },
-
-  getters: {
-    totalPrice() {
-      // TODO: Calculate total cart price
-      return 0
-    }
   }
 })

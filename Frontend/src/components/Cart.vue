@@ -1,10 +1,26 @@
 <script>
+import { useApiCacheStore } from '@/stores/apiCache'
 import { useCartStore } from '@/stores/cart'
+import { evaluateCost } from '@/util'
 
 export default {
   data() {
     return {
-      cartStore: useCartStore()
+      cartStore: useCartStore(),
+      components: null
+    }
+  },
+
+  async mounted() {
+    this.components = await useApiCacheStore().components
+  },
+
+  computed: {
+    totalPrice() {
+      if (!this.components) return 0
+      return this.cartStore.cart
+        .reduce((sum, i) =>
+          sum + evaluateCost(this.components, i), 0)
     }
   }
 }
@@ -14,7 +30,7 @@ export default {
   <Transition mode="out-in">
     <div class="cart-container" v-show="cartStore.cart.length > 0">
       <router-link to="/checkout" class="button">
-        Fortsätt &ndash; {{ cartStore.totalPrice }} kr ({{ cartStore.cart.length }}st)
+        Fortsätt &ndash; {{ totalPrice }} kr ({{ cartStore.cart.length }}st)
       </router-link>
     </div>
   </Transition>

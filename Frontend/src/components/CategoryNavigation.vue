@@ -1,6 +1,6 @@
 <script>
-import * as api from '@/api.js'
-import Cart from './Cart.vue'
+import * as api from '@/api'
+import { useApiCacheStore } from '@/stores/apiCache'
 
 export default {
   data() {
@@ -11,17 +11,7 @@ export default {
   },
 
   mounted() {
-    api.getCategories().then(r => this.categories = r.data)
-  },
-
-  methods: {
-    closeMenu() {
-      this.isOpen = false
-    }
-  },
-
-  components: {
-    Cart
+    useApiCacheStore().categories.then(r => this.categories = r)
   }
 }
 </script>
@@ -35,7 +25,7 @@ export default {
     <ul>
       <li><router-link to="/">Hem</router-link></li>
       <li v-for="category in categories">
-        <router-link @click="closeMenu" :to="'/' + category.id">
+        <router-link @click="isOpen = false" :to="'/' + category.id">
           {{ category.name }}
         </router-link>
       </li>

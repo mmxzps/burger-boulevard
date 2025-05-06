@@ -1,5 +1,6 @@
 <script>
 import * as api from '@/api'
+import { evaluateCost, diff } from '@/util'
 import { useCartStore } from '@/stores/cart'
 import { useApiCacheStore } from '@/stores/apiCache'
 
@@ -13,38 +14,19 @@ export default {
   },
 
   async mounted() {
-    this.components = (await useApiCacheStore().components).data
+    this.components = await useApiCacheStore().components
   },
 
   methods: {
-    diff(componentTree) {
-      const policies = this.components.find(({ id }) => id == componentTree.componentId).childPolicies
+    diff,
+    evaluateCost,
 
-      return policies.reduce((diffs, policy) => {
-        const childrenByPolicy = componentTree.children.filter(o => o.componentId == policy.child.id)
-        const added = childrenByPolicy.length - policy.default
-
-        const changes = Array(Math.abs(added))
-          .fill(this.components.find(({ id }) => id == policy.child.id))
-
-        if (added > 0)
-          diffs.added.push(...changes)
-        else if (added < 0)
-          diffs.removed.push(...changes)
-
-        return diffs
-      }, {
-        added: [],
-        removed: []
-      })
-    },
-
-    increaseQuantity(componentTree) {
+    copyComponent(componentTree) {
       this.cartStore.cart.push(componentTree)
       this.cartStore.save()
     },
 
-    decreaseQuantity(componentTree) {
+    removeComponent(componentTree) {
       this.cartStore.cart.splice(
         this.cartStore.cart.findIndex(o => o == componentTree), 1)
       this.cartStore.save()
@@ -61,8 +43,9 @@ export default {
 
   computed: {
     totalPrice() {
-      return this.cartStore.cart.reduce((sum, item) =>
-        sum + this.components?.find(({ id }) => id == item.componentId).price.current, 0)
+      if (!this.components) return 0
+      return this.cartStore.cart
+        .reduce((sum, i) => sum + evaluateCost(this.components, i), 0)
     }
   }
 }
@@ -77,7 +60,7 @@ export default {
   </div>
 
   <div v-else class="order-container">
-    <h1>Summering</h1>
+    <h1>Varukorg</h1>
     <div v-if="cartStore.cart.length <= 0">
       <p>Din kundvagn är tom!</p>
     </div>
@@ -86,113 +69,110 @@ export default {
         <li v-if="components" v-for="(componentTree, index) in cartStore.cart" :key="index"
           :set="component = components.find(({ id }) => id == componentTree.componentId)">
           <div class="order-name-price">
-            <span>{{ component.name }}</span>
+            <h2>{{ component.name }}</h2>
 
-            <div class="quantity-holder">
-              <button class="quantity-button" @click="decreaseQuantity(componentTree)">➖</button>
-              <button class="quantity-button" @click="increaseQuantity(componentTree)">➕</button>
-              <span class="order-price">{{ component.price.current }} kr</span>
-            </div>
+            <span class="order-price">{{ evaluateCost(components, componentTree) }} kr</span>
 
-            <div v-for="[changeType, changedComponents] in Object.entries(diff(componentTree))">
-              <br>
-              <span v-if="changeType == 'added'">+</span>
-              <span v-else-if="changeType == 'removed'">-</span>
+            <button class="button quantity-button" @click="removeComponent(componentTree)">-</button>
+            <button class="button quantity-button" @click="copyComponent(componentTree)">+</button>
+
+            <template v-for="[changeType, changedComponents] in Object.entries(diff(components, componentTree))">
               <div v-for="changedComponent in changedComponents" :key="changedComponent.id">
-                <span>{{ changedComponent.name }}</span>
-                <span v-if="changeType == 'added'" class="order-price">{{ changedComponent.price.current }} kr</span>
+                <div
+                  :class="{ 'children-change': true, 'children-change-added': changeType == 'added', 'children-change-removed': changeType == 'removed' }">
+                  <span>{{ changedComponent.name }}</span>
+                  <span v-if="changeType == 'added'" class="order-price">{{ changedComponent.price.current }} kr</span>
+                </div>
               </div>
-            </div>
+            </template>
           </div>
         </li>
       </ul>
-      <hr class="order-divider" />
       <div>
-        <h3>Totalt: {{ totalPrice }} kr</h3>
-      </div>
-      <div>
-        <button class="order-button" @click="placeOrder">Beställ</button>
-
-        <button style="display: inline; width: fit-content;"
-          :class="{ button: !cartStore.takeAway, 'button-secondary': cartStore.takeAway }"
-          @click="cartStore.takeAway = false; cartStore.save()">
+        <button :class="{
+          button: !cartStore.takeAway, 'button-secondary': cartStore.takeAway,
+          'takeaway-button': true
+        }" @click="cartStore.takeAway = false; cartStore.save()">
           Ät här
         </button>
 
-        <button style="display: inline; width: fit-content;"
-          :class="{ button: cartStore.takeAway, 'button-secondary': !cartStore.takeAway }"
-          @click="cartStore.takeAway = true; cartStore.save()">
+        <button :class="{
+          button: cartStore.takeAway, 'button-secondary': !cartStore.takeAway,
+          'takeaway-button': true
+        }" @click="cartStore.takeAway = true; cartStore.save()">
           Ta med
         </button>
+
+        <br><br>
+        <button class="button" @click="placeOrder">Beställ &mdash; {{ totalPrice }}kr</button>
       </div>
     </div>
   </div>
 </template>
 
 <style>
-.confirm-container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  margin: 5rem auto;
-  text-align: center;
-  text-shadow: -1px 3px 50px #4f4492;
+.children-change {
+  display: inline-block;
 }
 
-.confirm-container h3 {
-  margin-top: 1rem;
-  font-size: x-large;
-  color: darkgoldenrod;
+.children-change-added::before,
+.children-change-removed::before {
+  vertical-align: middle;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 1rem;
+}
+
+.children-change-added {
+  color: green;
+}
+
+.children-change-added::before {
+  content: '+';
+}
+
+.children-change-removed {
+  color: red;
+}
+
+.children-change-removed::before {
+  content: '-';
+}
+
+.takeaway-button {
+  display: inline;
+  width: fit-content;
 }
 
 .order-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 4rem;
-}
-
-.order-info-container {
-  border: 1px solid #282828;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  padding: 10px;
-  min-width: 22rem;
 }
 
 .order-name-price {
-  display: flex;
   justify-content: space-between;
   width: 100%;
   padding: 5px;
 }
 
 ul {
-  width: 100%;
   padding: 0;
   list-style: none;
 }
 
-.order-button {
-  width: 5rem;
-  border: none;
-  height: 2rem;
-  margin: 6px 3px;
-  background-color: #4f4492;
-  color: hsla(160, 100%, 37%, 1);
-  cursor: pointer;
-  border-radius: 3px;
-  font: 1em sans-serif;
-}
-
 .order-price {
   display: inline-block;
-  width: 3.5rem;
-  text-align: end;
+  width: 6rem;
+  margin: 0 1rem;
+  font-weight: bold;
 }
 
-.order-divider {
-  margin: 1rem 0;
+.quantity-button {
+  display: inline;
+  width: min-content;
+  padding: 0 .3rem;
+  font-size: 1rem;
+  font-weight: bold;
 }
 </style>
