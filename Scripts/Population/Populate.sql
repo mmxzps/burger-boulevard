@@ -2,9 +2,9 @@ BEGIN TRANSACTION;
 
 -- Reset database.
 DELETE FROM Allergens;
-DELETE FROM Discounts;
 DELETE FROM Categories;
 DELETE FROM Components;
+DELETE FROM Discounts;
 DELETE FROM ComponentChildPolicies;
 DELETE FROM FeaturedComponents;
 DELETE FROM Images;
@@ -16,6 +16,7 @@ SET IDENTITY_INSERT Discounts OFF;
 
 SET IDENTITY_INSERT Categories ON;
 INSERT INTO Categories (Id, Name) VALUES
+  (0, 'Menyer'),
   (1, 'Hamburgare'),
   (2, 'Kyckling & Fisk'),
   (3, 'Snacks'),
@@ -84,7 +85,7 @@ INSERT INTO Components (Id, Level, Name, Description, Price, Independent) VALUES
   (30, 1, 'Cheddardipsås',          'En krämig och ostig sås med cheddar, perfekt för att doppa pommes frites eller grönsaksstavar.',                5,   1);
 
 INSERT INTO Components (Id, Level, Name, Description, Price, Independent) VALUES
-  (60, 1, 'Hot Wing', 'Krispiga och heta kycklingvingar med en rökig BBQ-sås', 20, 1);
+  (60, 1, 'Hot Wings', 'Krispiga och heta kycklingvingar med en rökig BBQ-sås', 20, 1);
 
 INSERT INTO Components (Id, Level, Name, Price, Independent) VALUES
   (31, 2, 'Cheeseburgarmeny', 60, 1),
