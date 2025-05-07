@@ -1,4 +1,5 @@
 using Backend.Models.Dto;
+using Backend.Models.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,12 @@ namespace Backend.Controllers;
 [ApiController]
 public class Orders : ControllerBase
 {
+	private readonly OrderService _orderService;
+
+	public Orders(OrderService orderService)
+	{
+		_orderService = orderService;
+	}
     // TODO: Create proper safety guards around these endpoints.
     [HttpGet]
     public ActionResult<IEnumerable<Order>> All(BackendContext context) =>
@@ -19,24 +26,28 @@ public class Orders : ControllerBase
 			.ThenInclude(oc => oc.Component)
 				.ThenInclude(c => c.ChildPolicies)
 					.ThenInclude(cp => cp.Child)
-        .Select(o => o.ToDto()));
+        .Select(_orderService.ToOrderDto));
 
     [HttpGet("Queue")]
     public ActionResult<IEnumerable<Order>> AllQueue(BackendContext context) =>
-      Ok(context.Orders.AsNoTracking()
-        .Select(o => o.ToQueueDto())
-        .ToList());
+	    Ok(context.Orders.AsNoTracking()
+		    .Select(o => _orderService.ToQueueDto(o)).ToList());
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Order>> Get(BackendContext context, int id) =>
-        (await context.Orders
-         .AsNoTracking()
-         .Include(o => o.Components)
-         .ThenInclude(oc => oc.Component)
-         .FirstOrDefaultAsync(o => o.Id == id))?.ToDto() is Order order ?
-        Ok(order) : NotFound();
+	public async Task<ActionResult<Order>> Get(BackendContext context, int id)
+	{
+		var entity = await context.Orders
+			.AsNoTracking()
+			.Include(o => o.Components)
+			.ThenInclude(oc => oc.Component)
+			.FirstOrDefaultAsync(o => o.Id == id);
 
-    [HttpPut("{id}")]
+		return entity is null
+			? NotFound()
+			: Ok(_orderService.ToOrderDto(entity));
+	}
+
+	[HttpPut("{id}")]
     public async Task<ActionResult> UpdateStatus(BackendContext context, int id, [FromBody] OrderUpdateDto orderUpdateDto)
     {
         var order = await context.Orders.FindAsync(id);
@@ -48,42 +59,46 @@ public class Orders : ControllerBase
         {
             order.Status = orderUpdateDto.Status;
             await context.SaveChangesAsync();
-            return Ok(order.ToDto());
+            return Ok(_orderService.ToOrderDto(order));
         }
 
         return NoContent(); // If nothing changed, return 204 No Content
     }
 
     [HttpPost]
-    public async Task<ActionResult<Order>> Create(BackendContext context, Models.Dto.Create.Order createOrder)
-    {
-        var order = context.Orders
-          .Add(new Models.Entities.Order
-          {
-              Status = Models.Entities.OrderStatus.Pending,
-              TakeAway = createOrder.TakeAway,
-              TotalPrice = 0
-          });
+	public async Task<ActionResult<Order>> Create(BackendContext context, Models.Dto.Create.Order createOrder)
+	{
+		var order = context.Orders.Add(new Models.Entities.Order
+		{
+			Status = Models.Entities.OrderStatus.Pending,
+			TakeAway = createOrder.TakeAway,
+			TotalPrice = 0
+		});
 
-        order.Entity.Components = createOrder.ToOrderComponentEntities(context, order.Entity);
+		order.Entity.Components = createOrder.ToOrderComponentEntities(context, order.Entity);
 
-        foreach (var oc in order.Entity.Components)
-        {
-            if (!oc.Component.Independent)
-                throw new Exception($"Non-independent component '{oc.Component.Name}' ({oc.Component.Id}) cannot be defined as top-level.");
-            oc.VerifyPolicies();
-        }
+		foreach (var oc in order.Entity.Components)
+		{
+			if (!oc.Component.Independent)
+				throw new Exception($"Non-independent component '{oc.Component.Name}' ({oc.Component.Id}) cannot be defined as top-level.");
+			oc.VerifyPolicies();
+		}
 
-        order.Entity.TotalPrice = order.Entity.Components.Sum(oc => oc.EvaluatePrice());
+		order.Entity.TotalPrice = order.Entity.Components.Sum(oc => oc.EvaluatePrice());
 
-        await context.SaveChangesAsync();
+		await context.SaveChangesAsync();
 
-        return CreatedAtAction(
-            nameof(Create),
-            (await context.Orders
-             .AsNoTracking()
-             .Include(o => o.Components)
-             .ThenInclude(oc => oc.Component)
-             .FirstOrDefaultAsync(o => o.Id == order.Entity.Id))?.ToDto());
-    }
+		var createdOrder = await context.Orders
+			.AsNoTracking()
+			.Include(o => o.Components)
+			.ThenInclude(oc => oc.Component)
+			.ThenInclude(c => c.ChildPolicies)
+			.ThenInclude(cp => cp.Child)
+			.FirstOrDefaultAsync(o => o.Id == order.Entity.Id);
+
+		if (createdOrder is null)
+			return Problem("Order was created but could not be retrieved.");
+
+		return CreatedAtAction(nameof(Create), _orderService.ToOrderDto(createdOrder));
+	}
 }

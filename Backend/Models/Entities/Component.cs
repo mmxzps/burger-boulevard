@@ -9,7 +9,7 @@ public enum ComponentLevel
     Menu = 2
 }
 
-public class Component : IIntoDto<Dto.Component>
+public class Component
 {
     public int Id { get; set; }
     public ComponentLevel Level { get; set; }
@@ -35,17 +35,5 @@ public class Component : IIntoDto<Dto.Component>
 
     public bool Independent { get; set; }
 
-    public Dto.Component ToDto() => new Dto.Component
-    {
-        Id = Id,
-        Level = Level,
-        Name = Name,
-        Description = Description,
-        ImageUrl = ImageUrl,
-        Categories = Categories.Select(c => c.ToDto()),
-        Allergens = Allergens.Select(a => a.ToDto()),
-        ChildPolicies = ChildPolicies.Select(p => p.ToDto()),
-        OriginalPrice = Price,
-        Discount = Discount?.Multiplier
-    };
+    
 }
