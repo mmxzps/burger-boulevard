@@ -1,6 +1,6 @@
 ﻿namespace Backend.Models.Entities;
 
-public class OrderComponent : IIntoDto<Dto.OrderComponent>
+public class OrderComponent
 {
 	public int Id { get; set; }
 	public required Order Order { get; set; }
@@ -53,65 +53,6 @@ public class OrderComponent : IIntoDto<Dto.OrderComponent>
 			// Recursive check.
 			child.VerifyPolicies();
 		}
-	}
-
-	public Dto.OrderComponent ToDto() => new Dto.OrderComponent
-		{
-			Id = Id,
-			Component = Component.ToDto(),
-			Parent = ParentId,
-			AddedComponents = GetAddedIngredients(),
-			RemovedComponents = GetRemovedIngredients(),
-			TotalPrice = EvaluatePrice()
-		};
-
-	private List<Dto.Component> GetAddedIngredients()
-	{
-		var actual = GetActualComponentCounts();
-		var standard = GetStandardComponentCounts();
-
-		return actual
-			.SelectMany(kvp =>
-			{
-				var standardCount = standard.TryGetValue(kvp.Key, out var sc) ? sc : 0;
-				var addedCount = kvp.Value - standardCount;
-				return addedCount > 0
-					? Enumerable.Repeat(Order.Components.First(c => c.Component.Id == kvp.Key).Component.ToDto(), addedCount)
-					: Enumerable.Empty<Dto.Component>();
-			})
-			.ToList();
-	}
-
-	private List<Dto.Component> GetRemovedIngredients()
-	{
-		var actual = GetActualComponentCounts();
-		var standard = GetStandardComponentCounts();
-
-		return standard
-			.SelectMany(kvp =>
-			{
-				var actualCount = actual.TryGetValue(kvp.Key, out var ac) ? ac : 0;
-				var removedCount = kvp.Value - actualCount;
-				return removedCount > 0
-					? Enumerable.Repeat(Component.ChildPolicies.First(p => p.Child.Id == kvp.Key).Child.ToDto(), removedCount)
-					: Enumerable.Empty<Dto.Component>();
-			})
-			.ToList();
-	}
-	private Dictionary<int, int> GetActualComponentCounts()
-	{
-		return Order.Components
-			.Where(c => c.ParentId == Id)
-			.GroupBy(c => c.Component.Id)
-			.ToDictionary(g => g.Key, g => g.Count());
-	}
-
-	private Dictionary<int, int> GetStandardComponentCounts()
-	{
-		return Component.ChildPolicies
-			.Select(p => p.Child)
-			.GroupBy(c => c.Id)
-			.ToDictionary(g => g.Key, g => g.Count());
 	}
 	
 }

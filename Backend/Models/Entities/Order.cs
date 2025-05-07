@@ -14,7 +14,7 @@ public enum OrderStatus
     Done
 }
 
-public class Order : IIntoDto<Dto.Order>
+public class Order
 {
     public int Id { get; set; }
     public required OrderStatus Status { get; set; }
@@ -25,19 +25,5 @@ public class Order : IIntoDto<Dto.Order>
 
     public DateTime OrderTime { get; set; } = DateTime.Now;
 
-    public Dto.Order ToDto() => new Dto.Order
-    {
-      Id = Id,
-      Status = Status,
-      Components = Components.Select(c => c.ToDto()),
-      TakeAway = TakeAway,
-      TotalPrice = TotalPrice,
-      OrderTime = OrderTime
-    };
-
-    public Dto.OrderQueue ToQueueDto() => new Dto.OrderQueue
-    {
-      Id = Id,
-      OrderTime = OrderTime
-    };
+    
 }
