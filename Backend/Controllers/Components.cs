@@ -1,4 +1,5 @@
 using Backend.Models.Dto;
+using Backend.Models.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +9,12 @@ namespace Backend.Controllers;
 [ApiController]
 public class Components : ControllerBase
 {
-    [HttpGet]
+	private readonly ComponentService _componentService;
+	public Components(ComponentService componentService)
+	{
+		_componentService = componentService;
+	}
+	[HttpGet]
     public ActionResult<IEnumerable<Component>> Find(
         BackendContext context,
         bool? independent,
@@ -20,7 +26,7 @@ public class Components : ControllerBase
             (independent == null || c.Independent == independent) &&
             (categoryId == null || c.Categories.Any(cat => cat.Id == categoryId)) &&
             (level == null || c.Level == level))
-          .Select(c => c.ToDto()));
+          .Select(c => _componentService.ToComponentDto(c)));
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Component>> Get(BackendContext context, int id) =>
@@ -28,7 +34,7 @@ public class Components : ControllerBase
       await context.Components
         .Include(c => c.ChildPolicies)
         .FirstOrDefaultAsync(c => c.Id == id) is Models.Entities.Component component ?
-      Ok(component.ToDto()) : NotFound();
+      Ok(_componentService.ToComponentDto(component)) : NotFound();
 
     [HttpGet("featured")]
     public ActionResult<IEnumerable<Component>> Featured(BackendContext context) =>
@@ -36,5 +42,5 @@ public class Components : ControllerBase
           .AsNoTracking()
           .Include(fc => fc.Component)
           .ThenInclude(c => c.ChildPolicies)
-          .Select(c => c.ToDto()));
+          .Select(c => _componentService.ToFeaturedComponentDto(c)));
 }

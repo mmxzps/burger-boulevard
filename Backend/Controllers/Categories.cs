@@ -1,4 +1,5 @@
 using Backend.Models.Dto;
+using Backend.Models.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +9,13 @@ namespace Backend.Controllers;
 [ApiController]
 public class Categories : ControllerBase
 {
-  [HttpGet]
+    private readonly ComponentService _componentService;
+
+    public Categories(ComponentService componentService)
+    {
+	    _componentService = componentService;
+    }
+	[HttpGet]
   public ActionResult<IEnumerable<Category>> All(BackendContext context) =>
-    Ok(context.Categories.AsNoTracking().Select(c => c.ToDto()));
+    Ok(context.Categories.AsNoTracking().Select(c => _componentService.ToCategoryDto(c)));
 }
