@@ -14,6 +14,7 @@
 			Allergens = component.Allergens.Select(ToAllergenDto),
 			ChildPolicies = component.ChildPolicies.Select(ToChildPolicyDto),
 			OriginalPrice = component.Price,
+			Vat = component.Vat,
 			Discount = component.Discount?.Multiplier
 		};
 		public Dto.FeaturedComponent ToFeaturedComponentDto(Entities.FeaturedComponent featuredComponent) => new Dto.FeaturedComponent
