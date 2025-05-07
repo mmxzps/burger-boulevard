@@ -94,6 +94,7 @@ INSERT INTO Components (Id, Level, Name, Price, Independent) VALUES
 SET IDENTITY_INSERT Components OFF;
 
 UPDATE Components SET DiscountId = 1 WHERE Id = 24;
+UPDATE Components SET Vat = 0.12;
 
 INSERT INTO FeaturedComponents (Title, ComponentId) VALUES
   ('Exklusivt för ITHS-studenter', 22);
