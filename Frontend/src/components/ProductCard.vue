@@ -83,7 +83,7 @@ export default {
       <span class="product-name">{{ component.name }}</span>
       <p class="product-description">{{ component.description }}</p>
       <span class="product-price">{{ component.price.current }}kr</span>
-      <button class="button" @click.stop="addToCart">Lägg till</button>
+      <button class="button" @click.stop="addToCart">{{ component.price.current }} kr</button>
     </div>
 
     <div v-if="detailsVisible" class="product-detail-overlay" @click.self="resetData">
@@ -93,10 +93,8 @@ export default {
         <div class="product-info">
           <h2>{{ component.name }}</h2>
           <p class="description">{{ component.description }}</p>
-          <p class="price">{{ component.price.current }} kr</p>
 
           <div v-if="component.childPolicies.length > 0" class="popup-ingredients-section">
-            <h1>Ingredienser</h1>
             <ul class="popup-ingredients-list">
               <li v-for="policy in component.childPolicies" :key="policy.id" class="popup-ingredient-item">
                 <div class="ingredient-content">
@@ -131,10 +129,9 @@ export default {
           </ul>
 
           <div class="quantity-control">
-            <span>Antal:</span>
             <div class="quantity-buttons">
               <button @click="changeQuantity(-1)" :disabled="quantity <= 1">-</button>
-              <span>{{ quantity }}</span>
+              <span>{{ quantity }} st</span>
               <button @click="changeQuantity(1)">+</button>
             </div>
           </div>
@@ -142,7 +139,7 @@ export default {
 
         <div class="action-buttons">
           <button class="add-button" @click="addToCart(); resetData()">
-            Lägg till ({{ totalPrice * quantity }} kr)
+            ({{ totalPrice * quantity }} kr)
           </button>
         </div>
       </div>
@@ -156,6 +153,12 @@ export default {
   width: 20rem;
   cursor: pointer;
   animation: popup .4s ease;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 @keyframes popup {
@@ -177,23 +180,40 @@ export default {
 .product-image {
   display: block;
   margin: 0 auto;
-  height: 14rem;
+  height: 12rem;
   width: auto;
   border-radius: 5px;
 }
 
 .product-name {
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   font-weight: bold;
+  margin: 0.5rem 0;
+  text-align: center;
 }
 
 .product-description {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #333;
+  text-align: center;
+  margin-bottom: 0.5rem;
 }
 
 .product-price {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0.5rem 0;
+}
+
+.button {
+  border: 1px solid #f5d451;
+  background-color: #f5d451;
+  width: 8rem;
+  height: 2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 0.5rem;
 }
 
 .product-detail-overlay {
@@ -211,14 +231,14 @@ export default {
 
 .product-detail-container {
   position: relative;
-  background-color: #242323;
+  background-color: #fff;
   border-radius: 8px;
   padding: 24px;
   width: 90%;
-  max-width: 500px;
+  max-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
-  color: rgb(196, 190, 190);
+  color: #3c2c18;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
 
@@ -229,34 +249,35 @@ export default {
   font-size: 24px;
   background: none;
   border: none;
-  color: rgb(196, 190, 190);
+  color: #3c2c18;
   cursor: pointer;
 }
 
 .product-info h2 {
-  font-size: 24px;
+  font-size: 2rem;
   margin-bottom: 16px;
-  border-bottom: 1px solid grey;
-  padding-bottom: 8px;
+  text-align: center;
+  margin: 2rem 0;
+  text-shadow: 11px 11px 25px #f5d451;
 }
 
 .description {
-  font-size: 16px;
-  font-style: italic;
-  margin-bottom: 16px;
+  font-size: 1.2rem;
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
 .price {
-  font-size: 18px;
+  font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 24px;
+  text-align: center;
 }
 
 .popup-ingredients-section h1 {
-  font-size: 18px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid grey;
-  padding-bottom: 8px;
+  font-size: 1.5rem;
+  margin: 2rem 0 1rem;
+  text-align: center;
 }
 
 .popup-ingredients-list {
@@ -269,11 +290,12 @@ export default {
 }
 
 .popup-ingredient-item {
-  font-size: 14px;
-  background-color: #3a3a3a;
-  padding: 8px 12px;
+  font-size: 1rem;
+  background-color: #f9f9f9;
+  padding: 1rem;
   border-radius: 8px;
   display: block;
+  border-bottom: 1px solid #eee;
 }
 
 .ingredient-content {
@@ -285,89 +307,122 @@ export default {
 .ingredient-controls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 1rem;
 }
 
 .ingredient-quantity {
-  min-width: 20px;
+  min-width: 1.5rem;
   text-align: center;
+  font-weight: bold;
 }
 
 .ingredient-control-btn {
-  width: 24px;
-  height: 24px;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
-  background-color: #4f4492;
-  color: white;
-  border: none;
+  background-color: #f5d451;
+  color: #3c2c18;
+  border: 1px solid #f5d451;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 14px;
+  font-size: 1.2rem;
   padding: 0;
+  font-weight: bold;
 }
 
 .ingredient-control-btn:disabled {
-  background-color: #333;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .quantity-control {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  margin-bottom: 24px;
+  margin: 2rem 0;
+  gap: 1rem;
 }
 
 .quantity-buttons {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 1rem;
 }
 
 .quantity-buttons button {
-  background-color: #4f4492;
-  color: white;
-  border: none;
-  width: 30px;
-  height: 30px;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
+  border: 1px solid #f5d451;
+  background-color: #f5d451;
   cursor: pointer;
-  font-size: 16px;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.quantity-buttons button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.quantity-buttons span {
+  margin: 0 0.5rem;
+  font-weight: bold;
+  min-width: 1.5rem;
+  text-align: center;
 }
 
 .action-buttons {
   display: flex;
   justify-content: center;
+  margin-top: 2rem;
 }
 
 .add-button {
-  background-color: #4f4492;
-  color: white;
+  padding: 0.8rem 1.5rem;
+  background-color: #f5d451;
+  color: #3c2c18;
   border: none;
-  padding: 12px 24px;
-  border-radius: 4px;
-  font-size: 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1.1rem;
   cursor: pointer;
-  width: 100%;
-  transition: background-color 0.3s;
-}
-
-.add-button:hover {
-  background-color: #3b3370;
+  min-width: 250px;
+  white-space: nowrap;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .allergens {
   display: flex;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  justify-content: center;
 }
 
 .allergens li {
-  padding: 0 .5rem;
+  padding: 0.3rem 0.7rem;
   border-radius: 5px;
-  background: #4f4492;
-  color: #fff;
+  background: #f5d451;
+  color: #3c2c18;
+  font-size: 0.9rem;
+}
+
+button[v-if="isChanged"] {
+  display: block;
+  margin: 1rem auto;
+  padding: 0.5rem 1rem;
+  background-color: #f5d451;
+  color: #3c2c18;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
 }
 </style>
