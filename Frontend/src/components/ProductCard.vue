@@ -205,17 +205,6 @@ export default {
   margin: 0.5rem 0;
 }
 
-.button {
-  border: 1px solid #f5d451;
-  background-color: #f5d451;
-  width: 8rem;
-  height: 2rem;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  margin-top: 0.5rem;
-}
-
 .product-detail-overlay {
   position: fixed;
   top: 0;

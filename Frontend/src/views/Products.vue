@@ -9,17 +9,16 @@ import TakeAwayChoice from '@/components/TakeAwayChoice.vue'
 import Cart from '@/components/Cart.vue'
 
 export default {
-  data() {
-    return {
-      cart: useCartStore(),
-      components: [],
-      categories: []
-    }
-  },
+  data: () => ({
+    cart: useCartStore(),
+    baseUrl: api.baseUrl,
+    components: [],
+    categories: []
+  }),
 
   computed: {
     browsingCategoryId() {
-      return this.$route.params.category
+      return this.$route.params.category || null
     },
 
     browsingCategory() {
@@ -49,9 +48,11 @@ export default {
   <TakeAwayChoice v-if="cart.takeAway == null" @choose="choice => { cart.takeAway = choice; cart.save() }" />
 
   <article v-else>
-    <div>
-      <CategoryNavigation />
-    </div>
+    <Transition mode="out-in">
+      <div v-if="browsingCategory != null">
+        <CategoryNavigation />
+      </div>
+    </Transition>
 
     <div class="content-container">
       <h1>{{ browsingCategory?.name }}</h1>
@@ -59,21 +60,12 @@ export default {
         <ProductCard v-for="component in categoryComponents" :key="component.id" :component="component" />
 
         <div v-if="browsingCategory == null" class="category-container">
-          <router-link to="/menus">
-            <div class="category-div catemeny"></div>
-          </router-link>
-
-          <router-link to="/burgers">
-            <div class="category-div cateburg"></div>
-          </router-link>
-
-          <router-link to="/sides">
-            <div class="category-div cateside"></div>
-          </router-link>
-
-          <router-link to="/drinks">
-            <div class="category-div catedrink"></div>
-          </router-link>
+          <template v-for="category in categories">
+            <router-link :to="'/' + category.id">
+              <img :src="category.imageUrl ? baseUrl + category.imageUrl : ''" class="category-div"
+                :alt="category.name">
+            </router-link>
+          </template>
         </div>
       </div>
     </div>
@@ -85,10 +77,19 @@ export default {
 </template>
 
 <style scoped>
+.v-enter-active {
+  transition: transform .2s ease;
+}
+
+.v-enter-from {
+  transform: translateX(-100%);
+}
+
 .category-container {
+  display: flex;
+  gap: 1rem;
   width: 100%;
   height: auto;
-  display: flex;
   flex-wrap: wrap;
   max-width: 50rem;
   margin-top: 4rem;
@@ -97,46 +98,8 @@ export default {
 }
 
 .category-div {
-  max-height: 25rem;
-  min-height: 16rem;
-  flex: 1 1 20rem;
-  max-width: 18rem;
-  min-width: 16rem;
-  margin: 1rem;
-  box-shadow: 1px 1px 2px rgb(175, 173, 173);
-  border-radius: 2%;
-}
-
-.catemeny {
-  background-image: url('../categoryImg/menyer.png');
-  background-size: cover;
-  background-position: center;
-  cursor: pointer;
-}
-
-.cateburg {
-  background-image: url('../categoryImg/burgare.png');
-  background-size: cover;
-  background-position: center;
-}
-
-.catemeny:hover,
-.cateside:hover,
-.catedrink:hover,
-.cateburg:hover {
-  transform: scale(1.01);
-}
-
-.cateside {
-  background-image: url('../categoryImg/tillbehor.png');
-  background-size: cover;
-  background-position: center;
-}
-
-.catedrink {
-  background-image: url('../categoryImg/dryck.png');
-  background-size: cover;
-  background-position: center;
+  width: 18rem;
+  border-radius: 10%;
 }
 
 article {
