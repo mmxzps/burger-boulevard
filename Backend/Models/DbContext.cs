@@ -35,5 +35,8 @@ public class BackendContext : DbContext
                 b.Navigation(c => c.Categories).AutoInclude();
                 b.Navigation(c => c.Discount).AutoInclude();
             });
+	    modelBuilder.Entity<Component>()
+		    .Property(c => c.Vat)
+		    .HasColumnType("decimal(8, 4)");  // You can adjust precision and scale as necessary
     }
 }
