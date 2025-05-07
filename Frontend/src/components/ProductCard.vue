@@ -3,7 +3,6 @@ import { useCartStore } from '@/stores/cart'
 import { useApiCacheStore } from '@/stores/apiCache'
 import * as api from '@/api'
 import { evaluateCost, componentToTreeWithDefaults, gatherAllergens } from '@/util'
-import { isEqualWith } from 'lodash-es'
 
 export default {
   data() {

@@ -4,12 +4,10 @@ import { useCartStore } from '@/stores/cart'
 import { evaluateCost } from '@/util'
 
 export default {
-  data() {
-    return {
-      cartStore: useCartStore(),
-      components: null
-    }
-  },
+  data: () => ({
+    cartStore: useCartStore(),
+    components: null
+  }),
 
   async mounted() {
     this.components = await useApiCacheStore().components
