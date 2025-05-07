@@ -10,9 +10,10 @@
           </button>
         </div>
         <h4>{{ props.order.takeAway ? 'Take Away' : 'Eat Here' }}</h4>
-        <h4>Ordered: {{ new Date('1970-01-01T' + props.order.orderTime).toLocaleTimeString([], {
-          hour: '2-digit', minute: '2-digit'
-        }) }}</h4>
+        <h4>Ordered: {{ new Date(props.order.orderTime).toLocaleTimeString([], {
+          hour: '2-digit', minute: '2-digit', hour12: false
+          }) }}
+        </h4>
       </div>
 
 
@@ -22,7 +23,7 @@
     <div class="middle">
       <div v-for="main in mainComponents" :key="main.id" class="item">
         <h4>{{ main.component?.name || 'Unnamed' }}</h4>
-        <div v-show="!collapsed" >
+        <div v-show="!collapsed">
           <ul>
             <li v-for="a in main.addedComponents" :key="a.id">+ {{ a.name }}</li>
           </ul>
@@ -34,9 +35,8 @@
     </div>
     <div class="right-side">
       <div class="btn-container">
-        <UpdateStatusBtn v-for="opt in statusOptions" :key="opt.targetStatus"
-          :arrow="opt.arrow" :targetStatus="opt.targetStatus"
-          @click="status => store.updateOrderStatus(props.order.id, status)" />
+        <UpdateStatusBtn v-for="opt in statusOptions" :key="opt.targetStatus" :arrow="opt.arrow"
+          :targetStatus="opt.targetStatus" @click="status => store.updateOrderStatus(props.order.id, status)" />
       </div>
     </div>
   </div>
@@ -138,10 +138,12 @@ const statusOptions = computed(() => {
   margin: 0.1rem 0;
   font-size: 0.9rem;
 }
+
 span {
   display: inline-block;
   transition: transform 0.3s ease;
 }
+
 .rotated {
   transform: rotate(180deg);
   transition: transform 0.3s ease;
@@ -186,11 +188,13 @@ span {
   background: linear-gradient(135deg, #4f46e5, #3b82f6);
   color: white;
 }
+
 .collapse-btn:disabled {
   background: #e5e7eb;
   color: #9ca3af;
   cursor: not-allowed;
 }
+
 .collapse-btn:hover {
   background: linear-gradient(135deg, #4338ca, #2563eb);
   transform: translateY(-2px);
