@@ -82,7 +82,6 @@ export default {
       <img :src="component.imageUrl ? baseUrl + component.imageUrl : ''" alt="" class="product-image" />
       <span class="product-name">{{ component.name }}</span>
       <p class="product-description">{{ component.description }}</p>
-      <span class="product-price">{{ component.price.current }}kr</span>
       <button class="button" @click.stop="addToCart">{{ component.price.current }} kr</button>
     </div>
 
@@ -139,7 +138,7 @@ export default {
 
         <div class="action-buttons">
           <button class="add-button" @click="addToCart(); resetData()">
-            ({{ totalPrice * quantity }} kr)
+            {{ totalPrice * quantity }} kr
           </button>
         </div>
       </div>
@@ -203,6 +202,18 @@ export default {
   font-size: 1.2rem;
   font-weight: bold;
   margin: 0.5rem 0;
+}
+
+.button {
+  border: 1px solid #f5d451;
+  background-color: #f5d451;
+  min-width: 160px;
+  height: 2.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 0.5rem;
+  white-space: nowrap;
 }
 
 .product-detail-overlay {
