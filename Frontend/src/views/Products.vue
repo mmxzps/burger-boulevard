@@ -7,6 +7,7 @@ import ProductCard from '@/components/ProductCard.vue'
 import CategoryNavigation from '@/components/CategoryNavigation.vue'
 import TakeAwayChoice from '@/components/TakeAwayChoice.vue'
 import Cart from '@/components/Cart.vue'
+import HomeHeader from '@/components/HomeHeader.vue'
 
 export default {
   data: () => ({
@@ -39,14 +40,16 @@ export default {
     TakeAwayChoice,
     CategoryNavigation,
     ProductCard,
-    Cart
+    Cart,
+    HomeHeader
   }
 }
 </script>
 
 <template>
+  <div><HomeHeader/></div>
   <TakeAwayChoice v-if="cart.takeAway == null" @choose="choice => { cart.takeAway = choice; cart.save() }" />
-
+    
   <article v-else>
     <Transition mode="out-in">
       <div v-if="browsingCategory != null">
@@ -104,7 +107,8 @@ export default {
 
 article {
   display: flex;
-  height: 100vh;
+  height: 91vh;
+  overflow: scroll;
 }
 
 .content-container {
