@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Backend.Models.Dto;
 
-public record Price(decimal Current, decimal Original, decimal? Discount, decimal Vat);
+public record Price(decimal Current, decimal Original, decimal? Discount, decimal VatAmount, decimal VatRate);
 
 public class Component
 {
@@ -16,14 +16,16 @@ public class Component
     public string? ImageUrl { get; set; }
 
     public Price Price => new(
-	    CalculatePriceAfterDiscount(OriginalPrice, Discount),
-	    OriginalPrice,
-	    Discount,
-	    CalculateVatAmount(CalculatePriceAfterDiscount(OriginalPrice, Discount), Vat)
+	    Current: CalculatePriceAfterDiscount(OriginalPrice, Discount),
+	    Original: OriginalPrice,
+	    Discount: Discount,
+	    VatAmount: CalculateVatAmount(CalculatePriceAfterDiscount(OriginalPrice, Discount), VatRate),
+		VatRate: VatRate
     );
 	[JsonIgnore] public decimal OriginalPrice { get; set; }
     [JsonIgnore] public decimal? Discount { get; set; }
-    [JsonIgnore] public decimal Vat { get; set; }
+	[JsonIgnore] public decimal VatRate { get; set; }
+
 
 	public bool Independent { get; set; }
 
