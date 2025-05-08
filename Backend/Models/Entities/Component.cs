@@ -31,6 +31,7 @@ public class Component
 
     [Precision(8, 4)]
     public decimal Price { get; set; }
+    [Precision(8, 4)]
     public decimal Vat { get; set; }
     public required Discount? Discount { get; set; }
 
