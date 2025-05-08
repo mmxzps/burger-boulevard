@@ -1,5 +1,5 @@
 <script setup>
-const emit = defineEmits(['choose'])
+defineEmits(['choose'])
 </script>
 
 <template>

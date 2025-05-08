@@ -1,80 +1,74 @@
 <script>
 import * as api from '@/api.js'
+import { useApiCacheStore } from '@/stores/apiCache'
 import { useCartStore } from '@/stores/cart'
 
 import ProductCard from '@/components/ProductCard.vue'
 import CategoryNavigation from '@/components/CategoryNavigation.vue'
-import ChooseOrderType from '@/components/ChooseOrderType.vue'
+import TakeAwayChoice from '@/components/TakeAwayChoice.vue'
 import Cart from '@/components/Cart.vue'
+import HomeHeader from '@/components/HomeHeader.vue'
 
 export default {
-  data() {
-    return {
-      cart: useCartStore(),
-      products: [], // All components fetched from the API
-      categories: [] // Categories from the API
-    }
-  },
+  data: () => ({
+    cart: useCartStore(),
+    baseUrl: api.baseUrl,
+    components: [],
+    categories: []
+  }),
 
   computed: {
     browsingCategoryId() {
-      return this.$route.params.category
+      return this.$route.params.category || null
     },
 
     browsingCategory() {
       return this.categories.find(c => c.id == this.browsingCategoryId)
     },
 
-    categoryProducts() {
-      return this.products.filter(p => p.categories.some(c => c.id == this.browsingCategoryId))
+    categoryComponents() {
+      return this.components.filter(p => p.categories.some(c => c.id == this.browsingCategoryId))
     }
   },
 
-  async created() {
-    this.categories = (await api.getCategories()).data
-    this.products = (await api.getComponents(1)).data
+  async mounted() {
+    this.categories = await useApiCacheStore().categories
+    this.components = await useApiCacheStore().components
   },
 
   components: {
-    ChooseOrderType,
+    TakeAwayChoice,
     CategoryNavigation,
     ProductCard,
-    Cart
+    Cart,
+    HomeHeader
   }
 }
 </script>
 
 <template>
-  <ChooseOrderType v-if="cart.takeAway == null" @choose="choice => { cart.takeAway = choice; cart.save() }" />
-
+  <div><HomeHeader/></div>
+  <TakeAwayChoice v-if="cart.takeAway == null" @choose="choice => { cart.takeAway = choice; cart.save() }" />
+    
   <article v-else>
-    <div>
-      <CategoryNavigation />
-      
-    </div>
+    <Transition mode="out-in">
+      <div v-if="browsingCategory != null">
+        <CategoryNavigation />
+      </div>
+    </Transition>
 
     <div class="content-container">
       <h1>{{ browsingCategory?.name }}</h1>
       <div class="products-container">
-        <ProductCard v-for="product in categoryProducts" :key="product.id" :component="product" />
+        <ProductCard v-for="component in categoryComponents" :key="component.id" :component="component" />
+
         <div v-if="browsingCategory == null" class="category-container">
-
-          <router-link to="/menus">
-            <div class="category-div catemeny"></div>
-          </router-link>
-
-          <router-link to="/burgers">
-            <div class="category-div cateburg"></div>
-          </router-link>
-
-          <router-link to="/sides">
-            <div class="category-div cateside"></div>
-          </router-link>
-
-          <router-link to="/drinks">
-            <div class="category-div catedrink"></div>
-          </router-link>
-          
+          <template v-for="category in categories">
+            <router-link :to="'/' + category.id">
+              <img :src="category.imageUrl ? baseUrl + category.imageUrl : ''" class="category-div"
+                :alt="category.name">
+            </router-link>
+          </template>
         </div>
       </div>
     </div>
@@ -86,56 +80,35 @@ export default {
 </template>
 
 <style scoped>
-.category-container{
+.v-enter-active {
+  transition: transform .2s ease;
+}
+
+.v-enter-from {
+  transform: translateX(-100%);
+}
+
+.category-container {
+  display: flex;
+  gap: 1rem;
   width: 100%;
   height: auto;
-  display: flex;
   flex-wrap: wrap;
   max-width: 50rem;
   margin-top: 4rem;
   margin-bottom: 8rem;
   justify-content: center
 }
+
 .category-div {
-  max-height: 25rem;
-  min-height: 16rem;
-  flex: 1 1 20rem;
-  max-width: 18rem;
-  min-width: 16rem;
-  margin: 1rem;
-  box-shadow: 1px 1px 2px rgb(175, 173, 173);
-  border-radius: 2%;
+  width: 18rem;
+  border-radius: 10%;
 }
-.catemeny{
-  background-image: url('../categoryImg/menyer.png');
-  background-size: cover;  
-  background-position: center;
-  cursor: pointer;
-}
-.cateburg{
-  background-image: url('../categoryImg/burgare.jpg');
-  background-size: cover;  
-  background-position: center;
-}
-.catemeny:hover,
-.cateside:hover,
-.catedrink:hover,
-.cateburg:hover{ 
-  transform: scale(1.01);
-}
-.cateside{
-  background-image: url('../categoryImg/tillbehor.jpg');
-  background-size: cover;  
-  background-position: center;
-}
-.catedrink{
-  background-image: url('../categoryImg/drickor.png');
-  background-size: cover;  
-  background-position: center;
-}
+
 article {
   display: flex;
-  height: 100vh;
+  height: 91vh;
+  overflow: scroll;
 }
 
 .content-container {
@@ -148,8 +121,8 @@ article {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
-
   margin: 0 auto;
+  margin-bottom: 10vh;
 }
 
 .cart-container {

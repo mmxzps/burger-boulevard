@@ -1,94 +1,76 @@
 <script>
 import { useCartStore } from '@/stores/cart'
-import * as api from '@/api.js'
+import { useApiCacheStore } from '@/stores/apiCache'
+import * as api from '@/api'
+import { evaluateCost, componentToTreeWithDefaults, gatherAllergens } from '@/util'
 
 export default {
   data() {
     return {
+      cartStore: useCartStore(),
+      components: null,
+
       baseUrl: api.baseUrl,
-      ingredients: [],
-      detailsVisible: false,
-      quantity: 1
+      componentTree: null,
+      quantity: 1,
+      detailsVisible: false
     }
+  },
+
+  mounted() {
+    this.resetData()
   },
 
   props: {
     component: Object
   },
 
-  mounted() {
-    this.fetchIngredients()
+  methods: {
+    gatherAllergens,
+
+    countChildrenInTree(id) {
+      return this.componentTree.children.filter(o => o.componentId == id).length
+    },
+
+    addToCart() {
+      this.cartStore.cart.push(...Array(this.quantity).fill(this.componentTree))
+      this.cartStore.save()
+    },
+
+    changeQuantity(diff) {
+      const newQuantity = this.quantity + diff
+      if (newQuantity >= 0)
+        this.quantity = newQuantity
+    },
+
+    changeIngredientQuantity(policy, diff) {
+      const newQuantity = this.countChildrenInTree(policy.child.id) + diff
+
+      if (newQuantity < policy.min || newQuantity > policy.max)
+        return
+
+      this.componentTree.children = this.componentTree.children.filter(o => o.componentId != policy.child.id)
+      this.componentTree.children.push(...Array(newQuantity).fill(componentToTreeWithDefaults(policy.child)))
+    },
+
+    defaultComponentTree() {
+      return componentToTreeWithDefaults(this.component)
+    },
+
+    resetComponentTree() {
+      this.componentTree = this.defaultComponentTree()
+    },
+
+    resetData() {
+      Object.assign(this.$data, this.$options.data.apply(this))
+      this.resetComponentTree()
+      useApiCacheStore().components.then(r => this.components = r)
+    }
   },
 
-  methods: {
-    addToCart(component) {
-      const cartStore = useCartStore()
-      cartStore.cart.push(component)
-      cartStore.save()
-    },
-
-    async fetchIngredients() {
-      this.ingredients = (await api.getComponentPolicies(this.component.id)).data.map(item => ({
-        id: item.id,
-        name: item.child.name,
-        description: item.child.description,
-        quantity: item.default,
-        min: item.min,
-        max: item.max,
-        originalQuantity: item.default
-      }))
-    },
-
-    changeIngredientQuantity(index, change) {
-      const ingredient = this.ingredients[index]
-      const newQuantity = ingredient.quantity + change
-
-      if (newQuantity >= ingredient.min && newQuantity <= ingredient.max)
-        ingredient.quantity = newQuantity
-    },
-
-    showDetails(event) {
-      if (!event.target.closest('.card-button'))
-        this.detailsVisible = true
-    },
-
-    hideDetails() {
-      this.detailsVisible = false
-      this.quantity = 1
-
-      if (this.ingredients.length > 0)
-        this.ingredients.forEach(ingredient => {
-          ingredient.quantity = ingredient.originalQuantity
-        });
-    },
-
-    increaseQuantity() {
-      this.quantity++
-    },
-
-    decreaseQuantity() {
-      if (this.quantity > 1)
-        this.quantity--
-    },
-
-    addCustomizedToCart() {
-      const cartStore = useCartStore()
-
-      const modifiedIngredients = this.ingredients
-        .filter(ing => ing.quantity !== ing.originalQuantity)
-
-      const customizedBurger = {
-        ...this.component,
-        quantity: this.quantity,
-        ingredients: this.ingredients.filter(ing => ing.quantity > 0),
-        modifiedIngredients: modifiedIngredients,
-        isCustomized: modifiedIngredients.length > 0,
-        totalPrice: this.component.price.current * this.quantity
-      }
-
-      console.log('Adding customized burger to cart with modified ingredients:', modifiedIngredients)
-      cartStore.addToCart(customizedBurger)
-      this.hideDetails()
+  computed: {
+    totalPrice() {
+      return evaluateCost(this.components, this.componentTree)
     }
   }
 }
@@ -96,37 +78,37 @@ export default {
 
 <template>
   <div class="card-container">
-    <div class="product" @click="showDetails">
+    <div class="product" @click="detailsVisible = true">
       <img :src="component.imageUrl ? baseUrl + component.imageUrl : ''" alt="" class="product-image" />
       <span class="product-name">{{ component.name }}</span>
       <p class="product-description">{{ component.description }}</p>
-      <span class="product-price">{{ component.price.current }}kr</span>
-      <button class="button" @click.stop="addToCart(component)">Lägg till</button>
+      <button class="button" @click.stop="addToCart">{{ component.price.current }} kr</button>
     </div>
 
-    <div v-if="detailsVisible" class="product-detail-overlay" @click.self="hideDetails">
+    <div v-if="detailsVisible" class="product-detail-overlay" @click.self="resetData">
       <div class="product-detail-container">
-        <button class="close-button" @click="hideDetails">×</button>
+        <button class="close-button" @click="resetData">×</button>
 
         <div class="product-info">
           <h2>{{ component.name }}</h2>
           <p class="description">{{ component.description }}</p>
-          <p class="price">{{ component.price.current }} kr</p>
 
-          <div v-if="ingredients.length > 0" class="popup-ingredients-section">
-            <h3>Ingredienser</h3>
+          <div v-if="component.childPolicies.length > 0" class="popup-ingredients-section">
             <ul class="popup-ingredients-list">
-              <li v-for="(ingredient, index) in ingredients" :key="ingredient.id" class="popup-ingredient-item">
+              <li v-for="policy in component.childPolicies" :key="policy.id" class="popup-ingredient-item">
                 <div class="ingredient-content">
-                  <span>{{ ingredient.name }}</span>
+                  <span>
+                    {{ policy.child.name }}
+                    ({{ policy.child.price.current }} kr)
+                  </span>
                   <div class="ingredient-controls">
-                    <button class="ingredient-control-btn remove-btn" @click="changeIngredientQuantity(index, -1)"
-                      :disabled="ingredient.quantity <= ingredient.min">
+                    <button class="ingredient-control-btn remove-btn" @click="changeIngredientQuantity(policy, -1)"
+                      :disabled="countChildrenInTree(policy.child.id) <= policy.min">
                       -
                     </button>
-                    <span class="ingredient-quantity">{{ ingredient.quantity }}</span>
-                    <button class="ingredient-control-btn add-btn" @click="changeIngredientQuantity(index, 1)"
-                      :disabled="ingredient.quantity >= ingredient.max">
+                    <span class="ingredient-quantity">{{ countChildrenInTree(policy.child.id) }}</span>
+                    <button class="ingredient-control-btn add-btn" @click="changeIngredientQuantity(policy, 1)"
+                      :disabled="countChildrenInTree(policy.child.id) >= policy.max">
                       +
                     </button>
                   </div>
@@ -135,19 +117,28 @@ export default {
             </ul>
           </div>
 
+          <button v-if="isChanged" @click="resetComponentTree">Återställ
+            ingredienser</button>
+
+          <ul class="allergens">
+            <li v-for="allergen in gatherAllergens(components, componentTree).sort((a, b) => a.id - b.id)"
+              :key="allergen.id">
+              {{ allergen.name }}
+            </li>
+          </ul>
+
           <div class="quantity-control">
-            <span>Antal:</span>
             <div class="quantity-buttons">
-              <button @click="decreaseQuantity" :disabled="quantity <= 1">-</button>
-              <span>{{ quantity }}</span>
-              <button @click="increaseQuantity">+</button>
+              <button @click="changeQuantity(-1)" :disabled="quantity <= 1">-</button>
+              <span>{{ quantity }} st</span>
+              <button @click="changeQuantity(1)">+</button>
             </div>
           </div>
         </div>
 
         <div class="action-buttons">
-          <button class="add-button" @click="addCustomizedToCart">
-            Lägg till ({{ component.price.current * quantity }} kr)
+          <button class="add-button" @click="addToCart(); resetData()">
+            {{ totalPrice * quantity }} kr
           </button>
         </div>
       </div>
@@ -161,6 +152,12 @@ export default {
   width: 20rem;
   cursor: pointer;
   animation: popup .4s ease;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 @keyframes popup {
@@ -182,23 +179,41 @@ export default {
 .product-image {
   display: block;
   margin: 0 auto;
-  height: 14rem;
+  height: 12rem;
   width: auto;
   border-radius: 5px;
 }
 
 .product-name {
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   font-weight: bold;
+  margin: 0.5rem 0;
+  text-align: center;
 }
 
 .product-description {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #333;
+  text-align: center;
+  margin-bottom: 0.5rem;
 }
 
 .product-price {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0.5rem 0;
+}
+
+.button {
+  border: 1px solid #f5d451;
+  background-color: #f5d451;
+  min-width: 160px;
+  height: 2.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 0.5rem;
+  white-space: nowrap;
 }
 
 .product-detail-overlay {
@@ -216,14 +231,14 @@ export default {
 
 .product-detail-container {
   position: relative;
-  background-color: #242323;
+  background-color: #fff;
   border-radius: 8px;
   padding: 24px;
   width: 90%;
-  max-width: 500px;
+  max-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
-  color: rgb(196, 190, 190);
+  color: #3c2c18;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
 
@@ -234,34 +249,35 @@ export default {
   font-size: 24px;
   background: none;
   border: none;
-  color: rgb(196, 190, 190);
+  color: #3c2c18;
   cursor: pointer;
 }
 
 .product-info h2 {
-  font-size: 24px;
+  font-size: 2rem;
   margin-bottom: 16px;
-  border-bottom: 1px solid grey;
-  padding-bottom: 8px;
+  text-align: center;
+  margin: 2rem 0;
+  text-shadow: 11px 11px 25px #f5d451;
 }
 
 .description {
-  font-size: 16px;
-  font-style: italic;
-  margin-bottom: 16px;
+  font-size: 1.2rem;
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
 .price {
-  font-size: 18px;
+  font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 24px;
+  text-align: center;
 }
 
-.popup-ingredients-section h3 {
-  font-size: 18px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid grey;
-  padding-bottom: 8px;
+.popup-ingredients-section h1 {
+  font-size: 1.5rem;
+  margin: 2rem 0 1rem;
+  text-align: center;
 }
 
 .popup-ingredients-list {
@@ -274,11 +290,12 @@ export default {
 }
 
 .popup-ingredient-item {
-  font-size: 14px;
-  background-color: #3a3a3a;
-  padding: 8px 12px;
+  font-size: 1rem;
+  background-color: #f9f9f9;
+  padding: 1rem;
   border-radius: 8px;
   display: block;
+  border-bottom: 1px solid #eee;
 }
 
 .ingredient-content {
@@ -290,76 +307,122 @@ export default {
 .ingredient-controls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 1rem;
 }
 
 .ingredient-quantity {
-  min-width: 20px;
+  min-width: 1.5rem;
   text-align: center;
+  font-weight: bold;
 }
 
 .ingredient-control-btn {
-  width: 24px;
-  height: 24px;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
-  background-color: #4f4492;
-  color: white;
-  border: none;
+  background-color: #f5d451;
+  color: #3c2c18;
+  border: 1px solid #f5d451;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 14px;
+  font-size: 1.2rem;
   padding: 0;
+  font-weight: bold;
 }
 
 .ingredient-control-btn:disabled {
-  background-color: #333;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .quantity-control {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  margin-bottom: 24px;
+  margin: 2rem 0;
+  gap: 1rem;
 }
 
 .quantity-buttons {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 1rem;
 }
 
 .quantity-buttons button {
-  background-color: #4f4492;
-  color: white;
-  border: none;
-  width: 30px;
-  height: 30px;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
+  border: 1px solid #f5d451;
+  background-color: #f5d451;
   cursor: pointer;
-  font-size: 16px;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.quantity-buttons button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.quantity-buttons span {
+  margin: 0 0.5rem;
+  font-weight: bold;
+  min-width: 1.5rem;
+  text-align: center;
 }
 
 .action-buttons {
   display: flex;
   justify-content: center;
+  margin-top: 2rem;
 }
 
 .add-button {
-  background-color: #4f4492;
-  color: white;
+  padding: 0.8rem 1.5rem;
+  background-color: #f5d451;
+  color: #3c2c18;
   border: none;
-  padding: 12px 24px;
-  border-radius: 4px;
-  font-size: 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1.1rem;
   cursor: pointer;
-  width: 100%;
-  transition: background-color 0.3s;
+  min-width: 250px;
+  white-space: nowrap;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.add-button:hover {
-  background-color: #3b3370;
+.allergens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  justify-content: center;
+}
+
+.allergens li {
+  padding: 0.3rem 0.7rem;
+  border-radius: 5px;
+  background: #f5d451;
+  color: #3c2c18;
+  font-size: 0.9rem;
+}
+
+button[v-if="isChanged"] {
+  display: block;
+  margin: 1rem auto;
+  padding: 0.5rem 1rem;
+  background-color: #f5d451;
+  color: #3c2c18;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
 }
 </style>

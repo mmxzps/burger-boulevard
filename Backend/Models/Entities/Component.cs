@@ -9,7 +9,7 @@ public enum ComponentLevel
     Menu = 2
 }
 
-public class Component : IIntoDto<Dto.Component>
+public class Component
 {
     public int Id { get; set; }
     public ComponentLevel Level { get; set; }
@@ -31,54 +31,9 @@ public class Component : IIntoDto<Dto.Component>
 
     [Precision(8, 4)]
     public decimal Price { get; set; }
+    [Precision(8, 4)]
+    public decimal Vat { get; set; }
     public required Discount? Discount { get; set; }
 
     public bool Independent { get; set; }
-
-    public Dto.Component ToDto()
-    {
-      var dto = new Dto.Component
-      {
-        Id = Id,
-        Level = Level,
-        Name = Name,
-        Description = Description,
-        ImageUrl = ImageUrl,
-        AddedComponents = new(),
-        RemovedComponents = new(),
-        Categories = Categories.Select(c => c.ToDto()),
-        OriginalPrice = Price,
-        Discount = Discount?.Multiplier
-      };
-
-      if (OrderComponents.Any())
-      {
-        var orderComponent = OrderComponents.FirstOrDefault();
-
-        if (orderComponent != null)
-        {
-          var actualChildComponents = orderComponent
-            .Order.Components.Where(c => c.ParentId == orderComponent.Id)
-            .Select(c => c.Component)
-            .ToList();
-
-          var standardChildComponents = ChildPolicies
-            .Select(p => p.Child)
-            .ToList();
-
-          dto.AddedComponents = actualChildComponents
-            .Where(ac => !standardChildComponents.Any(sc => sc.Id == ac.Id))
-            .Select(c => c.ToDto())
-            .ToList();
-
-          dto.RemovedComponents = standardChildComponents
-            .Where(sc => !actualChildComponents.Any(ac => ac.Id == sc.Id))
-            .Select(c => c.ToDto())
-            .ToList();
-        }
-
-      }
-
-      return dto;
-    }
 }

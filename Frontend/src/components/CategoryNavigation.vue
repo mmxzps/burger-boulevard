@@ -1,27 +1,14 @@
 <script>
-import * as api from '@/api.js'
-import Cart from './Cart.vue'
+import { useApiCacheStore } from '@/stores/apiCache'
 
 export default {
-  data() {
-    return {
-      categories: [],
-      isOpen: false
-    }
-  },
+  data: () => ({
+    categories: [],
+    isOpen: false
+  }),
 
   mounted() {
-    api.getCategories().then(r => this.categories = r.data)
-  },
-
-  methods: {
-    closeMenu() {
-      this.isOpen = false
-    }
-  },
-
-  components: {
-    Cart
+    useApiCacheStore().categories.then(r => this.categories = r)
   }
 }
 </script>
@@ -29,13 +16,13 @@ export default {
 <template>
   <nav :class="{ open: isOpen }">
     <button class="menu-toggle" @click="isOpen = !isOpen">
-      <span v-for="_ in 3" class="bar"></span>
+      <span v-for="i in 3" :key="i" class="bar"></span>
     </button>
 
     <ul>
       <li><router-link to="/">Hem</router-link></li>
-      <li v-for="category in categories">
-        <router-link @click="closeMenu" :to="'/' + category.id">
+      <li v-for="category in categories" :key="category.id">
+        <router-link @click="isOpen = false" :to="'/' + category.id">
           {{ category.name }}
         </router-link>
       </li>

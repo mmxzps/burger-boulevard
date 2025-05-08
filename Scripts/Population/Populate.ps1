@@ -18,12 +18,15 @@ Import-Module SqlServer
 Invoke-SqlCmd -ConnectionString $ConnectionString -InputFile $PSScriptRoot/Populate.sql -QueryTimeout 120 &&
 Write-Host "Database populated with data."
 
-Get-ChildItem $PSScriptRoot/Images
-| ForEach-Object {
-  $id = $_.Name
-  $data = '0x' + ((Format-Hex -Path $_.FullName | Select -ExpandProperty HexBytes) | Join-String).Replace(' ', '')
-  Write-Host "Populating database with image: $id"
-  Invoke-SqlCmd -ConnectionString $ConnectionString -Query "SET IDENTITY_INSERT Images ON; INSERT INTO Images (Id, Data) VALUES ($id, $data); UPDATE Components SET ImageId = $id WHERE Id = $id;" -QueryTimeout 120
+Get-ChildItem $PSScriptRoot/Images | ForEach-Object {
+  $tableName = $_.Name
+  Get-ChildItem $_ | ForEach-Object {
+    $id = Get-Random
+    $linkedId = $_.Name
+    $data = '0x' + ((Format-Hex -Path $_.FullName | Select -ExpandProperty HexBytes) | Join-String).Replace(' ', '')
+    Write-Host "Populating Images and linking to $tableName (ImageId column) with image: $linkedId. Id is set to $id."
+    Invoke-SqlCmd -ConnectionString $ConnectionString -Query "SET IDENTITY_INSERT Images ON; INSERT INTO Images (Id, Data) VALUES ($id, $data); UPDATE $tableName SET ImageId = $id WHERE Id = $linkedId;" -QueryTimeout 120
+  }
 }
 
 Write-Host "Database populated with images."

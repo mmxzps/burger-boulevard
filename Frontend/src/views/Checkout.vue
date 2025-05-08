@@ -1,258 +1,180 @@
 <script>
-import { useCartStore } from '@/stores/cart';
+import * as api from '@/api'
+import { evaluateCost, diff } from '@/util'
+import { useCartStore } from '@/stores/cart'
+import { useApiCacheStore } from '@/stores/apiCache'
+import Receipt from '@/components/Receipt.vue'
 
 export default {
-  data(){
-    return{
-      productList:[],
+  data() {
+    return {
       cartStore: useCartStore(),
-      showOrderConfirm: false,
-      orderId: null,
-    };
+      components: null,
+      order: null
+    }
   },
 
-  mounted() {
-    const cartStore = useCartStore();
-    this.loadCart(cartStore);
+  async mounted() {
+    this.components = await useApiCacheStore().components
   },
 
-  methods:{
-    loadCart(store){
-      this.productList = store.cart;
-    },
-    increaseQuantity(item){
-      this.cartStore.cart.push(item)
-      this.cartStore.save()
-    },
-    decreaseQuantity(item){
-      this.cartStore.cart.splice(this.cartStore.cart.findIndex(i => i.id == item.id), 1)
-      this.cartStore.save()
+  methods: {
+    diff,
+    evaluateCost,
 
-      
+    copyComponent(componentTree) {
+      this.cartStore.cart.push(componentTree)
+      this.cartStore.save()
+    },
+
+    removeComponent(componentTree) {
+      this.cartStore.cart.splice(
+        this.cartStore.cart.findIndex(o => o == componentTree), 1)
+      this.cartStore.save()
     },
 
     placeOrder() {
-      const cartStore = useCartStore();
-      const cartProducts = this.groupedProducts
-      const components = [];
+      api.createOrder(this.cartStore.cart, this.cartStore.takeAway)
+        .then(r => this.order = r.data)
 
-      
-      cartProducts.forEach(product => {
-        for (let i = 0; i < product.quantity; i++) {
-          components.push({
-            componentId: product.id,
-            children: []
-          });
-        }
-      });
-      const payload = {
-          components: components,
-          takeAway: cartStore.takeAway
-        };
-
-      fetch('https://localhost:7115/api/Orders', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-
-          }).then( async response => 
-          {
-            if (!response.ok) {
-              return response.json().then(err => {
-                throw new Error("Posting order failed!");
-              });
-            }
-            const respdata = await response.json();
-            this.orderId = respdata.id;
-            console.log('order data:' + respdata)
-            return respdata;
-
-          }).then(data => 
-          {
-            console.log("Order sent:", data);
-            cartStore.clearCart();
-            this.loadCart(this.cartStore); 
-            this.showOrderConfirm = true;
-          }).catch(error => 
-          {
-            console.error("Something went wrong:", error);
-          });
+      this.cartStore.cart = []
+      this.cartStore.save()
     }
   },
 
-  computed:{
-    totalPrice(){
-      return this.productList.reduce((sum, item)=>{
-        return sum + item.price.current;
-      }, 0);
-    },
-    groupedProducts(){
-      const itemGroup = {};
-
-      this.productList.forEach(item =>{
-        const key = item.id;
-
-        if(!itemGroup[key]){
-          itemGroup[key] = {...item, quantity: 1};
-        }else{
-          itemGroup[key].quantity +=1;
-        }
-      });
-
-      return Object.values(itemGroup);
-    },
-    takeAway:{
-      get(){
-        return this.cartStore.takeAway;
-      },
-      set(value){
-        return this.cartStore.setTakeAway(value);
-      }
+  computed: {
+    totalPrice() {
+      if (!this.components) return 0
+      return this.cartStore.cart
+        .reduce((sum, i) => sum + evaluateCost(this.components, i), 0)
     }
+  },
+
+  components: {
+    Receipt
   }
 }
 </script>
 
 <template>
-   <router-link to="/" class="back-button">← Tillbaka</router-link>
-  <div v-if="showOrderConfirm" class="confirm-container">
-    <h2>Tack för din beställning!</h2>
-    <p>Din order har skickats till köket.</p>
-    <h3 v-if="orderId">Ordernummer: {{ orderId }}</h3>
-</div>
+  <router-link to="/" class="back-button">← Tillbaka</router-link>
+
+  <Receipt v-if="order != null" :order="order" />
 
   <div v-else class="order-container">
-
-    <h1>Summering</h1>
-    <div v-if="groupedProducts.length <= 0">
+    <h1>Varukorg</h1>
+    <div v-if="cartStore.cart.length <= 0">
       <p>Din kundvagn är tom!</p>
     </div>
-    <div v-else class="order-info-container">
+    <div v-else-if="components" class="order-info-container">
       <ul>
-        <li v-for="(item, index) in groupedProducts" :key="index">
+        <li v-for="(componentTree, index) in cartStore.cart" :key="index"
+          :set="component = components.find(({ id }) => id == componentTree.componentId)">
           <div class="order-name-price">
-            <span>{{ item.name }} </span>
-            <div class="quantity-holder">
-              
-              <button class="quantity-button" @click="decreaseQuantity(item)">➖</button>
-              <span id="quantity">{{ item.quantity }}</span>
-              <button class="quantity-button" @click="increaseQuantity(item)">➕</button>
-              <span class="order-price">{{ item.price.current }} kr</span>
-            </div>
+            <h2>{{ component.name }}</h2>
+
+            <span class="order-price">{{ evaluateCost(components, componentTree) }} kr</span>
+
+            <button class="button quantity-button" @click="removeComponent(componentTree)">-</button>
+            <button class="button quantity-button" @click="copyComponent(componentTree)">+</button>
+
+            <template v-for="[changeType, changedComponents] in Object.entries(diff(components, componentTree))">
+              <div v-for="changedComponent in changedComponents" :key="changedComponent.id">
+                <div
+                  :class="{ 'children-change': true, 'children-change-added': changeType == 'added', 'children-change-removed': changeType == 'removed' }">
+                  <span>{{ changedComponent.name }}</span>
+                  <span v-if="changeType == 'added'" class="order-price">{{ changedComponent.price.current }} kr</span>
+                </div>
+              </div>
+            </template>
           </div>
         </li>
       </ul>
-      <hr class="order-divider"/>
       <div>
-        <h3>Totalt: {{ totalPrice }} kr</h3>
-      </div>
-      <div>
-        <button class="order-button" @click="placeOrder">Beställ</button>
-        <label> Ta med:</label>
-        <input type="checkbox" id="toggle" class="checkbox" v-model="takeAway"/>
-        <label for="toggle" class="switch"></label>
+        <button :class="{
+          button: !cartStore.takeAway, 'button-secondary': cartStore.takeAway,
+          'takeaway-button': true
+        }" @click="cartStore.takeAway = false; cartStore.save()">
+          Ät här
+        </button>
+
+        <button :class="{
+          button: cartStore.takeAway, 'button-secondary': !cartStore.takeAway,
+          'takeaway-button': true
+        }" @click="cartStore.takeAway = true; cartStore.save()">
+          Ta med
+        </button>
+
+        <br><br>
+        <button class="button" @click="placeOrder">Beställ &mdash; {{ totalPrice }}kr</button>
       </div>
     </div>
-
   </div>
 </template>
 
 <style>
-#quantity{
-  padding: 5px;
+.children-change {
+  display: inline-block;
 }
-.confirm-container{
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  margin: 5rem auto;
-  text-align: center;
-  text-shadow: -1px 3px 50px #4f4492;;
+
+.children-change-added::before,
+.children-change-removed::before {
+  vertical-align: middle;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 1rem;
 }
-.confirm-container h3{
-  margin-top: 1rem;
-  font-size: x-large;
-  color: darkgoldenrod;
+
+.children-change-added {
+  color: green;
 }
-.order-container{
+
+.children-change-added::before {
+  content: '+';
+}
+
+.children-change-removed {
+  color: red;
+}
+
+.children-change-removed::before {
+  content: '-';
+}
+
+.takeaway-button {
+  display: inline;
+  width: fit-content;
+}
+
+.order-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 4rem;
-}
-.order-info-container{
-  border: 1px solid #282828;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  padding: 10px;
-  min-width: 22rem;
 }
 
-.order-name-price{
-  display: flex;
+.order-name-price {
   justify-content: space-between;
   width: 100%;
   padding: 5px;
 }
+
 ul {
-  width: 100%;
   padding: 0;
   list-style: none;
 }
-.order-button{
-  width: 5rem;
-  border: none;
-  height: 2rem;
-  margin: 6px 3px;
-  background-color: #4f4492;
-  color: hsla(160, 100%, 37%, 1);
-  cursor: pointer;
-  border-radius: 3px;
-  font: 1em sans-serif;
-}
-.order-price{
+
+.order-price {
   display: inline-block;
-  width: 3.5rem;
-  text-align: end;
+  width: 6rem;
+  margin: 0 1rem;
+  font-weight: bold;
 }
-.order-divider{
-  margin: 1rem 0;
+
+.quantity-button {
+  display: inline;
+  width: min-content;
+  padding: 0 .3rem;
+  font-size: 1rem;
+  font-weight: bold;
 }
-/* for toggle switch */
-.switch {    
-  position : relative ;   
-  display : inline-block;   
-  width : 40px;   
-  height : 25px;   
-  background-color: #da4f4f;   
-  border-radius: 2px; 
-  margin-left: 10px;
-  margin-bottom: -7px;
-  }
-  .switch::after {  
-    content: '';  
-    position: absolute;  
-    width: 18px;  
-    height: 23px;  
-    border-radius: 10%;  
-    background-color: #0d0c0c; 
-    top: 1px;   
-    left: 1px;  
-    transition: all 0.3s;
-    }
-  .checkbox:checked + .switch::after 
-    {  
-      left : 20px; 
-    }
-    .checkbox:checked + .switch 
-    {  
-      background-color: #22c56c;
-    }
-    .checkbox 
-    {    
-      display : none;
-    }
 </style>

@@ -13,5 +13,5 @@ export const getCategories = () =>
 export const getComponents = (level, categoryId) =>
   client.get('components', { params: { level, categoryId } })
 
-export const getComponentPolicies = (componentId) =>
-  client.get(`components/${componentId}/policies`)
+export const createOrder = (components, takeAway) =>
+  client.post('orders', { components, takeAway })

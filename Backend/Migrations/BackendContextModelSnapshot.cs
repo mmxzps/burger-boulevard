@@ -51,7 +51,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Allergen");
+                    b.ToTable("Allergens");
                 });
 
             modelBuilder.Entity("Backend.Models.Entities.Category", b =>
@@ -62,11 +62,16 @@ namespace Backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("ImageId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ImageId");
 
                     b.ToTable("Categories");
                 });
@@ -101,6 +106,9 @@ namespace Backend.Migrations
                     b.Property<decimal>("Price")
                         .HasPrecision(8, 4)
                         .HasColumnType("decimal(8,4)");
+
+                    b.Property<decimal>("Vat")
+                        .HasColumnType("decimal(8, 4)");
 
                     b.HasKey("Id");
 
@@ -208,8 +216,8 @@ namespace Backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<TimeOnly>("OrderTime")
-                        .HasColumnType("time");
+                    b.Property<DateTime>("OrderTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -282,6 +290,15 @@ namespace Backend.Migrations
                         .HasForeignKey("ComponentsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Backend.Models.Entities.Category", b =>
+                {
+                    b.HasOne("Backend.Models.Entities.Image", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId");
+
+                    b.Navigation("Image");
                 });
 
             modelBuilder.Entity("Backend.Models.Entities.Component", b =>

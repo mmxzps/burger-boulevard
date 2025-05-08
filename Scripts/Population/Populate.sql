@@ -2,9 +2,9 @@ BEGIN TRANSACTION;
 
 -- Reset database.
 DELETE FROM Allergens;
-DELETE FROM Discounts;
 DELETE FROM Categories;
 DELETE FROM Components;
+DELETE FROM Discounts;
 DELETE FROM ComponentChildPolicies;
 DELETE FROM FeaturedComponents;
 DELETE FROM Images;
@@ -16,6 +16,7 @@ SET IDENTITY_INSERT Discounts OFF;
 
 SET IDENTITY_INSERT Categories ON;
 INSERT INTO Categories (Id, Name) VALUES
+  (0, 'Menyer'),
   (1, 'Hamburgare'),
   (2, 'Kyckling & Fisk'),
   (3, 'Snacks'),
@@ -25,6 +26,16 @@ INSERT INTO Categories (Id, Name) VALUES
   (7, 'Varm Dryck'),
   (8, 'Dessert');
 SET IDENTITY_INSERT Categories OFF;
+
+SET IDENTITY_INSERT Allergens ON;
+INSERT INTO Allergens (Id, Name) VALUES
+  (1, 'Kött'),
+  (2, 'Fågel'),
+  (3, 'Gluten'),
+  (4, 'Laktos'),
+  (5, 'Ägg'),
+  (6, 'Mjölkprotein');
+SET IDENTITY_INSERT Allergens OFF;
 
 -- Ingredients
 SET IDENTITY_INSERT Components ON;
@@ -48,16 +59,6 @@ INSERT INTO Components (Id, Level, Name, Price, Independent) VALUES
   (17, 0, 'Coleslaw',               5,  0),
   (18, 0, 'Ketchup',                5,  0),
   (19, 0, 'Senap',                  5,  0);
-
-SET IDENTITY_INSERT Allergens ON;
-INSERT INTO Discounts (Id, Name) VALUES
-  (1, 'Kött'),
-  (2, 'Fågel'),
-  (3, 'Gluten'),
-  (4, 'Laktos'),
-  (5, 'Ägg'),
-  (6, 'Mjölkprotein');
-SET IDENTITY_INSERT Allergens OFF;
 
 INSERT INTO AllergenComponent (ComponentsId, AllergensId) VALUES
   (1, 3),
@@ -84,7 +85,7 @@ INSERT INTO Components (Id, Level, Name, Description, Price, Independent) VALUES
   (30, 1, 'Cheddardipsås',          'En krämig och ostig sås med cheddar, perfekt för att doppa pommes frites eller grönsaksstavar.',                5,   1);
 
 INSERT INTO Components (Id, Level, Name, Description, Price, Independent) VALUES
-  (60, 1, 'Hot Wing', 'Krispiga och heta kycklingvingar med en rökig BBQ-sås', 20, 1);
+  (60, 1, 'Hot Wings', 'Krispiga och heta kycklingvingar med en rökig BBQ-sås', 20, 1);
 
 INSERT INTO Components (Id, Level, Name, Price, Independent) VALUES
   (31, 2, 'Cheeseburgarmeny', 60, 1),
@@ -93,6 +94,7 @@ INSERT INTO Components (Id, Level, Name, Price, Independent) VALUES
 SET IDENTITY_INSERT Components OFF;
 
 UPDATE Components SET DiscountId = 1 WHERE Id = 24;
+UPDATE Components SET Vat = 0.12;
 
 INSERT INTO FeaturedComponents (Title, ComponentId) VALUES
   ('Exklusivt för ITHS-studenter', 22);
@@ -157,6 +159,9 @@ INSERT INTO CategoryComponent (CategoriesId, ComponentsId) VALUES
   (4, 30),
   (2, 60),
 
+  (0, 31),
+  (0, 32),
+  (0, 33),
   (1, 31),
   (1, 32),
   (1, 33);
