@@ -3,13 +3,14 @@ import * as api from '@/api'
 import { evaluateCost, diff } from '@/util'
 import { useCartStore } from '@/stores/cart'
 import { useApiCacheStore } from '@/stores/apiCache'
+import Receipt from '@/components/Receipt.vue'
 
 export default {
   data() {
     return {
       cartStore: useCartStore(),
       components: null,
-      orderId: null
+      order: null
     }
   },
 
@@ -34,7 +35,7 @@ export default {
 
     placeOrder() {
       api.createOrder(this.cartStore.cart, this.cartStore.takeAway)
-        .then(r => this.orderId = r.data.id)
+        .then(r => this.order = r.data)
 
       this.cartStore.cart = []
       this.cartStore.save()
@@ -47,26 +48,27 @@ export default {
       return this.cartStore.cart
         .reduce((sum, i) => sum + evaluateCost(this.components, i), 0)
     }
+  },
+
+  components: {
+    Receipt
   }
 }
 </script>
 
 <template>
   <router-link to="/" class="back-button">← Tillbaka</router-link>
-  <div v-if="orderId != null" class="confirm-container">
-    <h2>Tack för din beställning!</h2>
-    <p>Din order har skickats till köket.</p>
-    <h3>Ordernummer: {{ orderId }}</h3>
-  </div>
+
+  <Receipt v-if="order != null" :order="order" />
 
   <div v-else class="order-container">
     <h1>Varukorg</h1>
     <div v-if="cartStore.cart.length <= 0">
       <p>Din kundvagn är tom!</p>
     </div>
-    <div v-else class="order-info-container">
+    <div v-else-if="components" class="order-info-container">
       <ul>
-        <li v-if="components" v-for="(componentTree, index) in cartStore.cart" :key="index"
+        <li v-for="(componentTree, index) in cartStore.cart" :key="index"
           :set="component = components.find(({ id }) => id == componentTree.componentId)">
           <div class="order-name-price">
             <h2>{{ component.name }}</h2>
