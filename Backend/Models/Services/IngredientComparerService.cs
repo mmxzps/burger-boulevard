@@ -19,6 +19,7 @@
 				{
 					var standardCount = standard.TryGetValue(kvp.Key, out var sc) ? sc : 0;
 					var addedCount = kvp.Value - standardCount;
+					Console.WriteLine($"Component ID: {kvp.Key}, actual: {kvp.Value}, standard: {standardCount}, added: {addedCount}");
 					return addedCount > 0
 						? Enumerable.Repeat(_componentService.ToComponentDto(orderComponent.Order.Components.First(c => c.Component.Id == kvp.Key).Component), addedCount)
 						: Enumerable.Empty<Dto.Component>();
@@ -53,9 +54,8 @@
 		private Dictionary<int, int> GetStandardComponentCounts(Entities.OrderComponent orderComponent)
 		{
 			return orderComponent.Component.ChildPolicies
-				.Select(p => p.Child)
-				.GroupBy(c => c.Id)
-				.ToDictionary(g => g.Key, g => g.Count());
+				.GroupBy(p => p.Child.Id)
+				.ToDictionary(g => g.Key, g => g.Sum(p => p.Default));
 		}
 	}
 }
