@@ -1,24 +1,29 @@
-﻿namespace Backend.Models.Entities;
+using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 
+namespace Backend.Models.Entities;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum OrderStatus
 {
-  Pending,
-  Preparing,
-  Done
+    [JsonStringEnumMemberName("pending")]
+    Pending,
+    [JsonStringEnumMemberName("preparing")]
+    Preparing,
+    [JsonStringEnumMemberName("done")]
+    Done
 }
 
-public class Order : IIntoDto<Dto.Order>
+public class Order
 {
-  public int Id { get; set; }
-  public required OrderStatus Status { get; set; }
-  public virtual ICollection<OrderComponent> Components { get; set; } = [];
-  public bool TakeAway { get; set; }
+    public int Id { get; set; }
+    public required OrderStatus Status { get; set; }
+    public virtual ICollection<OrderComponent> Components { get; set; } = [];
+    public bool TakeAway { get; set; }
+    [Precision(8, 4)]
+    public decimal TotalPrice { get; set; }
 
-  public Dto.Order ToDto() => new Dto.Order
-  {
-    Id = Id,
-    Status = Status,
-    Components = Components.Select(c => c.ToDto()),
-    TakeAway = TakeAway
-  };
+    public DateTime OrderTime { get; set; } = DateTime.Now;
+
+    
 }

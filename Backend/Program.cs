@@ -24,6 +24,10 @@ public class Program
 		        });
         });
 
+        builder.Services.AddScoped<Models.Services.IngredientComparerService>();
+		builder.Services.AddScoped<Models.Services.OrderService>();
+		builder.Services.AddScoped<Models.Services.ComponentService>();
+
 		builder.Services.AddControllers()
 			.AddJsonOptions(options =>
 			{
@@ -33,7 +37,7 @@ public class Program
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(opt => opt.CustomSchemaIds(type => type.ToString()));
-
+        
         var app = builder.Build();
         //t
         if (app.Environment.IsDevelopment())

@@ -2,6 +2,7 @@ namespace Backend.Models.Dto;
 
 public class Category
 {
-  public int Id { get; set; }
-  public required string Name { get; set; }
+    public int Id { get; set; }
+    public required string Name { get; set; }
+    public required string? ImageUrl { get; set; }
 }

@@ -1,4 +1,5 @@
 using Backend.Models.Dto;
+using Backend.Models.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,44 +9,38 @@ namespace Backend.Controllers;
 [ApiController]
 public class Components : ControllerBase
 {
-  [HttpGet("levels")]
-  public ActionResult<IDictionary<string, Models.Entities.ComponentLevel>> Levels() =>
-    new Dictionary<string, Models.Entities.ComponentLevel>
-    {
-      { "ingredient", Models.Entities.ComponentLevel.Ingredient },
-      { "product", Models.Entities.ComponentLevel.Product },
-      { "menu", Models.Entities.ComponentLevel.Menu }
-    };
+	private readonly ComponentService _componentService;
+	public Components(ComponentService componentService)
+	{
+		_componentService = componentService;
+	}
+	[HttpGet]
+    public ActionResult<IEnumerable<Component>> Find(
+        BackendContext context,
+        bool? independent,
+        Models.Entities.ComponentLevel? level,
+        int? categoryId) =>
+      Ok(context.Components
+          .Include(c => c.ChildPolicies)
+          .Where(c =>
+            (independent == null || c.Independent == independent) &&
+            (categoryId == null || c.Categories.Any(cat => cat.Id == categoryId)) &&
+            (level == null || c.Level == level))
+          .Select(c => _componentService.ToComponentDto(c)));
 
-  [HttpGet]
-  public ActionResult<IEnumerable<Component>> Find(
-      BackendContext context,
-      Models.Entities.ComponentLevel? level,
-      int? categoryId) =>
-    Ok(context.Components
-        .AsNoTracking()
-        .Where(c =>
-          (categoryId == null || c.Categories.Any(cat => cat.Id == categoryId)) &&
-          (level == null || c.Level == level))
-        .Select(c => c.ToDto()));
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Component>> Get(BackendContext context, int id) =>
+      // FIX: For some reason, deep child policies not loaded, unlike the other - quantitative - functions.
+      await context.Components
+        .Include(c => c.ChildPolicies)
+        .FirstOrDefaultAsync(c => c.Id == id) is Models.Entities.Component component ?
+      Ok(_componentService.ToComponentDto(component)) : NotFound();
 
-  [HttpGet("{id}")]
-  public async Task<ActionResult<Component>> Get(BackendContext context, int id) =>
-    await context.Components
-      .AsNoTracking()
-      .FirstOrDefaultAsync(c => c.Id == id) is Models.Entities.Component component ?
-    Ok(component.ToDto()) : NotFound();
-
-  [HttpGet("{id}/policies")]
-  public async Task<ActionResult<Component>> Policies(BackendContext context, int id) =>
-    await context.Components
-      .AsNoTracking()
-      .Include(c => c.ChildPolicies)
-      .ThenInclude(p => p.Child)
-      .FirstOrDefaultAsync(c => c.Id == id) is Models.Entities.Component component ?
-    Ok(component.ChildPolicies.Select(p => p.ToDto())) : NotFound();
-
-  [HttpGet("featured")]
-  public ActionResult<IEnumerable<Component>> Featured(BackendContext context) =>
-    Ok(context.FeaturedComponents.AsNoTracking().Select(c => c.ToDto()));
+    [HttpGet("featured")]
+    public ActionResult<IEnumerable<Component>> Featured(BackendContext context) =>
+      Ok(context.FeaturedComponents
+          .AsNoTracking()
+          .Include(fc => fc.Component)
+          .ThenInclude(c => c.ChildPolicies)
+          .Select(c => _componentService.ToFeaturedComponentDto(c)));
 }

@@ -1,15 +1,28 @@
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia'
 
-export const useCartStore = defineStore('cart',{
-  state: ()=> ({ cart: JSON.parse(localStorage.getItem('cart')) || [] }),
+const keys = {
+  takeAway: 'takeAway',
+  cart: 'cart'
+}
+
+export const useCartStore = defineStore('cart', {
+  state: () => ({
+    // true = ta med, false = ät här.
+    takeAway: JSON.parse(localStorage.getItem(keys.takeAway)),
+    cart: JSON.parse(localStorage.getItem(keys.cart)) || []
+  }),
+
   actions: {
-    addToCart(item){
-      this.cart.push(item)
-      localStorage.setItem('cart', JSON.stringify(this.cart))
-    },
-    removeFromCart(index){
-      this.cart.splice(index, 1)
-      localStorage.setItem('cart',JSON.stringify(this.cart))
+    save() {
+      if (this.takeAway === null)
+        localStorage.removeItem(keys.takeAway)
+      else
+        localStorage.setItem(keys.takeAway, this.takeAway)
+
+      if (this.cart.length === 0)
+        localStorage.removeItem(keys.cart)
+      else
+        localStorage.setItem(keys.cart, JSON.stringify(this.cart))
     }
   }
 })
